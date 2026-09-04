@@ -102,7 +102,10 @@ class ExtractedAnnouncement {
 }
 
 class GeminiOcrService {
-  static const String _defaultApiKey = 'AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8';
+  static const String _defaultApiKey = String.fromEnvironment(
+    'GEMINI_API_KEY',
+    defaultValue: 'AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8',
+  );
   final String _apiKey;
 
   // Cached pool of discovered vision/generateContent models

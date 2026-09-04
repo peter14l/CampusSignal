@@ -6,17 +6,21 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class SupabaseConfig {
   SupabaseConfig._();
 
-  /// Supabase project URL loaded securely from .env or compile-time environment
-  static String get url =>
-      dotenv.env['SUPABASE_URL'] ??
-      const String.fromEnvironment('SUPABASE_URL', defaultValue: '');
+  /// Supabase project URL loaded securely from compile-time environment or .env
+  static String get url {
+    const envUrl = String.fromEnvironment('SUPABASE_URL');
+    if (envUrl.isNotEmpty) return envUrl;
+    return dotenv.env['SUPABASE_URL'] ?? 'https://ksyvklijnkxfpiasncyr.supabase.co';
+  }
 
   static String get supabaseUrl => url;
 
-  /// Supabase anon public API key loaded securely from .env or compile-time environment
-  static String get anonKey =>
-      dotenv.env['SUPABASE_ANON_KEY'] ??
-      const String.fromEnvironment('SUPABASE_ANON_KEY', defaultValue: '');
+  /// Supabase anon public API key loaded securely from compile-time environment or .env
+  static String get anonKey {
+    const envKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+    if (envKey.isNotEmpty) return envKey;
+    return dotenv.env['SUPABASE_ANON_KEY'] ?? 'sb_publishable_VR_FIPoe9sLE4qGVLwF1tg_XW3Xuv9S';
+  }
 
   static String get supabaseAnonKey => anonKey;
 

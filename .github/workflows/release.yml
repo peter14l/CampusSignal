@@ -51,6 +51,19 @@ jobs:
           flutter --version
           java -version
 
+      - name: 🔐 Prepare Environment & Secrets (.env)
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+        run: |
+          cat <<EOF > .env
+          SUPABASE_URL=${SUPABASE_URL:-https://ksyvklijnkxfpiasncyr.supabase.co}
+          SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-sb_publishable_VR_FIPoe9sLE4qGVLwF1tg_XW3Xuv9S}
+          GEMINI_API_KEY=${GEMINI_API_KEY:-AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8}
+          EOF
+          echo "Generated .env file from repository secrets for --dart-define-from-file."
+
       - name: 📦 Install Dependencies
         run: flutter pub get
 
@@ -91,10 +104,10 @@ jobs:
           echo "Resolved Version: ${PUB_VERSION}, Tag: ${TAG_NAME}"
 
       - name: 🔨 Build Split-per-ABI Release APKs
-        run: flutter build apk --release --split-per-abi
+        run: flutter build apk --release --split-per-abi --dart-define-from-file=.env
 
       - name: 🔨 Build Universal Release APK
-        run: flutter build apk --release
+        run: flutter build apk --release --dart-define-from-file=.env
 
       - name: 📂 Format & Organize Release Artifacts
         run: |
