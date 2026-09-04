@@ -1,5 +1,38 @@
 import 'package:intl/intl.dart';
 
+/// Contact coordinator information for campus events
+class EventContact {
+  final String name;
+  final String phone;
+  final String? role;
+
+  const EventContact({
+    required this.name,
+    required this.phone,
+    this.role,
+  });
+
+  factory EventContact.fromJson(dynamic json) {
+    if (json is EventContact) return json;
+    if (json is Map) {
+      return EventContact(
+        name: json['name']?.toString().trim() ?? '',
+        phone: json['phone']?.toString().trim() ?? '',
+        role: json['role']?.toString().trim(),
+      );
+    }
+    return const EventContact(name: '', phone: '');
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'name': name,
+      'phone': phone,
+      if (role != null && role!.isNotEmpty) 'role': role,
+    };
+  }
+}
+
 class EventModel {
   final String id;
   final String title;
@@ -23,6 +56,10 @@ class EventModel {
   final Map<String, dynamic> metadata;
   final double? matchScore;
   final List<String> matchedTags;
+  final List<EventContact> contacts;
+  final String? instagramHandle;
+  final String? contactEmail;
+  final List<String> attachments;
 
   const EventModel({
     required this.id,
@@ -47,6 +84,10 @@ class EventModel {
     this.metadata = const {},
     this.matchScore,
     this.matchedTags = const [],
+    this.contacts = const [],
+    this.instagramHandle,
+    this.contactEmail,
+    this.attachments = const [],
   });
 
   /// Defensive JSON deserializer that safely handles nulls, missing keys,
@@ -99,6 +140,20 @@ class EventModel {
       return const {};
     }
 
+    List<EventContact> parseContacts(dynamic value, Map<String, dynamic> meta) {
+      final raw = value ?? meta['contacts'];
+      if (raw is List) {
+        return raw
+            .where((e) => e != null)
+            .map((e) => EventContact.fromJson(e))
+            .where((c) => c.name.isNotEmpty || c.phone.isNotEmpty)
+            .toList();
+      }
+      return const [];
+    }
+
+    final parsedMeta = parseMetadata(json['metadata']);
+
     return EventModel(
       id: json['id']?.toString() ?? '',
       title: json['title']?.toString() ?? 'Untitled Event',
@@ -130,14 +185,37 @@ class EventModel {
           json['poster_url']?.toString() ??
           json['posterUrl']?.toString(),
       status: json['status']?.toString() ?? 'published',
-      metadata: parseMetadata(json['metadata']),
+      metadata: parsedMeta,
       matchScore: parseDouble(json['match_score'] ?? json['matchScore']),
       matchedTags: parseStringList(
           json['matched_tags'] ?? json['matchedTags'] ?? json['tags']),
+      contacts: parseContacts(json['contacts'], parsedMeta),
+      instagramHandle: json['instagram_handle']?.toString() ??
+          json['instagramHandle']?.toString() ??
+          parsedMeta['instagram_handle']?.toString(),
+      contactEmail: json['contact_email']?.toString() ??
+          json['contactEmail']?.toString() ??
+          parsedMeta['contact_email']?.toString(),
+      attachments: parseStringList(
+          json['attachments'] ?? parsedMeta['attachments']),
     );
   }
 
   Map<String, dynamic> toJson() {
+    final meta = Map<String, dynamic>.from(metadata);
+    if (contacts.isNotEmpty) {
+      meta['contacts'] = contacts.map((c) => c.toJson()).toList();
+    }
+    if (instagramHandle != null && instagramHandle!.isNotEmpty) {
+      meta['instagram_handle'] = instagramHandle;
+    }
+    if (contactEmail != null && contactEmail!.isNotEmpty) {
+      meta['contact_email'] = contactEmail;
+    }
+    if (attachments.isNotEmpty) {
+      meta['attachments'] = attachments;
+    }
+
     return {
       'id': id,
       'title': title,
@@ -158,9 +236,13 @@ class EventModel {
       'source_url': sourceUrl,
       'poster_r2_key': posterR2Key,
       'status': status,
-      'metadata': metadata,
+      'metadata': meta,
       'match_score': matchScore,
       'matched_tags': matchedTags,
+      'contacts': contacts.map((c) => c.toJson()).toList(),
+      'instagram_handle': instagramHandle,
+      'contact_email': contactEmail,
+      'attachments': attachments,
     };
   }
 
@@ -187,6 +269,10 @@ class EventModel {
     Map<String, dynamic>? metadata,
     double? matchScore,
     List<String>? matchedTags,
+    List<EventContact>? contacts,
+    String? instagramHandle,
+    String? contactEmail,
+    List<String>? attachments,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -211,6 +297,10 @@ class EventModel {
       metadata: metadata ?? this.metadata,
       matchScore: matchScore ?? this.matchScore,
       matchedTags: matchedTags ?? this.matchedTags,
+      contacts: contacts ?? this.contacts,
+      instagramHandle: instagramHandle ?? this.instagramHandle,
+      contactEmail: contactEmail ?? this.contactEmail,
+      attachments: attachments ?? this.attachments,
     );
   }
 

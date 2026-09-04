@@ -11,7 +11,6 @@ import '../../core/widgets/micro_animated_icon.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
 import '../saved/saved_controller.dart';
-import '../search/search_controller.dart';
 import 'feed_controller.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
@@ -49,7 +48,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   @override
   Widget build(BuildContext context) {
     final profile = ref.watch(authControllerProvider.select((s) => s.profile));
-    final searchState = ref.watch(searchControllerProvider);
+    final feedState = ref.watch(feedControllerProvider);
     final unreadNotifs = ref.watch(notificationsControllerProvider.select((s) => s.unreadCount));
     final savedState = ref.watch(savedControllerProvider);
 
@@ -57,11 +56,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    final allEvents = searchState.allEvents;
+    final allEvents = feedState.events;
     final userBranch = profile?.branch;
     final filteredEvents = allEvents.where((e) {
       if (_selectedCategory != 'all' &&
-          e.category.toLowerCase() != _selectedCategory.toLowerCase()) {
+          !e.category.toLowerCase().contains(_selectedCategory.toLowerCase())) {
         return false;
       }
       if (_selectedDepartment != 'all') {

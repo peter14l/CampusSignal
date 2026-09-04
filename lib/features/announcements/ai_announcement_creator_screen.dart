@@ -48,14 +48,19 @@ class _AiAnnouncementCreatorScreenState
   Uint8List? _selectedImageBytes;
   String? _selectedImageName;
   String? _uploadedR2Url;
+  final List<Uint8List> _additionalImageBytes = [];
+  final List<String> _additionalImageNames = [];
 
   late TextEditingController _titleController;
   late TextEditingController _organizerController;
   late TextEditingController _descriptionController;
   late TextEditingController _venueController;
   late TextEditingController _applyUrlController;
+  late TextEditingController _instagramController;
   late TextEditingController _eligibilityController;
   late TextEditingController _tagsController;
+
+  List<EventContact> _contacts = [];
 
   late String _category;
   late String _format;
@@ -101,6 +106,7 @@ class _AiAnnouncementCreatorScreenState
     _descriptionController = TextEditingController();
     _venueController = TextEditingController(text: 'SXUK Campus');
     _applyUrlController = TextEditingController();
+    _instagramController = TextEditingController();
     _eligibilityController = TextEditingController(text: 'Open to all SXUK students');
     _tagsController = TextEditingController();
   }
@@ -112,9 +118,72 @@ class _AiAnnouncementCreatorScreenState
     _descriptionController.dispose();
     _venueController.dispose();
     _applyUrlController.dispose();
+    _instagramController.dispose();
     _eligibilityController.dispose();
     _tagsController.dispose();
     super.dispose();
+  }
+
+  Future<void> _pickPosterImage() async {
+    HapticFeedback.selectionClick();
+    final XFile? file = await _picker.pickImage(
+      source: ImageSource.gallery,
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 88,
+    );
+    if (file == null) return;
+    final bytes = await file.readAsBytes();
+    setState(() {
+      _selectedImageBytes = bytes;
+      _selectedImageName = file.name;
+    });
+
+    final r2Service = ref.read(r2StorageServiceProvider);
+    r2Service.uploadPosterImage(
+      bytes: bytes,
+      preferredFileName: file.name,
+      mimeType: file.mimeType ?? 'image/jpeg',
+    ).then((url) {
+      _uploadedR2Url = url;
+    });
+  }
+
+  void _removePosterImage() {
+    HapticFeedback.selectionClick();
+    setState(() {
+      _selectedImageBytes = null;
+      _selectedImageName = null;
+      _uploadedR2Url = null;
+    });
+  }
+
+  Future<void> _pickAdditionalImages() async {
+    HapticFeedback.selectionClick();
+    final List<XFile> files = await _picker.pickMultiImage(
+      maxWidth: 1600,
+      maxHeight: 1600,
+      imageQuality: 88,
+    );
+    if (files.isEmpty) return;
+
+    for (final f in files) {
+      final bytes = await f.readAsBytes();
+      setState(() {
+        _additionalImageBytes.add(bytes);
+        _additionalImageNames.add(f.name);
+      });
+    }
+  }
+
+  void _removeAdditionalImage(int index) {
+    HapticFeedback.selectionClick();
+    setState(() {
+      if (index >= 0 && index < _additionalImageBytes.length) {
+        _additionalImageBytes.removeAt(index);
+        _additionalImageNames.removeAt(index);
+      }
+    });
   }
 
   Future<void> _pickImageAndAnalyze() async {
@@ -175,6 +244,8 @@ class _AiAnnouncementCreatorScreenState
       _format = extracted.format;
       _venueController.text = extracted.venue;
       _applyUrlController.text = extracted.applyUrl;
+      _instagramController.text = extracted.instagramHandle ?? '';
+      _contacts = List.from(extracted.contacts);
       _eligibilityController.text = extracted.eligibility;
 
       if (extracted.startDate != null) {
@@ -230,15 +301,28 @@ class _AiAnnouncementCreatorScreenState
 
     final now = DateTime.now();
     final eventId = 'ann-${now.millisecondsSinceEpoch}';
+    final r2Service = ref.read(r2StorageServiceProvider);
 
-    // Ensure R2 poster URL is ready
+    // 1. Ensure R2 poster URL is ready
     String? posterKey = _uploadedR2Url;
     if (posterKey == null && _selectedImageBytes != null) {
-      final r2Service = ref.read(r2StorageServiceProvider);
       posterKey = await r2Service.uploadPosterImage(
         bytes: _selectedImageBytes!,
         preferredFileName: _selectedImageName ?? '$eventId.jpg',
       );
+    }
+
+    // 2. Upload any additional image attachments to R2
+    final List<String> attachmentUrls = [];
+    for (int i = 0; i < _additionalImageBytes.length; i++) {
+      final name = _additionalImageNames.length > i
+          ? _additionalImageNames[i]
+          : '${eventId}_att_$i.jpg';
+      final url = await r2Service.uploadPosterImage(
+        bytes: _additionalImageBytes[i],
+        preferredFileName: name,
+      );
+      attachmentUrls.add(url);
     }
 
     final targetBranches = _isCampusWide
@@ -267,16 +351,22 @@ class _AiAnnouncementCreatorScreenState
       applyUrl: _applyUrlController.text.trim().isNotEmpty
           ? _applyUrlController.text.trim()
           : null,
+      instagramHandle: _instagramController.text.trim().isNotEmpty
+          ? _instagramController.text.trim()
+          : null,
+      contacts: _contacts,
+      attachments: attachmentUrls,
       eligibilityText: _eligibilityController.text.trim().isNotEmpty
           ? _eligibilityController.text.trim()
           : (_isCampusWide ? 'Open to all SXUK students' : 'Targeted branches only'),
       eligibilityBranches: targetBranches,
       posterR2Key: posterKey,
       status: 'published',
+      matchScore: 0.99,
       matchedTags: tags.isNotEmpty ? tags : ['SXUK', _category],
     );
 
-    // 1. Save to Events Repository
+    // 1. Save to Events Repository (persists locally and syncs to remote)
     await ref.read(eventsRepositoryProvider).createEvent(newEvent);
 
     // 2. Update Feed & Search Controllers instantly
@@ -562,6 +652,7 @@ class _AiAnnouncementCreatorScreenState
   Widget _buildReviewForm(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
+    final textTheme = theme.textTheme;
 
     return Form(
       key: _formKey,
@@ -682,6 +773,195 @@ class _AiAnnouncementCreatorScreenState
           ),
           const SizedBox(height: 20),
 
+          // POSTER & IMAGE ATTACHMENTS CARD
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(LucideIcons.image, size: 18, color: colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          'POSTER & ATTACHMENTS',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: _pickAdditionalImages,
+                      icon: const Icon(LucideIcons.plus, size: 14),
+                      label: const Text('Add Images', style: TextStyle(fontSize: 12)),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                // Main Poster Row
+                if (_selectedImageBytes != null)
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainer,
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    child: Row(
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: Image.memory(
+                            _selectedImageBytes!,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Main Event Poster',
+                                style: textTheme.titleSmall?.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
+                                ),
+                              ),
+                              Text(
+                                _selectedImageName ?? 'Flyer image',
+                                style: textTheme.bodySmall?.copyWith(
+                                  fontSize: 11,
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ],
+                          ),
+                        ),
+                        IconButton(
+                          icon: const Icon(LucideIcons.refreshCw, size: 16),
+                          tooltip: 'Replace Poster',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: _pickPosterImage,
+                        ),
+                        IconButton(
+                          icon: const Icon(LucideIcons.trash2, size: 16, color: Colors.redAccent),
+                          tooltip: 'Remove Poster',
+                          visualDensity: VisualDensity.compact,
+                          onPressed: _removePosterImage,
+                        ),
+                      ],
+                    ),
+                  )
+                else
+                  InkWell(
+                    onTap: _pickPosterImage,
+                    borderRadius: BorderRadius.circular(14),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainer,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: colorScheme.primary.withValues(alpha: 0.4),
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(LucideIcons.imagePlus, size: 20, color: colorScheme.primary),
+                          const SizedBox(width: 10),
+                          Text(
+                            '+ Attach Main Poster / Flyer Image',
+                            style: TextStyle(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                // Additional Images Carousel / List
+                if (_additionalImageBytes.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  Text(
+                    'Additional Image Attachments (${_additionalImageBytes.length})',
+                    style: textTheme.labelSmall?.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    height: 70,
+                    child: ListView.separated(
+                      scrollDirection: Axis.horizontal,
+                      itemCount: _additionalImageBytes.length,
+                      separatorBuilder: (context, index) => const SizedBox(width: 8),
+                      itemBuilder: (context, idx) {
+                        return Stack(
+                          children: [
+                            ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: Image.memory(
+                                _additionalImageBytes[idx],
+                                width: 70,
+                                height: 70,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                            Positioned(
+                              top: 2,
+                              right: 2,
+                              child: GestureDetector(
+                                onTap: () => _removeAdditionalImage(idx),
+                                child: Container(
+                                  padding: const EdgeInsets.all(3),
+                                  decoration: const BoxDecoration(
+                                    color: Colors.black54,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(LucideIcons.x, size: 12, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+
           // Title
           TextFormField(
             controller: _titleController,
@@ -704,14 +984,27 @@ class _AiAnnouncementCreatorScreenState
             textCapitalization: TextCapitalization.words,
             style: TextStyle(color: colorScheme.onSurface),
             decoration: InputDecoration(
-              labelText: 'Host Club / Department *',
-              hintText: 'e.g. ACM SXUK / Dept of Computer Science',
+              labelText: 'Host Club / Society / Department *',
+              hintText: 'e.g. St. Xavier\'s University Film Society',
               prefixIcon: Icon(LucideIcons.users,
                   color: colorScheme.onSurfaceVariant, size: 18),
             ),
             validator: (val) => val == null || val.trim().isEmpty
                 ? 'Please enter the organizer name'
                 : null,
+          ),
+          const SizedBox(height: 16),
+
+          // Instagram Handle
+          TextFormField(
+            controller: _instagramController,
+            style: TextStyle(color: colorScheme.onSurface),
+            decoration: InputDecoration(
+              labelText: 'Instagram Handle (Optional)',
+              hintText: '@sxuk_filmsoc',
+              prefixIcon: Icon(LucideIcons.atSign,
+                  color: colorScheme.onSurfaceVariant, size: 18),
+            ),
           ),
           const SizedBox(height: 16),
 
@@ -960,7 +1253,7 @@ class _AiAnnouncementCreatorScreenState
           ),
           const SizedBox(height: 16),
 
-          // Registration / Apply URL
+          // Registration / Apply URL (Decoded QR / Forms)
           TextFormField(
             controller: _applyUrlController,
             keyboardType: TextInputType.url,
@@ -968,8 +1261,118 @@ class _AiAnnouncementCreatorScreenState
             decoration: InputDecoration(
               labelText: 'Registration / Google Form Link',
               hintText: 'https://forms.gle/... or sxuk.edu.in',
+              helperText: 'Decoded from flyer QR code or web links',
               prefixIcon: Icon(LucideIcons.link,
                   color: colorScheme.onSurfaceVariant, size: 18),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // EVENT COORDINATORS & CONTACTS BENTO
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(LucideIcons.phoneCall,
+                            size: 18, color: colorScheme.primary),
+                        const SizedBox(width: 8),
+                        Text(
+                          'STUDENT COORDINATORS / CONTACTS',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    TextButton.icon(
+                      onPressed: () => _showAddContactDialog(context),
+                      icon: const Icon(LucideIcons.plus, size: 14),
+                      label: const Text('Add Contact', style: TextStyle(fontSize: 12)),
+                      style: TextButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                if (_contacts.isEmpty)
+                  Text(
+                    'No contact numbers added yet. Tap "+ Add Contact" to add coordinators.',
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                    ),
+                  )
+                else
+                  Column(
+                    children: _contacts.asMap().entries.map((entry) {
+                      final idx = entry.key;
+                      final contact = entry.value;
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 8),
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainer,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.user, size: 16, color: colorScheme.primary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    contact.name.isNotEmpty ? contact.name : 'Coordinator',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                  Text(
+                                    '${contact.role != null && contact.role!.isNotEmpty ? "${contact.role!} • " : ""}${contact.phone}',
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontSize: 12,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(LucideIcons.trash2, size: 16, color: Colors.redAccent),
+                              onPressed: () {
+                                setState(() {
+                                  _contacts.removeAt(idx);
+                                });
+                              },
+                              tooltip: 'Remove contact',
+                              visualDensity: VisualDensity.compact,
+                            ),
+                          ],
+                        ),
+                      );
+                    }).toList(),
+                  ),
+              ],
             ),
           ),
           const SizedBox(height: 16),
@@ -1052,6 +1455,74 @@ class _AiAnnouncementCreatorScreenState
             style: theme.textTheme.bodySmall?.copyWith(
               color: colorScheme.onSurfaceVariant,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddContactDialog(BuildContext context) {
+    final nameCtrl = TextEditingController();
+    final phoneCtrl = TextEditingController();
+    final roleCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Add Contact Person'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: nameCtrl,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Contact Name',
+                hintText: 'e.g. Rahul Sen',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: phoneCtrl,
+              keyboardType: TextInputType.phone,
+              decoration: const InputDecoration(
+                labelText: 'Phone / WhatsApp Number',
+                hintText: 'e.g. +91 9876543210',
+              ),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              controller: roleCtrl,
+              textCapitalization: TextCapitalization.words,
+              decoration: const InputDecoration(
+                labelText: 'Role / Designation (Optional)',
+                hintText: 'e.g. Student Convenor / Secretary',
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(dialogCtx),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            onPressed: () {
+              final name = nameCtrl.text.trim();
+              final phone = phoneCtrl.text.trim();
+              final role = roleCtrl.text.trim();
+              if (phone.isNotEmpty || name.isNotEmpty) {
+                setState(() {
+                  _contacts.add(EventContact(
+                    name: name.isNotEmpty ? name : 'Coordinator',
+                    phone: phone,
+                    role: role.isNotEmpty ? role : null,
+                  ));
+                });
+              }
+              Navigator.pop(dialogCtx);
+            },
+            child: const Text('Add'),
           ),
         ],
       ),

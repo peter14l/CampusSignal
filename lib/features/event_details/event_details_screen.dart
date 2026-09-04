@@ -1,8 +1,10 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/calendar_sync_service.dart';
 import '../../core/widgets/category_chip.dart';
 import '../../core/widgets/interactive_spring.dart';
@@ -137,22 +139,25 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                 children: [
                   if (event.posterR2Key != null &&
                       event.posterR2Key!.startsWith('http'))
-                    CachedNetworkImage(
-                      imageUrl: event.posterR2Key!,
-                      memCacheWidth: 800,
-                      memCacheHeight: 600,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: colorScheme.surfaceContainerHigh,
-                        child: const Center(
-                          child: CircularProgressIndicator(strokeWidth: 2),
+                    GestureDetector(
+                      onTap: () => _showFullscreenImage(context, event.posterR2Key!),
+                      child: CachedNetworkImage(
+                        imageUrl: event.posterR2Key!,
+                        memCacheWidth: 800,
+                        memCacheHeight: 600,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          color: colorScheme.surfaceContainerHigh,
+                          child: const Center(
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          ),
                         ),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: colorScheme.primaryContainer,
-                        child: const Center(
-                          child: Icon(LucideIcons.imageOff,
-                              color: Colors.white, size: 48),
+                        errorWidget: (context, url, error) => Container(
+                          color: colorScheme.primaryContainer,
+                          child: const Center(
+                            child: Icon(LucideIcons.imageOff,
+                                color: Colors.white, size: 48),
+                          ),
                         ),
                       ),
                     )
@@ -190,6 +195,26 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                       ),
                     ),
                   ),
+                  if (event.posterR2Key != null && event.posterR2Key!.startsWith('http'))
+                    Positioned(
+                      bottom: 12,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: const Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(LucideIcons.maximize2, size: 12, color: Colors.white),
+                            SizedBox(width: 4),
+                            Text('Tap to expand', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
+                          ],
+                        ),
+                      ),
+                    ),
                 ],
               ),
             ),
@@ -267,12 +292,12 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
 
                   const SizedBox(height: 12),
 
-                  // Host / Organizer Row
+                  // Host / Organizer Row with Instagram Action
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerLow,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(14),
                       border: Border.all(
                         color: colorScheme.outlineVariant.withValues(alpha: 0.35),
                       ),
@@ -280,14 +305,14 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                     child: Row(
                       children: [
                         CircleAvatar(
-                          radius: 14,
+                          radius: 16,
                           backgroundColor: colorScheme.primaryContainer,
                           child: Text(
                             event.organizerName.isNotEmpty
                                 ? event.organizerName.substring(0, 1).toUpperCase()
                                 : 'S',
                             style: TextStyle(
-                              fontSize: 12,
+                              fontSize: 13,
                               fontWeight: FontWeight.bold,
                               color: colorScheme.onPrimaryContainer,
                             ),
@@ -305,11 +330,11 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                                   fontWeight: FontWeight.w700,
                                   color: colorScheme.onSurface,
                                 ),
-                                maxLines: 1,
+                                maxLines: 2,
                                 overflow: TextOverflow.ellipsis,
                               ),
                               Text(
-                                'SXUK Verified Organizer',
+                                'SXUK Verified Society / Club',
                                 style: textTheme.bodySmall?.copyWith(
                                   fontSize: 11,
                                   color: colorScheme.onSurfaceVariant,
@@ -318,7 +343,46 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                             ],
                           ),
                         ),
-                        Icon(LucideIcons.badgeCheck, size: 16, color: colorScheme.primary),
+                        if (event.instagramHandle != null && event.instagramHandle!.isNotEmpty) ...[
+                          const SizedBox(width: 6),
+                          InkWell(
+                            onTap: () {
+                              final raw = event.instagramHandle!.replaceAll('@', '').trim();
+                              launchUrl(
+                                Uri.parse('https://instagram.com/$raw'),
+                                mode: LaunchMode.externalApplication,
+                              );
+                            },
+                            borderRadius: BorderRadius.circular(10),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 5),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE1306C).withValues(alpha: 0.12),
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(
+                                  color: const Color(0xFFE1306C).withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  const Icon(LucideIcons.atSign, size: 14, color: Color(0xFFE1306C)),
+                                  const SizedBox(width: 4),
+                                  Text(
+                                    event.instagramHandle!,
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: Color(0xFFE1306C),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ] else ...[
+                          Icon(LucideIcons.badgeCheck, size: 18, color: colorScheme.primary),
+                        ],
                       ],
                     ),
                   ),
@@ -357,8 +421,82 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                     ),
                   ),
 
-                  if (event.deadlineAt != null) ...[
+                  // Registration Form / Decoded Link Card
+                  if (event.applyUrl != null && event.applyUrl!.isNotEmpty) ...[
                     const SizedBox(height: 20),
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerLow,
+                        borderRadius: BorderRadius.circular(14),
+                        border: Border.all(
+                          color: colorScheme.primary.withValues(alpha: 0.3),
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.primary.withValues(alpha: 0.12),
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(LucideIcons.qrCode, size: 16, color: colorScheme.primary),
+                              ),
+                              const SizedBox(width: 10),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Official Registration Link (Decoded)',
+                                      style: textTheme.titleSmall?.copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    Text(
+                                      event.applyUrl!,
+                                      style: textTheme.bodySmall?.copyWith(
+                                        fontSize: 11,
+                                        color: colorScheme.primary,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(LucideIcons.copy, size: 16),
+                                tooltip: 'Copy Link',
+                                visualDensity: VisualDensity.compact,
+                                onPressed: () {
+                                  Clipboard.setData(ClipboardData(text: event.applyUrl!));
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Registration link copied to clipboard!'),
+                                      duration: Duration(seconds: 2),
+                                      behavior: SnackBarBehavior.floating,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+
+                  // Application Deadline Card
+                  if (event.deadlineAt != null) ...[
+                    const SizedBox(height: 16),
                     Container(
                       padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
@@ -404,6 +542,182 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                             child: const Text('Sync Deadline', style: TextStyle(fontSize: 12)),
                           ),
                         ],
+                      ),
+                    ),
+                  ],
+
+                  // Student Coordinators / For Queries Section
+                  if (event.contacts.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    Text(
+                      'For Queries & Contact',
+                      style: textTheme.titleMedium?.copyWith(
+                        fontSize: 17,
+                        fontWeight: FontWeight.w700,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    Column(
+                      children: event.contacts.map((contact) {
+                        final rawPhone = contact.phone.replaceAll(RegExp(r'[^0-9]'), '');
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 8),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerLow,
+                            borderRadius: BorderRadius.circular(14),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Row(
+                            children: [
+                              CircleAvatar(
+                                radius: 15,
+                                backgroundColor: colorScheme.primaryContainer,
+                                child: Icon(LucideIcons.user, size: 16, color: colorScheme.onPrimaryContainer),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      contact.name.isNotEmpty ? contact.name : 'Student Coordinator',
+                                      style: textTheme.titleSmall?.copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.w700,
+                                        color: colorScheme.onSurface,
+                                      ),
+                                    ),
+                                    Text(
+                                      contact.role != null && contact.role!.isNotEmpty
+                                          ? '${contact.role!} • ${contact.phone}'
+                                          : contact.phone,
+                                      style: textTheme.bodySmall?.copyWith(
+                                        fontSize: 12,
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (contact.phone.isNotEmpty) ...[
+                                // WhatsApp Action
+                                IconButton(
+                                  icon: const Icon(LucideIcons.messageCircle, size: 18, color: Color(0xFF25D366)),
+                                  tooltip: 'WhatsApp',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    final waNumber = rawPhone.startsWith('91') || rawPhone.length > 10
+                                        ? rawPhone
+                                        : '91$rawPhone';
+                                    launchUrl(
+                                      Uri.parse('https://wa.me/$waNumber?text=Hi%20${Uri.encodeComponent(contact.name)},%20reaching%20out%20regarding%20${Uri.encodeComponent(event.title)}'),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                ),
+                                // Direct Phone Call Action
+                                IconButton(
+                                  icon: Icon(LucideIcons.phone, size: 18, color: colorScheme.primary),
+                                  tooltip: 'Call Coordinator',
+                                  visualDensity: VisualDensity.compact,
+                                  onPressed: () {
+                                    launchUrl(
+                                      Uri.parse('tel:${contact.phone.replaceAll(' ', '')}'),
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  },
+                                ),
+                              ],
+                            ],
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ],
+
+                  // Attached Images & Materials Gallery
+                  if (event.attachments.isNotEmpty) ...[
+                    const SizedBox(height: 24),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Attached Images & Materials',
+                          style: textTheme.titleMedium?.copyWith(
+                            fontSize: 17,
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
+                        Text(
+                          '${event.attachments.length} files',
+                          style: textTheme.bodySmall?.copyWith(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                    SizedBox(
+                      height: 120,
+                      child: ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        itemCount: event.attachments.length,
+                        separatorBuilder: (context, index) => const SizedBox(width: 10),
+                        itemBuilder: (context, idx) {
+                          final imgUrl = event.attachments[idx];
+                          return GestureDetector(
+                            onTap: () => _showFullscreenImage(context, imgUrl),
+                            child: Container(
+                              width: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(14),
+                                border: Border.all(
+                                  color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(13),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    CachedNetworkImage(
+                                      imageUrl: imgUrl,
+                                      fit: BoxFit.cover,
+                                      placeholder: (context, url) => Container(
+                                        color: colorScheme.surfaceContainer,
+                                        child: const Center(
+                                          child: CircularProgressIndicator(strokeWidth: 2),
+                                        ),
+                                      ),
+                                      errorWidget: (context, url, error) => Container(
+                                        color: colorScheme.surfaceContainerHigh,
+                                        child: const Icon(LucideIcons.fileText, size: 24),
+                                      ),
+                                    ),
+                                    Positioned(
+                                      bottom: 6,
+                                      right: 6,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(4),
+                                        decoration: BoxDecoration(
+                                          color: Colors.black54,
+                                          borderRadius: BorderRadius.circular(6),
+                                        ),
+                                        child: const Icon(LucideIcons.zoomIn, size: 12, color: Colors.white),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -1024,5 +1338,42 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         ),
       );
     }
+  }
+
+  void _showFullscreenImage(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black87,
+      builder: (dialogCtx) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          appBar: AppBar(
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: IconButton(
+              icon: const Icon(LucideIcons.x, color: Colors.white, size: 24),
+              onPressed: () => Navigator.pop(dialogCtx),
+            ),
+          ),
+          body: Center(
+            child: InteractiveViewer(
+              panEnabled: true,
+              minScale: 0.8,
+              maxScale: 4.0,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => const Center(
+                  child: Icon(LucideIcons.imageOff, color: Colors.white, size: 48),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }

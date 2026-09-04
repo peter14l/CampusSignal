@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
+import '../../models/event_model.dart';
 
 /// Extracted announcement payload from Gemini Vision OCR
 class ExtractedAnnouncement {
@@ -19,6 +20,9 @@ class ExtractedAnnouncement {
   final String applyUrl;
   final List<String> tags;
   final double confidenceScore;
+  final List<EventContact> contacts;
+  final String? instagramHandle;
+  final String? contactEmail;
   final String? rawOcrText;
 
   const ExtractedAnnouncement({
@@ -36,6 +40,9 @@ class ExtractedAnnouncement {
     required this.applyUrl,
     this.tags = const [],
     this.confidenceScore = 0.95,
+    this.contacts = const [],
+    this.instagramHandle,
+    this.contactEmail,
     this.rawOcrText,
   });
 
@@ -61,11 +68,78 @@ class ExtractedAnnouncement {
       return [];
     }
 
+    List<EventContact> parseContacts(dynamic value, String fullText) {
+      final list = <EventContact>[];
+      if (value is List) {
+        for (final item in value) {
+          if (item is Map) {
+            final name = item['name']?.toString().trim() ?? '';
+            final phone = item['phone']?.toString().trim() ?? item['number']?.toString().trim() ?? '';
+            final role = item['role']?.toString().trim();
+            if (name.isNotEmpty || phone.isNotEmpty) {
+              list.add(EventContact(name: name, phone: phone, role: role));
+            }
+          }
+        }
+      }
+
+      // Regex fallback if LLM missed contacts in the dedicated list
+      if (list.isEmpty && fullText.isNotEmpty) {
+        final phoneRegex = RegExp(r'(?:(?:\+91|0)?[\s\-]?)?([6-9]\d{9})');
+        final matches = phoneRegex.allMatches(fullText);
+        for (final m in matches) {
+          final phone = m.group(0)?.trim() ?? '';
+          if (phone.isNotEmpty && !list.any((c) => c.phone == phone)) {
+            list.add(EventContact(name: 'Event Coordinator', phone: phone));
+          }
+        }
+      }
+
+      return list;
+    }
+
+    String? parseInstagram(dynamic value, String fullText) {
+      if (value != null && value.toString().trim().isNotEmpty && value.toString().toLowerCase() != 'null') {
+        var handle = value.toString().trim();
+        if (handle.contains('instagram.com/')) {
+          handle = handle.split('instagram.com/').last.split('?').first.replaceAll('/', '').trim();
+        }
+        if (!handle.startsWith('@')) handle = '@$handle';
+        return handle;
+      }
+
+      // Regex fallback for instagram handles
+      final igRegex = RegExp(r'(?:instagram\.com\/|@)([a-zA-Z0-9_\.]{3,30})', caseSensitive: false);
+      final match = igRegex.firstMatch(fullText);
+      if (match != null) {
+        final handle = match.group(1);
+        if (handle != null && handle.isNotEmpty) {
+          return '@$handle';
+        }
+      }
+      return null;
+    }
+
+    String parseUrl(dynamic value, String fullText) {
+      final direct = value?.toString().trim() ?? '';
+      if (direct.isNotEmpty && direct.toLowerCase() != 'null') {
+        return direct;
+      }
+      // Regex fallback for form links or URLs
+      final urlRegex = RegExp(r'https?:\/\/(?:[a-zA-Z0-9_\-]+\.)+[a-zA-Z]{2,}(?:\/[^\s]*)?', caseSensitive: false);
+      final match = urlRegex.firstMatch(fullText);
+      return match?.group(0) ?? '';
+    }
+
+    final rawDesc = json['description']?.toString().trim() ?? '';
+    final rawOcr = json['rawOcrText']?.toString() ?? '';
+    final combinedContext = '$rawDesc $rawOcr';
+
     return ExtractedAnnouncement(
       title: json['title']?.toString().trim() ?? 'Untitled Announcement',
-      organizer: json['organizer']?.toString().trim() ?? 'SXUK Student Chapter',
+      organizer: json['organizer']?.toString().trim() ?? 'St. Xavier\'s University Society',
       category: _normalizeCategory(json['category']?.toString()),
-      description: json['description']?.toString().trim() ?? '',
+      description: rawDesc,
       startDate: parseDate(json['startDate'] ?? json['startsAt']),
       startTime: json['startTime']?.toString().trim(),
       deadlineDate: parseDate(json['deadlineDate'] ?? json['deadlineAt']),
@@ -73,10 +147,13 @@ class ExtractedAnnouncement {
       format: _normalizeFormat(json['format']?.toString()),
       eligibility: json['eligibility']?.toString().trim() ?? 'Open to all SXUK students',
       targetBranches: parseList(json['targetBranches'] ?? json['eligibilityBranches']),
-      applyUrl: json['applyUrl']?.toString().trim() ?? json['registrationUrl']?.toString().trim() ?? '',
+      applyUrl: parseUrl(json['applyUrl'] ?? json['registrationUrl'], combinedContext),
       tags: parseList(json['tags'] ?? json['matchedTags']),
       confidenceScore: (json['confidence'] is num) ? (json['confidence'] as num).toDouble() : 0.95,
-      rawOcrText: json['rawOcrText']?.toString(),
+      contacts: parseContacts(json['contacts'] ?? json['coordinators'], combinedContext),
+      instagramHandle: parseInstagram(json['instagramHandle'] ?? json['instagram_handle'] ?? json['instagram'], combinedContext),
+      contactEmail: json['contactEmail']?.toString().trim() ?? json['contact_email']?.toString().trim(),
+      rawOcrText: rawOcr.isNotEmpty ? rawOcr : null,
     );
   }
 
@@ -218,24 +295,55 @@ class GeminiOcrService {
     final base64Image = base64Encode(imageBytes);
 
     const prompt = '''
-You are an expert AI for St. Xavier's University, Kolkata (SXUK) campus event analysis.
-Analyze this flyer / poster image and extract all relevant information for a student event announcement.
+You are an expert Multimodal AI for St. Xavier's University, Kolkata (SXUK) campus event analysis and poster OCR.
+Analyze this flyer / poster image and perform an exhaustive visual and textual extraction.
 
-Perform comprehensive OCR and understand the event context. Return ONLY a valid JSON object matching this exact schema:
+CRITICAL EXTRACTION INSTRUCTIONS:
+1. ORGANIZING SOCIETY / CLUB NAME ("organizer"):
+   - Inspect the entire flyer: header titles, logos, society badges, footer credits, and subtitle banners.
+   - Extract the EXACT official name of the organizing society, club, department, or committee (e.g. "St. Xavier's University Film Society", "ACM Student Chapter SXUK", "E-Cell SXUK", "Department of Mass Communication", "XavKala", etc.).
+   - Do NOT generalize if a specific society is named on the poster!
+
+2. QR CODES & REGISTRATION LINKS ("applyUrl"):
+   - Look closely at any 2D QR codes present on the flyer. Decode the QR code target URL if possible (e.g. Google Forms "https://forms.gle/...", "https://docs.google.com/forms/...", "https://linktr.ee/...", "https://bit.ly/...").
+   - Look for printed URLs, short links, or captions next to "Scan to Register", "Register at:", "Scan Me", or "Link in Bio".
+   - Return the exact full URL.
+
+3. STUDENT COORDINATORS & CONTACT NUMBERS ("contacts"):
+   - Search for all contact sections, e.g. "For queries contact:", "Convenors:", "Student Leads:", "Contact Persons:", phone numbers with +91 or 10 digits.
+   - Extract each person's name, phone number, and designation/role into the "contacts" list.
+
+4. SOCIAL MEDIA & INSTAGRAM ("instagramHandle"):
+   - Look for Instagram handles (e.g. @sxuk_filmsoc, @sxuk_ecell, or handles near the Instagram icon) and emails.
+
+5. RAW OCR TEXT ("rawOcrText"):
+   - Transcribe all legible text from the flyer into "rawOcrText" for fallback verification.
+
+Return ONLY a valid JSON object matching this exact schema:
 {
   "title": "Exact event or competition name",
-  "organizer": "Club, Society, Department, or University Body hosting this (e.g. ACM Student Chapter, E-Cell SXUK, Dept of Computer Science)",
+  "organizer": "Exact Club, Society, or Department name (e.g. St. Xavier's University Film Society)",
   "category": "hackathon | internship | workshop | fest | seminar | club",
-  "description": "Engaging summary of event highlights, prize pool, schedule rounds, guidelines, and benefits",
+  "description": "Engaging summary of event highlights, prize pool, schedule rounds, guidelines, and rules",
   "startDate": "YYYY-MM-DD (e.g. 2026-09-18) or null if not found",
   "startTime": "HH:MM AM/PM (e.g. 10:00 AM) or null if not found",
   "deadlineDate": "YYYY-MM-DD (e.g. 2026-09-15) or null if not found",
   "venue": "Hall name, Room/Lab number, Auditorium, or 'Online (Zoom/Meet)'",
   "format": "In-Person | Online | Hybrid",
   "eligibility": "Academic criteria, e.g. 'All SXUK Students', 'B.Tech / MCA', 'Year 1-3'",
-  "targetBranches": ["List specific academic branches if mentioned, e.g. 'Computer Science & Engineering', 'Data Science & AI', 'Business Administration', 'Law', or empty array [] if open to All Branches"],
-  "applyUrl": "Registration URL, Google Form link, or portal link found in poster/text or empty string",
-  "tags": ["3 to 6 relevant keywords, e.g. 'Coding', 'AI', 'Prizes', 'Team Event']",
+  "targetBranches": ["List specific academic branches if mentioned, e.g. 'Mass Communication & Media', 'Computer Science & Engineering', or empty array [] if open to All Branches"],
+  "applyUrl": "Exact Google Form URL, QR code decoded link, or registration link (e.g. https://forms.gle/...)",
+  "instagramHandle": "Instagram username/handle e.g. @sxuk_filmsoc or null",
+  "contactEmail": "Contact email if listed or null",
+  "contacts": [
+    {
+      "name": "Full name of contact person / student coordinator",
+      "phone": "Phone or WhatsApp number (e.g. +91 9876543210)",
+      "role": "Coordinator / Lead"
+    }
+  ],
+  "tags": ["3 to 6 relevant keywords, e.g. 'Film', 'Photography', 'Prizes', 'SXUK']",
+  "rawOcrText": "Full text transcribed from poster",
   "confidence": 0.95
 }
 
@@ -324,7 +432,7 @@ CRITICAL RULES:
     final now = DateTime.now();
     return ExtractedAnnouncement(
       title: 'SXUK Campus Event Announcement',
-      organizer: 'SXUK Student Affairs & Clubs',
+      organizer: 'St. Xavier\'s University Society',
       category: 'hackathon',
       description: 'Exciting campus opportunity analyzed from uploaded flyer. Join peers across departments for collaboration, learning, and prizes.',
       startDate: now.add(const Duration(days: 7)),
@@ -336,6 +444,14 @@ CRITICAL RULES:
       targetBranches: const ['All Branches'],
       applyUrl: 'https://forms.gle/sxuk-campus-signal-event',
       tags: const ['Campus', 'Innovation', 'SXUK', 'Workshop'],
+      contacts: const [
+        EventContact(
+          name: 'Student Coordinator',
+          phone: '+91 9876543210',
+          role: 'Convenor',
+        ),
+      ],
+      instagramHandle: '@sxuk_campus',
       confidenceScore: 0.85,
     );
   }

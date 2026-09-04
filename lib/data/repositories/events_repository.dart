@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../core/mock/mock_data.dart';
 import '../../models/event_model.dart';
@@ -11,13 +13,53 @@ export '../../core/mock/mock_data.dart' show kMockEvents, kMockSavedEventIds, kM
 /// Repository implementing the Events data layer.
 class EventsRepository {
   final SupabaseClient _supabase;
+  static const String _customEventsPrefKey = 'campussignal_custom_events';
   
   // Local in-memory caches for fast reactivity and offline fallback
   final List<EventModel> _cachedEvents = generateMockEvents();
   final Set<String> _savedEventIds = Set<String>.from(kMockSavedEventIds);
   late final List<ReminderModel> _reminders = generateMockReminders(events: _cachedEvents);
 
-  EventsRepository(this._supabase);
+  EventsRepository(this._supabase) {
+    _loadCustomEventsFromDisk();
+  }
+
+  Future<void> _loadCustomEventsFromDisk() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rawList = prefs.getStringList(_customEventsPrefKey) ?? [];
+      for (final jsonStr in rawList) {
+        final map = jsonDecode(jsonStr) as Map<String, dynamic>;
+        final event = EventModel.fromJson(map);
+        if (!_cachedEvents.any((e) => e.id == event.id)) {
+          _cachedEvents.insert(0, event);
+        }
+      }
+    } catch (e) {
+      debugPrint('Error loading custom events from disk: $e');
+    }
+  }
+
+  Future<void> _persistCustomEvent(EventModel event) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final rawList = prefs.getStringList(_customEventsPrefKey) ?? [];
+      // Remove older copy if existing
+      final updatedList = rawList.where((str) {
+        try {
+          final map = jsonDecode(str) as Map<String, dynamic>;
+          return map['id'] != event.id;
+        } catch (_) {
+          return true;
+        }
+      }).toList();
+
+      updatedList.insert(0, jsonEncode(event.toJson()));
+      await prefs.setStringList(_customEventsPrefKey, updatedList);
+    } catch (e) {
+      debugPrint('Error saving custom event to disk: $e');
+    }
+  }
 
   /// Fetch ranked feed events with category and branch/department targeting filter.
   Future<List<EventModel>> getFeedEvents({
@@ -25,6 +67,8 @@ class EventsRepository {
     String? userBranch,
     String? targetDepartment,
   }) async {
+    await _loadCustomEventsFromDisk();
+
     try {
       // In production with Supabase configured:
       if (_supabase.auth.currentUser != null) {
@@ -38,6 +82,13 @@ class EventsRepository {
           final dbEvents = rows
               .map((r) => EventModel.fromJson(r as Map<String, dynamic>))
               .toList();
+
+          // Merge custom local created events with DB events
+          for (final cached in _cachedEvents) {
+            if (!dbEvents.any((e) => e.id == cached.id)) {
+              dbEvents.insert(0, cached);
+            }
+          }
           return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
         }
       }
@@ -70,8 +121,8 @@ class EventsRepository {
     }
 
     // 2. Filter by Category
-    if (catLower == 'for_you' || catLower == 'for you' || catLower.isEmpty) {
-      filtered.sort((a, b) => (b.matchScore ?? 0).compareTo(a.matchScore ?? 0));
+    if (catLower == 'for_you' || catLower == 'for you' || catLower.isEmpty || catLower == 'all') {
+      filtered.sort((a, b) => (b.matchScore ?? 0.99).compareTo(a.matchScore ?? 0.99));
     } else if (catLower == 'deadlines_soon' || catLower == 'deadlines soon') {
       filtered = filtered.where((e) => e.deadlineAt != null).toList();
       filtered.sort((a, b) => a.deadlineAt!.compareTo(b.deadlineAt!));
@@ -96,28 +147,35 @@ class EventsRepository {
 
   /// Create and publish a new announcement
   Future<EventModel> createEvent(EventModel event) async {
+    final rankedEvent = event.copyWith(
+      matchScore: event.matchScore ?? 0.99,
+    );
+
     // Insert at index 0 in local cache for instant zero-latency UI update
-    _cachedEvents.removeWhere((e) => e.id == event.id);
-    _cachedEvents.insert(0, event);
+    _cachedEvents.removeWhere((e) => e.id == rankedEvent.id);
+    _cachedEvents.insert(0, rankedEvent);
+
+    // Persist to local disk cache
+    await _persistCustomEvent(rankedEvent);
 
     try {
       final user = _supabase.auth.currentUser;
       if (user != null) {
         await _supabase.from('events').insert({
-          'id': event.id,
-          'title': event.title,
-          'description': event.description,
-          'category': event.category,
-          'organizer_name': event.organizerName,
-          'starts_at': event.startsAt?.toIso8601String(),
-          'deadline_at': event.deadlineAt?.toIso8601String(),
-          'venue': event.venue,
-          'format': event.format,
-          'eligibility_text': event.eligibilityText,
-          'eligibility_branches': event.eligibilityBranches,
-          'apply_url': event.applyUrl,
-          'poster_r2_key': event.posterR2Key,
-          'status': event.status,
+          'id': rankedEvent.id,
+          'title': rankedEvent.title,
+          'description': rankedEvent.description,
+          'category': rankedEvent.category,
+          'organizer_name': rankedEvent.organizerName,
+          'starts_at': rankedEvent.startsAt?.toIso8601String(),
+          'deadline_at': rankedEvent.deadlineAt?.toIso8601String(),
+          'venue': rankedEvent.venue,
+          'format': rankedEvent.format,
+          'eligibility_text': rankedEvent.eligibilityText,
+          'eligibility_branches': rankedEvent.eligibilityBranches,
+          'apply_url': rankedEvent.applyUrl,
+          'poster_r2_key': rankedEvent.posterR2Key,
+          'status': rankedEvent.status,
           'created_at': DateTime.now().toIso8601String(),
         });
       }
@@ -125,7 +183,7 @@ class EventsRepository {
       debugPrint('Supabase createEvent sync error: $e');
     }
 
-    return event;
+    return rankedEvent;
   }
 
   /// Get single event details by ID.
