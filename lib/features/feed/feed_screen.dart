@@ -11,6 +11,8 @@ import '../../core/widgets/micro_animated_icon.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
 import '../saved/saved_controller.dart';
+import '../updater/startup_update_dialog.dart';
+import '../updater/update_controller.dart';
 import 'feed_controller.dart';
 
 class FeedScreen extends ConsumerStatefulWidget {
@@ -32,6 +34,28 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     'seminar',
     'club',
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _checkStartupUpdate();
+    });
+  }
+
+  Future<void> _checkStartupUpdate() async {
+    final updateState = ref.read(updateControllerProvider);
+    if (updateState.isPopupDismissed) return;
+
+    final result = await ref.read(updateControllerProvider.notifier).checkForUpdates(isSilent: true);
+    if (result.hasUpdate && result.updateInfo != null && mounted) {
+      StartupUpdateDialog.show(
+        context,
+        update: result.updateInfo!,
+        isMandatory: result.isMandatory,
+      );
+    }
+  }
 
   String _selectedDepartment = 'all';
 

@@ -58,7 +58,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   }
 
   Future<void> _checkSessionAndNavigate() async {
-    await Future.delayed(const Duration(milliseconds: 1100));
+    await Future.delayed(const Duration(milliseconds: 350));
     if (!mounted) return;
 
     try {

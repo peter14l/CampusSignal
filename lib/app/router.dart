@@ -17,6 +17,7 @@ import '../features/saved/saved_screen.dart';
 import '../features/search/search_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
+import '../features/updater/app_update_screen.dart';
 import 'scaffold_with_nav_bar.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -136,6 +137,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => MaterialPage<void>(
           key: state.pageKey,
           child: const AboutScreen(),
+        ),
+      ),
+
+      // Top Level Route: In-App Updater
+      GoRoute(
+        path: '/app-update',
+        name: 'app-update',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage<void>(
+          key: state.pageKey,
+          child: const AppUpdateScreen(),
         ),
       ),
 

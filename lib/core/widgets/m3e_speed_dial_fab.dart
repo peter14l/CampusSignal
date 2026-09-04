@@ -96,12 +96,13 @@ class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
-    return Align(
-      alignment: Alignment.bottomRight,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
+    return RepaintBoundary(
+      child: Align(
+        alignment: Alignment.bottomRight,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
           // Action Options with smooth size/fade transition
           Align(
             alignment: Alignment.bottomRight,
@@ -226,6 +227,7 @@ class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
             ),
           ),
         ],
+      ),
       ),
     );
   }

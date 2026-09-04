@@ -10,11 +10,31 @@ import 'core/storage/shared_preferences_provider.dart';
 import 'core/supabase/supabase_config.dart';
 import 'firebase_options.dart';
 
+Future<void> _initFirebase() async {
+  try {
+    if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
+      await Firebase.initializeApp(
+        options: DefaultFirebaseOptions.currentPlatform,
+      );
+    }
+  } catch (e) {
+    debugPrint('Firebase initialization notice: $e');
+  }
+}
+
+Future<void> _loadDotEnv() async {
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('.env notice: $e');
+  }
+}
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Enable true edge-to-edge system UI
-  await SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  // Enable true edge-to-edge system UI (non-blocking)
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
@@ -25,29 +45,16 @@ void main() async {
     ),
   );
 
-  // Initialize SharedPreferences early for synchronous access across app
-  final sharedPreferences = await SharedPreferences.getInstance();
+  // Load env config first, then bootstrap SharedPreferences, Firebase and Supabase concurrently
+  await _loadDotEnv();
 
-  // Initialize Firebase if configured for this platform
-  try {
-    if (!kIsWeb && (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS)) {
-      await Firebase.initializeApp(
-        options: DefaultFirebaseOptions.currentPlatform,
-      );
-    }
-  } catch (e) {
-    debugPrint('Firebase initialization notice: $e');
-  }
+  final results = await Future.wait([
+    SharedPreferences.getInstance(),
+    _initFirebase(),
+    SupabaseConfig.initialize(),
+  ]);
 
-  // Load .env secrets if present
-  try {
-    await dotenv.load(fileName: ".env");
-  } catch (e) {
-    debugPrint('.env file not found or could not be loaded: $e');
-  }
-
-  // Initialize Supabase (with fallback for mock/offline dev)
-  await SupabaseConfig.initialize();
+  final sharedPreferences = results[0] as SharedPreferences;
 
   runApp(
     ProviderScope(

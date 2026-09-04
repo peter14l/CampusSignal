@@ -21,7 +21,7 @@ void main() {
     expect(find.byType(CampusSignalApp), findsOneWidget);
 
     // Pump past the splash delay (1.8s)
-    await tester.pump(const Duration(milliseconds: 1800));
-    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pump(const Duration(milliseconds: 1900));
+    await tester.pump();
   });
 }

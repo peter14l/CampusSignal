@@ -98,8 +98,13 @@ class AuthController extends Notifier<AuthState> {
       }
     }
 
-    // 2. Check active Firebase Auth user
-    final fbUser = fb.FirebaseAuth.instance.currentUser;
+    // 2. Check active Firebase Auth user (if initialized)
+    fb.User? fbUser;
+    try {
+      if (fb.FirebaseAuth.instance.app != null) {
+        fbUser = fb.FirebaseAuth.instance.currentUser;
+      }
+    } catch (_) {}
 
     // 3. Determine if authenticated from any valid session source
     final bool isAuthenticated = isPersistedAuth ||
@@ -291,7 +296,15 @@ class AuthController extends Notifier<AuthState> {
       }
 
       final client = SupabaseConfig.client;
-      if (client != null && SupabaseConfig.isConfigured && googleAuth.idToken != null) {
+      if (client != null && SupabaseConfig.isConfigured) {
+        if (googleAuth.idToken == null) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Google Sign-In did not return an ID token. Ensure serverClientId is configured correctly.',
+          );
+          return GoogleAuthStatus.failed;
+        }
+
         try {
           final res = await client.auth.signInWithIdToken(
             provider: OAuthProvider.google,
@@ -299,7 +312,12 @@ class AuthController extends Notifier<AuthState> {
             accessToken: googleAuth.accessToken,
           );
 
-          final authUserId = res.user?.id ?? userId;
+          final authUser = res.user;
+          if (authUser == null) {
+            throw Exception('Supabase failed to create or return an authenticated user session.');
+          }
+
+          final authUserId = authUser.id; // Supabase UUID
           final existing = await client
               .from('profiles')
               .select()
@@ -310,7 +328,9 @@ class AuthController extends Notifier<AuthState> {
             var profile = ProfileModel.fromJson(existing);
             if (photoUrl != null && profile.avatarUrl != photoUrl) {
               profile = profile.copyWith(avatarUrl: photoUrl);
-              await client.from('profiles').upsert(profile.toJson());
+              try {
+                await client.from('profiles').upsert(profile.toJson());
+              } catch (_) {}
             }
 
             state = state.copyWith(
@@ -325,12 +345,49 @@ class AuthController extends Notifier<AuthState> {
             return profile.isOnboardingComplete
                 ? GoogleAuthStatus.authenticated
                 : GoogleAuthStatus.needsOnboarding;
+          } else {
+            // New user registration in Supabase public.profiles
+            final initialProfile = ProfileModel(
+              id: authUserId,
+              fullName: displayName,
+              collegeEmail: email,
+              avatarUrl: photoUrl,
+              branch: null,
+              year: null,
+              semester: null,
+              interests: const [],
+              skills: const [],
+              createdAt: DateTime.now(),
+              updatedAt: DateTime.now(),
+            );
+
+            try {
+              await client.from('profiles').upsert(initialProfile.toJson());
+            } catch (e) {
+              debugPrint('Notice: Initial Supabase profile row upsert: $e');
+            }
+
+            state = state.copyWith(
+              isLoading: false,
+              isAuthenticated: true,
+              email: email,
+              profile: initialProfile,
+            );
+
+            await _persistAuth(initialProfile, email);
+            return GoogleAuthStatus.needsOnboarding;
           }
         } catch (e) {
           debugPrint('Supabase Google OAuth token verify error: $e');
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Supabase Auth Error: ${e.toString().replaceAll('AuthException', '').replaceAll('(', '').replaceAll(')', '').trim()}',
+          );
+          return GoogleAuthStatus.failed;
         }
       }
 
+      // Offline / Mock Mode fallback (when Supabase is not configured):
       // Check if profile was already saved locally
       final currentProfile = state.profile;
       if (currentProfile != null &&
@@ -347,7 +404,6 @@ class AuthController extends Notifier<AuthState> {
         return GoogleAuthStatus.authenticated;
       }
 
-      // New user or incomplete profile from Google:
       final initialProfile = ProfileModel(
         id: userId,
         fullName: displayName,
@@ -571,17 +627,22 @@ class AuthController extends Notifier<AuthState> {
   }
 
   Future<void> updateProfile(ProfileModel updatedProfile) async {
+    final client = SupabaseConfig.client;
+    final currentSupabaseUserId = client?.auth.currentUser?.id;
+    final effectiveProfile = (currentSupabaseUserId != null && updatedProfile.id != currentSupabaseUserId)
+        ? updatedProfile.copyWith(id: currentSupabaseUserId)
+        : updatedProfile;
+
     state = state.copyWith(
       isAuthenticated: true,
-      profile: updatedProfile,
-      email: updatedProfile.collegeEmail ?? state.email,
+      profile: effectiveProfile,
+      email: effectiveProfile.collegeEmail ?? state.email,
     );
-    await _persistAuth(updatedProfile, state.email ?? updatedProfile.collegeEmail);
+    await _persistAuth(effectiveProfile, state.email ?? effectiveProfile.collegeEmail);
 
-    final client = SupabaseConfig.client;
     if (client != null && SupabaseConfig.isConfigured) {
       try {
-        await client.from('profiles').upsert(updatedProfile.toJson());
+        await client.from('profiles').upsert(effectiveProfile.toJson());
       } catch (e) {
         debugPrint('Error persisting profile to Supabase: $e');
       }

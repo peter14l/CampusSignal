@@ -392,6 +392,21 @@ class SettingsScreen extends ConsumerWidget {
                   leading: Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(LucideIcons.sparkles, size: 18, color: colorScheme.onPrimaryContainer),
+                  ),
+                  title: const Text('In-App Updater', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  subtitle: const Text('Check for new APK releases on Cloudflare R2', style: TextStyle(fontSize: 12)),
+                  trailing: Icon(LucideIcons.chevronRight, size: 18, color: colorScheme.onSurfaceVariant),
+                  onTap: () => context.push('/app-update'),
+                ),
+                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
                       color: colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -413,7 +428,7 @@ class SettingsScreen extends ConsumerWidget {
                     child: Icon(LucideIcons.info, size: 18, color: colorScheme.onSurface),
                   ),
                   title: const Text('About CampusSignal', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Version 1.0.0 (Release Build)', style: TextStyle(fontSize: 12)),
+                  subtitle: const Text('Version 1.0.2 (Production Release)', style: TextStyle(fontSize: 12)),
                   trailing: Icon(LucideIcons.chevronRight, size: 18, color: colorScheme.onSurfaceVariant),
                   onTap: () => context.push('/about'),
                 ),
