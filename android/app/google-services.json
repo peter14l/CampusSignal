@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "476399687886",
+    "project_id": "campussignal-90af3",
+    "storage_bucket": "campussignal-90af3.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:476399687886:android:092c6f588a8263cb39189f",
+        "android_client_info": {
+          "package_name": "com.sxuk.campussignal.campus_signal"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "476399687886-lth3b8a6rd231tq4kjism6nf1gg8eojo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.sxuk.campussignal.campus_signal",
+            "certificate_hash": "a60ad9db45044b3c6021919c0e5171f9edb6d7b6"
+          }
+        },
+        {
+          "client_id": "476399687886-2cg5sss23bq258a6o9afn4g78ltndnha.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCx8OlqN8YO53VZI3a7CBBETHn3EbS5xv8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "476399687886-2cg5sss23bq258a6o9afn4g78ltndnha.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "476399687886-8h4gfmo9bva8k0qr5qncfael67h9dpur.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.sxuk.campussignal.campusSignal"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
