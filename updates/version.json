@@ -4,7 +4,13 @@
   "minSupportedVersionCode": 1,
   "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3.apk",
   "fileSizeBytes": 70448758,
-  "releaseNotes": "• Runtime Notification Permissions for Android 13+ and iOS\n• Exact Alarm Scheduling for Deadline Countdown Alerts\n• Cloudflare R2 In-App Updater Integration\n• Supabase Direct Google OAuth User Session Sync\n• 120 FPS Fluid Motion with Hardware Composited Layers",
-  "publishedAt": "2026-09-04T23:55:00.000Z",
+  "archApkUrls": {
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3.apk"
+  },
+  "releaseNotes": "• Runtime Notification Permissions for Android 13+ and iOS\n• Exact Alarm Scheduling for Deadline Countdown Alerts\n• Architecture-Aware Fast APK Downloads (30MB vs 70MB)\n• Supabase Direct Google OAuth User Session Sync\n• 120 FPS Fluid Motion with Hardware Composited Layers",
+  "publishedAt": "2026-09-05T00:00:00.000Z",
   "mandatory": false
 }

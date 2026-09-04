@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -102,21 +103,38 @@ class AppUpdateService {
     }
   }
 
+  /// Detects current device CPU architecture for downloading optimized split APKs
+  String getDeviceArchitecture() {
+    try {
+      if (!kIsWeb && Platform.isAndroid) {
+        final abi = Abi.current();
+        if (abi == Abi.androidArm64) return 'arm64-v8a';
+        if (abi == Abi.androidArm) return 'armeabi-v7a';
+        if (abi == Abi.androidX64) return 'x86_64';
+      }
+    } catch (_) {}
+    return 'universal';
+  }
+
   /// Downloads APK from Cloudflare R2 and triggers Android Package Installer
   Future<String> downloadApk({
     required AppUpdateInfo update,
     required void Function(double progress, int receivedBytes, int totalBytes) onProgress,
   }) async {
     final tempDir = await getTemporaryDirectory();
-    final fileName = 'CampusSignal_v${update.version}.apk';
+    final arch = getDeviceArchitecture();
+    final targetUrl = update.getApkUrlForArch(arch);
+    final fileName = 'CampusSignal_v${update.version}_$arch.apk';
     final savePath = '${tempDir.path}/$fileName';
     final file = File(savePath);
+
+    debugPrint('AppUpdater: Downloading APK for architecture [$arch] from: $targetUrl');
 
     if (await file.exists()) {
       await file.delete();
     }
 
-    final request = http.Request('GET', Uri.parse(update.apkUrl));
+    final request = http.Request('GET', Uri.parse(targetUrl));
     final response = await _client.send(request);
 
     if (response.statusCode != 200) {
