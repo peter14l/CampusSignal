@@ -1,10 +1,10 @@
 {
-  "version": "1.0.2",
-  "versionCode": 3,
+  "version": "1.0.3",
+  "versionCode": 4,
   "minSupportedVersionCode": 1,
-  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.2.apk",
-  "fileSizeBytes": 28400000,
-  "releaseNotes": "• Supabase Google Auth direct user registration and profile sync\n• Integrated In-App Updater with startup detection & Settings screen\n• System package installer integration with graceful exit\n• M3 Expressive UI and performance polish",
-  "publishedAt": "2026-09-04T23:30:00.000Z",
+  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.3.apk",
+  "fileSizeBytes": 70448758,
+  "releaseNotes": "• Runtime Notification Permissions for Android 13+ and iOS\n• Exact Alarm Scheduling for Deadline Countdown Alerts\n• Cloudflare R2 In-App Updater Integration\n• Supabase Direct Google OAuth User Session Sync\n• 120 FPS Fluid Motion with Hardware Composited Layers",
+  "publishedAt": "2026-09-04T23:55:00.000Z",
   "mandatory": false
 }

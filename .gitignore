@@ -56,3 +56,4 @@ key.properties
 
 # Cloudflare Wrangler
 .wrangler/
+updates/*.apk
