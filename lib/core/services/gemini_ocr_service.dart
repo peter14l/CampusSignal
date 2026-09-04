@@ -105,13 +105,113 @@ class GeminiOcrService {
   static const String _defaultApiKey = 'AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8';
   final String _apiKey;
 
-  GeminiOcrService({String? apiKey}) : _apiKey = apiKey ?? _defaultApiKey;
+  // Cached pool of discovered vision/generateContent models
+  List<String> _availableModels = [];
+  bool _isFetchingModels = false;
+  DateTime? _lastModelFetchTime;
+
+  // Baseline priority order for ranking discovered models
+  static const List<String> _preferredModelOrder = [
+    'gemini-2.5-flash',
+    'gemini-2.0-flash',
+    'gemini-1.5-flash',
+    'gemini-1.5-flash-8b',
+    'gemini-2.5-pro',
+    'gemini-1.5-pro',
+    'gemini-1.0-pro-vision',
+  ];
+
+  GeminiOcrService({String? apiKey}) : _apiKey = apiKey ?? _defaultApiKey {
+    // Initiate background model discovery immediately
+    _fetchAndRefreshModelsInBackground();
+  }
+
+  /// Fetches all active Gemini models from Google AI API in background and prioritizes them
+  Future<void> _fetchAndRefreshModelsInBackground() async {
+    if (_isFetchingModels) return;
+    if (_lastModelFetchTime != null &&
+        DateTime.now().difference(_lastModelFetchTime!).inMinutes < 30 &&
+        _availableModels.isNotEmpty) {
+      return;
+    }
+
+    _isFetchingModels = true;
+
+    try {
+      final url = 'https://generativelanguage.googleapis.com/v1beta/models?key=$_apiKey';
+      final response = await http.get(Uri.parse(url)).timeout(const Duration(seconds: 8));
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body) as Map<String, dynamic>;
+        final rawModels = data['models'] as List<dynamic>? ?? [];
+
+        final discovered = <String>[];
+
+        for (final m in rawModels) {
+          if (m is Map<String, dynamic>) {
+            final name = m['name']?.toString().replaceFirst('models/', '') ?? '';
+            final methods = (m['supportedGenerationMethods'] as List<dynamic>?)
+                    ?.map((e) => e.toString())
+                    .toList() ??
+                [];
+
+            // Only select text/vision generative models, excluding embeddings, audio, tts, robotics
+            if (methods.contains('generateContent') &&
+                name.contains('gemini') &&
+                !name.contains('embedding') &&
+                !name.contains('tts') &&
+                !name.contains('audio') &&
+                !name.contains('transcribe') &&
+                !name.contains('robotics')) {
+              discovered.add(name);
+            }
+          }
+        }
+
+        if (discovered.isNotEmpty) {
+          // Sort discovered models by priority ranking
+          discovered.sort((a, b) {
+            int scoreA = _getModelPriorityScore(a);
+            int scoreB = _getModelPriorityScore(b);
+            return scoreA.compareTo(scoreB);
+          });
+
+          _availableModels = discovered;
+          _lastModelFetchTime = DateTime.now();
+          debugPrint('Gemini OCR: Discovered ${_availableModels.length} active models in pool: ${_availableModels.take(4).join(", ")}...');
+        }
+      }
+    } catch (e) {
+      debugPrint('Gemini OCR: Background model fetch fallback (using baseline models): $e');
+    } finally {
+      _isFetchingModels = false;
+    }
+  }
+
+  int _getModelPriorityScore(String modelName) {
+    for (int i = 0; i < _preferredModelOrder.length; i++) {
+      if (modelName.contains(_preferredModelOrder[i])) {
+        return i;
+      }
+    }
+    return 100; // default lower priority for other discovered experimental models
+  }
 
   /// Analyze and extract announcement data from local image bytes using Gemini Vision OCR
+  /// with automatic model failover across the discovered pool when quota or service fails.
   Future<ExtractedAnnouncement> extractAnnouncementFromImage({
     required Uint8List imageBytes,
     String mimeType = 'image/jpeg',
   }) async {
+    // Ensure model list is loaded or fallback to baseline
+    if (_availableModels.isEmpty) {
+      await _fetchAndRefreshModelsInBackground();
+    }
+
+    final candidateModels = _availableModels.isNotEmpty
+        ? _availableModels
+        : _preferredModelOrder;
+
     final base64Image = base64Encode(imageBytes);
 
     const prompt = '''
@@ -141,12 +241,6 @@ CRITICAL RULES:
 2. If certain details are missing from the flyer, provide realistic smart inferences for SXUK campus context.
 ''';
 
-    // Primary endpoint: gemini-2.5-flash / gemini-1.5-flash
-    final endpoints = [
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=$_apiKey',
-      'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=$_apiKey',
-    ];
-
     final requestBody = jsonEncode({
       'contents': [
         {
@@ -167,13 +261,19 @@ CRITICAL RULES:
       }
     });
 
-    for (final url in endpoints) {
+    // Iterate through available models with automatic failover
+    for (final model in candidateModels) {
+      final url = 'https://generativelanguage.googleapis.com/v1beta/models/$model:generateContent?key=$_apiKey';
+
       try {
-        final response = await http.post(
-          Uri.parse(url),
-          headers: {'Content-Type': 'application/json'},
-          body: requestBody,
-        );
+        debugPrint('Gemini OCR: Attempting extraction with model "$model"...');
+        final response = await http
+            .post(
+              Uri.parse(url),
+              headers: {'Content-Type': 'application/json'},
+              body: requestBody,
+            )
+            .timeout(const Duration(seconds: 15));
 
         if (response.statusCode == 200) {
           final resJson = jsonDecode(response.body) as Map<String, dynamic>;
@@ -185,18 +285,22 @@ CRITICAL RULES:
               final rawText = parts[0]['text'] as String;
               final cleanedJson = _cleanJsonString(rawText);
               final parsed = jsonDecode(cleanedJson) as Map<String, dynamic>;
+              debugPrint('Gemini OCR: Successfully extracted announcement using model "$model"');
               return ExtractedAnnouncement.fromJson(parsed);
             }
           }
+        } else if (response.statusCode == 429) {
+          debugPrint('Gemini OCR: Model "$model" quota exhausted / rate-limited (429). Failing over to next model in pool...');
         } else {
-          debugPrint('Gemini API returned status ${response.statusCode}: ${response.body}');
+          debugPrint('Gemini OCR: Model "$model" returned ${response.statusCode}. Failing over...');
         }
       } catch (e) {
-        debugPrint('Gemini OCR API attempt error ($url): $e');
+        debugPrint('Gemini OCR: Attempt on model "$model" failed ($e). Failing over...');
       }
     }
 
-    // Smart fallback extraction if offline or network failure
+    // Smart fallback extraction if all models in pool failed or device is offline
+    debugPrint('Gemini OCR: All remote AI models failed or offline. Generating heuristic fallback extraction.');
     return _buildHeuristicFallback(imageBytes);
   }
 
