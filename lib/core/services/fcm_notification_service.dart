@@ -38,10 +38,43 @@ class FCMNotificationService {
         },
       );
 
+      // Request runtime notification permission on Android 13+ and iOS
+      await requestPermissions();
+
       _isInitialized = true;
     } catch (e) {
       debugPrint('FCM / Local Notifications Init Fallback: $e');
     }
+  }
+
+  /// Explicitly requests runtime push & local notification permissions on Android (API 33+) & iOS
+  Future<bool?> requestPermissions() async {
+    try {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
+        final androidPlugin = _localNotifications.resolvePlatformSpecificImplementation<
+            AndroidFlutterLocalNotificationsPlugin>();
+        if (androidPlugin != null) {
+          final granted = await androidPlugin.requestNotificationsPermission();
+          debugPrint('Android Notification Permission Granted: $granted');
+          return granted;
+        }
+      } else if (!kIsWeb && defaultTargetPlatform == TargetPlatform.iOS) {
+        final iosPlugin = _localNotifications.resolvePlatformSpecificImplementation<
+            IOSFlutterLocalNotificationsPlugin>();
+        if (iosPlugin != null) {
+          final granted = await iosPlugin.requestPermissions(
+            alert: true,
+            badge: true,
+            sound: true,
+          );
+          debugPrint('iOS Notification Permission Granted: $granted');
+          return granted;
+        }
+      }
+    } catch (e) {
+      debugPrint('Notification permission request notice: $e');
+    }
+    return null;
   }
 
   /// Broadcasts a native system push notification when an announcement is published

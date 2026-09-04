@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/services/fcm_notification_service.dart';
 import '../../models/profile_model.dart';
 import '../auth/auth_controller.dart';
 
@@ -220,6 +221,12 @@ class OnboardingController extends Notifier<OnboardingState> {
       );
 
       await ref.read(authControllerProvider.notifier).updateProfile(updatedProfile);
+      
+      // Request system notification permissions for campus alerts & reminders
+      try {
+        await ref.read(fcmNotificationServiceProvider).requestPermissions();
+      } catch (_) {}
+
       state = state.copyWith(isSaving: false);
       return true;
     } catch (e) {

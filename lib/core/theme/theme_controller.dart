@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../services/fcm_notification_service.dart';
 import '../storage/shared_preferences_provider.dart';
 
 class ThemeSettingsState {
@@ -89,6 +90,11 @@ class ThemeController extends Notifier<ThemeSettingsState> {
 
   Future<void> togglePushNotifications(bool enabled) async {
     state = state.copyWith(pushNotificationsEnabled: enabled);
+    if (enabled) {
+      try {
+        await ref.read(fcmNotificationServiceProvider).requestPermissions();
+      } catch (_) {}
+    }
     try {
       final prefs = ref.read(sharedPreferencesProvider);
       await prefs.setBool(_keyPushNotifs, enabled);
@@ -99,6 +105,11 @@ class ThemeController extends Notifier<ThemeSettingsState> {
 
   Future<void> toggleDeadlineAlerts(bool enabled) async {
     state = state.copyWith(deadlineAlertsEnabled: enabled);
+    if (enabled) {
+      try {
+        await ref.read(fcmNotificationServiceProvider).requestPermissions();
+      } catch (_) {}
+    }
     try {
       final prefs = ref.read(sharedPreferencesProvider);
       await prefs.setBool(_keyDeadlineAlerts, enabled);
