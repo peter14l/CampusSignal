@@ -7,7 +7,6 @@ function renderAppSidebar(activeTab = 'feed') {
   const sidebar = document.getElementById('app-sidebar-container');
   if (!sidebar) return;
 
-  // Compute root prefix based on current pathname
   const path = window.location.pathname.replace(/\\/g, '/');
   const isSubRoute = path.includes('/app/calendar/') ||
                      path.includes('/app/saved/') ||
@@ -28,29 +27,29 @@ function renderAppSidebar(activeTab = 'feed') {
     </div>
 
     <nav class="sidebar-nav">
-      <a href="${appRoot}index.html" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
+      <a href="${appRoot}index.html#feed" data-tab="feed" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
         <i data-lucide="compass" style="width:18px;height:18px;"></i>
         <span>Discover Feed</span>
       </a>
-      <a href="${appRoot}calendar/index.html" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
+      <a href="${appRoot}index.html#calendar" data-tab="calendar" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
         <i data-lucide="calendar" style="width:18px;height:18px;"></i>
         <span>Calendar & Deadlines</span>
         <span class="sidebar-badge">4</span>
       </a>
-      <a href="${appRoot}saved/index.html" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
+      <a href="${appRoot}index.html#saved" data-tab="saved" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
         <span>Saved Opportunities</span>
       </a>
-      <a href="${appRoot}studio/index.html" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
+      <a href="${appRoot}index.html#studio" data-tab="studio" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
         <i data-lucide="scan-line" style="width:18px;height:18px;"></i>
         <span>AI Flyer Studio</span>
       </a>
-      <a href="${appRoot}notifications/index.html" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
+      <a href="${appRoot}index.html#notifications" data-tab="notifications" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span>Broadcast Signals</span>
         <span class="sidebar-badge" style="background:var(--accent-amber);color:#000;">2</span>
       </a>
-      <a href="${appRoot}profile/index.html" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
+      <a href="${appRoot}index.html#profile" data-tab="profile" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
         <i data-lucide="user" style="width:18px;height:18px;"></i>
         <span>Academic Profile</span>
       </a>
@@ -78,6 +77,17 @@ function renderAppSidebar(activeTab = 'feed') {
   // Render Mobile Bottom Bar
   renderMobileNav(activeTab, appRoot);
 
+  // Hook tab click events for instant SPA switching if on main app
+  sidebar.querySelectorAll('.sidebar-link[data-tab]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const tab = link.getAttribute('data-tab');
+      if (typeof window.switchAppTab === 'function') {
+        e.preventDefault();
+        window.switchAppTab(tab);
+      }
+    });
+  });
+
   // Hook Sign Out
   const signOutBtn = document.getElementById('btn-sidebar-signout');
   if (signOutBtn) {
@@ -94,27 +104,37 @@ function renderMobileNav(activeTab = 'feed', appRoot = './') {
   if (!bottomNav) return;
 
   bottomNav.innerHTML = `
-    <a href="${appRoot}index.html" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
+    <a href="${appRoot}index.html#feed" data-tab="feed" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
       <i data-lucide="compass" style="width:20px;height:20px;"></i>
       <span>Feed</span>
     </a>
-    <a href="${appRoot}calendar/index.html" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
+    <a href="${appRoot}index.html#calendar" data-tab="calendar" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
       <i data-lucide="calendar" style="width:20px;height:20px;"></i>
       <span>Calendar</span>
     </a>
-    <a href="${appRoot}saved/index.html" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
+    <a href="${appRoot}index.html#saved" data-tab="saved" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
       <i data-lucide="bookmark" style="width:20px;height:20px;"></i>
       <span>Saved</span>
     </a>
-    <a href="${appRoot}studio/index.html" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
+    <a href="${appRoot}index.html#studio" data-tab="studio" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
       <i data-lucide="scan-line" style="width:20px;height:20px;"></i>
       <span>Studio</span>
     </a>
-    <a href="${appRoot}profile/index.html" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
+    <a href="${appRoot}index.html#profile" data-tab="profile" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
       <i data-lucide="user" style="width:20px;height:20px;"></i>
       <span>Profile</span>
     </a>
   `;
+
+  bottomNav.querySelectorAll('.mobile-nav-item[data-tab]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      const tab = link.getAttribute('data-tab');
+      if (typeof window.switchAppTab === 'function') {
+        e.preventDefault();
+        window.switchAppTab(tab);
+      }
+    });
+  });
 }
 
 // Update User UI Elements across topbar & sidebar

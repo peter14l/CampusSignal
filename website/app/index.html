@@ -34,17 +34,35 @@
       
       <!-- Sticky Top Header -->
       <header class="app-header">
-        <div class="header-search-wrap">
+        <div class="header-search-wrap" id="header-search-container">
           <i data-lucide="search" class="header-search-icon" style="width: 18px; height: 18px;"></i>
           <input type="text" id="feed-search-input" class="header-search-input" placeholder="Search hackathons, tech tags, EY GDS, workshops...">
         </div>
 
+        <div id="header-page-title" style="display: none; font-size: 1.15rem; font-weight: 800; color: var(--text-primary);"></div>
+
         <div class="header-actions">
-          <!-- Department Quick Filter -->
+          <!-- Department Quick Filter (Visible on Feed) -->
           <select id="department-filter-select" style="max-width: 220px; height: 38px; border-radius: var(--radius-md); background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; padding: 0 10px;">
             <option value="all">All Disciplines</option>
             <option value="my-dept" selected>My Department Filter</option>
           </select>
+
+          <!-- Action buttons for subviews -->
+          <button id="btn-export-all-ics-header" class="btn btn-sm btn-primary" style="display: none;">
+            <i data-lucide="download" style="width: 15px; height: 15px; margin-right: 6px;"></i>
+            <span>Export Schedule (.ics)</span>
+          </button>
+
+          <button id="btn-mark-all-read-header" class="btn btn-sm btn-outline" style="display: none;">
+            <i data-lucide="check-check" style="width: 15px; height: 15px; margin-right: 6px;"></i>
+            <span>Mark All Read</span>
+          </button>
+
+          <button id="btn-edit-profile-header" class="btn btn-sm btn-primary" style="display: none;">
+            <i data-lucide="edit-3" style="width: 15px; height: 15px; margin-right: 6px;"></i>
+            <span>Edit Profile</span>
+          </button>
 
           <!-- Theme Toggle -->
           <button class="theme-toggle btn btn-sm btn-outline" aria-label="Toggle Theme" style="height: 38px; width: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md);">
@@ -53,79 +71,379 @@
         </div>
       </header>
 
-      <!-- Feed Content & Right Deadlines Layout -->
-      <div class="app-body-layout">
-        
-        <!-- Main Feed Column -->
-        <div class="app-feed-column">
-          
-          <!-- Category Filter Bar -->
-          <div class="category-pills-bar" id="category-pills-container">
-            <!-- Populated via JS -->
-          </div>
-
-          <!-- Active Filter & Stats Banner -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <div style="font-size: 0.875rem; color: var(--text-secondary);">
-              Showing <span id="event-count-badge" style="font-weight: 700; color: var(--text-primary);">6</span> verified campus signals
+      <!-- VIEW 1: OPPORTUNITY DISCOVERY FEED -->
+      <section id="view-feed" class="app-view-section active-view">
+        <div class="app-body-layout">
+          <!-- Main Feed Column -->
+          <div class="app-feed-column">
+            <!-- Category Filter Bar -->
+            <div class="category-pills-bar" id="category-pills-container">
+              <!-- Populated via JS -->
             </div>
-            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--emerald);">
-              <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-              <span>SXUK Verified Broadcasts</span>
+
+            <!-- Active Filter & Stats Banner -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+              <div style="font-size: 0.875rem; color: var(--text-secondary);">
+                Showing <span id="event-count-badge" style="font-weight: 700; color: var(--text-primary);">6</span> verified campus signals
+              </div>
+              <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--emerald);">
+                <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+                <span>SXUK Verified Broadcasts</span>
+              </div>
+            </div>
+
+            <!-- Cards Grid -->
+            <div class="events-grid" id="events-grid-container">
+              <!-- Event Cards Rendered Here -->
+            </div>
+
+            <!-- Empty State (Hidden) -->
+            <div id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px dashed var(--border-medium);">
+              <i data-lucide="compass" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px;"></i>
+              <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">No matching opportunities found</h3>
+              <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">Try clearing search keywords or switching category filters.</p>
+              <button id="btn-reset-filters" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+                <span>Reset All Filters</span>
+              </button>
             </div>
           </div>
 
-          <!-- Cards Grid -->
-          <div class="events-grid" id="events-grid-container">
-            <!-- Event Cards Rendered Here -->
+          <!-- Right Side Quick Rail -->
+          <aside class="app-rail-column">
+            <!-- Urgent Deadlines Rail Widget -->
+            <div class="rail-widget">
+              <div class="widget-title">
+                <i data-lucide="alarm-clock" style="width: 18px; height: 18px; color: var(--accent-amber);"></i>
+                <span>Closing Soon</span>
+              </div>
+              <div id="deadlines-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+                <!-- Deadlines populated via JS -->
+              </div>
+            </div>
+
+            <!-- AI Flyer Studio Mini Callout -->
+            <div class="rail-widget" style="background: linear-gradient(135deg, rgba(79, 85, 222, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: var(--border-highlight);">
+              <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+                <div style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff;">
+                  <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+                </div>
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Got a Campus Poster?</h4>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+                Upload any WhatsApp poster or club flyer. Our Vision OCR extracts dates, venues & eligibility automatically.
+              </p>
+              <button class="btn btn-sm btn-primary" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;" onclick="switchAppTab('studio')">
+                <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
+                <span>Open AI Flyer Studio</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- VIEW 2: CALENDAR & DEADLINE TRACKER -->
+      <section id="view-calendar" class="app-view-section">
+        <div class="app-body-layout" style="grid-template-columns: 1.4fr 1fr;">
+          <div>
+            <div class="cal-wrapper">
+              <div class="cal-header">
+                <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+                  September 2026
+                </div>
+                <div style="display: flex; gap: 8px;">
+                  <button class="btn btn-sm btn-outline" style="padding: 6px 10px;" title="Previous Month">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                  </button>
+                  <button class="btn btn-sm btn-outline" style="padding: 6px 12px; font-weight: 600;">Today</button>
+                  <button class="btn btn-sm btn-outline" style="padding: 6px 10px;" title="Next Month">
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                  </button>
+                </div>
+              </div>
+
+              <!-- Days Header -->
+              <div class="cal-grid" style="margin-bottom: 6px;">
+                <div class="cal-day-label">Sun</div>
+                <div class="cal-day-label">Mon</div>
+                <div class="cal-day-label">Tue</div>
+                <div class="cal-day-label">Wed</div>
+                <div class="cal-day-label">Thu</div>
+                <div class="cal-day-label">Fri</div>
+                <div class="cal-day-label">Sat</div>
+              </div>
+
+              <!-- Month Cells Grid -->
+              <div class="cal-grid" id="calendar-days-grid"></div>
+            </div>
           </div>
 
-          <!-- Empty State (Hidden) -->
-          <div id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px dashed var(--border-medium);">
-            <i data-lucide="compass" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px;"></i>
-            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">No matching opportunities found</h3>
-            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">Try clearing search keywords or switching category filters.</p>
-            <button id="btn-reset-filters" class="btn btn-outline btn-sm" style="margin-top: 16px;">
-              <span>Reset All Filters</span>
+          <!-- Upcoming Timeline & Urgency List -->
+          <div>
+            <div class="rail-widget" style="margin-bottom: 20px;">
+              <div class="widget-title">
+                <i data-lucide="flame" style="width: 18px; height: 18px; color: var(--rose);"></i>
+                <span>High Urgency Actions</span>
+              </div>
+              <div style="display: flex; flex-direction: column; gap: 12px;" id="urgent-timeline-container"></div>
+            </div>
+
+            <!-- Conflict Checker Box -->
+            <div class="rail-widget" style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle);">
+              <div style="display: flex; align-items: center; gap: 8px; color: var(--emerald); font-weight: 700; font-size: 0.875rem; margin-bottom: 8px;">
+                <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+                <span>Zero Schedule Conflicts Detected</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                All bookmarked drives and competitions align seamlessly with SXUK standard lecture hours.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 3: SAVED OPPORTUNITIES -->
+      <section id="view-saved" class="app-view-section">
+        <div class="app-body-layout" style="grid-template-columns: 1fr;">
+          <div class="events-grid" id="saved-events-grid"></div>
+
+          <div id="saved-empty-state" style="display:none; text-align:center; padding:80px 20px; background:var(--bg-secondary); border-radius:var(--radius-xl); border:1px dashed var(--border-medium);">
+            <i data-lucide="bookmark" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:12px;"></i>
+            <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">No bookmarks saved yet</h3>
+            <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:6px; max-width:400px; margin-left:auto; margin-right:auto;">
+              Bookmark hackathons, career drives, and workshops from the Discovery Feed for one-click access.
+            </p>
+            <button class="btn btn-primary" style="margin-top:20px; display:inline-flex; align-items:center; gap:8px;" onclick="switchAppTab('feed')">
+              <i data-lucide="compass" style="width:16px;height:16px;"></i>
+              <span>Browse Discovery Feed</span>
             </button>
           </div>
-
         </div>
+      </section>
 
-        <!-- Right Side Quick Rail -->
-        <aside class="app-rail-column">
-          
-          <!-- Urgent Deadlines Rail Widget -->
-          <div class="rail-widget">
-            <div class="widget-title">
-              <i data-lucide="alarm-clock" style="width: 18px; height: 18px; color: var(--accent-amber);"></i>
-              <span>Closing Soon</span>
-            </div>
-            <div id="deadlines-list-container" style="display: flex; flex-direction: column; gap: 8px;">
-              <!-- Deadlines populated via JS -->
-            </div>
-          </div>
-
-          <!-- AI Flyer Studio Mini Callout -->
-          <div class="rail-widget" style="background: linear-gradient(135deg, rgba(79, 85, 222, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: var(--border-highlight);">
-            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-              <div style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff;">
-                <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+      <!-- VIEW 4: AI FLYER STUDIO -->
+      <section id="view-studio" class="app-view-section">
+        <div class="app-body-layout" style="grid-template-columns: 1fr 1.2fr;">
+          <!-- Left: Upload & Preview Section -->
+          <div>
+            <div class="studio-dropzone" id="flyer-dropzone">
+              <input type="file" id="flyer-file-input" accept="image/*" style="display: none;">
+              <div id="dropzone-default">
+                <i data-lucide="image-up" style="width: 44px; height: 44px; color: var(--primary); margin-bottom: 12px;"></i>
+                <h3 style="font-size: 1.05rem; font-weight: 700; color: var(--text-primary);">Upload Campus Event Poster</h3>
+                <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 4px; max-width: 280px; margin-left: auto; margin-right: auto;">
+                  Drag & drop any JPEG/PNG poster or tap to select from device
+                </p>
+                <button type="button" class="btn btn-sm btn-outline" style="margin-top: 14px;" onclick="document.getElementById('flyer-file-input').click()">
+                  Browse Files
+                </button>
               </div>
-              <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Got a Campus Poster?</h4>
+
+              <!-- Preview Image (Hidden) -->
+              <div id="poster-preview-wrap" style="display: none; position: relative;">
+                <img id="poster-preview-img" src="" alt="Poster Preview" style="max-height: 260px; width: auto; border-radius: var(--radius-md); box-shadow: var(--shadow-md);">
+                <button id="btn-reset-flyer" class="btn btn-sm btn-outline" style="margin-top: 12px; background: var(--bg-secondary);">
+                  <i data-lucide="rotate-ccw" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+                  Change Poster
+                </button>
+              </div>
             </div>
-            <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
-              Upload any WhatsApp poster or club flyer. Our Vision OCR extracts dates, venues & eligibility automatically.
-            </p>
-            <a href="./studio/index.html" class="btn btn-sm btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
-              <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
-              <span>Open AI Flyer Studio</span>
-            </a>
+
+            <!-- Sample Selection Buttons -->
+            <div style="margin-top: 20px;">
+              <div style="font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 10px;">
+                Or test with preloaded SXUK flyers
+              </div>
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                <button class="btn btn-sm btn-outline sample-flyer-btn" data-sample="1">Hackathon 2026</button>
+                <button class="btn btn-sm btn-outline sample-flyer-btn" data-sample="2">EY GDS Drive</button>
+                <button class="btn btn-sm btn-outline sample-flyer-btn" data-sample="3">Edge LLM Workshop</button>
+              </div>
+            </div>
           </div>
 
-        </aside>
+          <!-- Right: Structured OCR Extraction Form -->
+          <div>
+            <div class="rail-widget" style="padding: 24px;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <div class="widget-title" style="margin-bottom: 0;">
+                  <i data-lucide="cpu" style="width: 18px; height: 18px; color: var(--primary);"></i>
+                  <span>Extracted Event Schema</span>
+                </div>
+                <span id="ocr-status-badge" style="font-size: 0.75rem; padding: 3px 8px; border-radius: var(--radius-full); background: var(--bg-tertiary); color: var(--text-muted);">
+                  Ready
+                </span>
+              </div>
 
-      </div>
+              <form id="ocr-review-form" style="display: flex; flex-direction: column; gap: 14px;">
+                <div>
+                  <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Event Title</label>
+                  <input type="text" id="ocr-title" class="form-control" style="width: 100%; height: 38px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 10px; color: var(--text-primary); font-size: 0.875rem;" value="SXUK GenAI Hackathon 2026: Multimodal Agent Challenge">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                  <div>
+                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Category</label>
+                    <select id="ocr-category" style="width: 100%; height: 38px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 10px; color: var(--text-primary); font-size: 0.875rem;">
+                      <option value="hackathon">Hackathon</option>
+                      <option value="internship">Internship</option>
+                      <option value="workshop">Workshop</option>
+                      <option value="fest">Fest & Culture</option>
+                      <option value="seminar">Seminar</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Registration Deadline</label>
+                    <input type="text" id="ocr-deadline" style="width: 100%; height: 38px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 10px; color: var(--text-primary); font-size: 0.875rem;" value="2026-09-08T23:59:59+05:30">
+                  </div>
+                </div>
+
+                <div>
+                  <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Organizer & Venue</label>
+                  <input type="text" id="ocr-organizer" style="width: 100%; height: 38px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 10px; color: var(--text-primary); font-size: 0.875rem;" value="Dept. of Computer Science & ACM Student Chapter • Fr. Beckers Block, Lab 402">
+                </div>
+
+                <div>
+                  <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Target Eligibility / Disciplines</label>
+                  <input type="text" id="ocr-eligibility" style="width: 100%; height: 38px; border-radius: var(--radius-sm); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 10px; color: var(--text-primary); font-size: 0.875rem;" value="B.Tech CSE/AI/IT, B.Sc Data Science, M.Sc CS">
+                </div>
+
+                <div>
+                  <label style="font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 4px;">Extracted JSON Payload</label>
+                  <pre class="ocr-json-box" id="ocr-json-preview"></pre>
+                </div>
+
+                <div style="display: flex; gap: 10px; margin-top: 6px;">
+                  <button type="button" id="btn-broadcast-event" class="btn btn-primary" style="flex: 1; height: 42px;">
+                    <i data-lucide="radio" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+                    <span>Broadcast to Campus Signals</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 5: BROADCAST NOTIFICATIONS -->
+      <section id="view-notifications" class="app-view-section">
+        <div class="app-body-layout" style="grid-template-columns: 1fr;">
+          <div style="display: flex; flex-direction: column; gap: 12px;" id="notifications-list-container">
+            <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--accent-amber);">
+              <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-amber-container); color: var(--accent-amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-lucide="alarm-clock" style="width: 20px; height: 20px;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">SXUK GenAI Hackathon 2026 Registration Closes in 3 Days</h4>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">2 hours ago</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                  ACM Student Chapter reminds eligible B.Tech and Data Science teams to submit member GitHub handles before Sept 8, 11:59 PM.
+                </p>
+              </div>
+            </div>
+
+            <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--primary);">
+              <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--primary-container); color: var(--primary-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">New Placement Drive: EY Global Delivery Services 2027</h4>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Yesterday</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                  Central Placement Cell has approved pre-placement registration for B.Tech (CSE/AI/IT/ECE), B.Com, and BMS students with >= 7.5 CGPA.
+                </p>
+              </div>
+            </div>
+
+            <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--emerald);">
+              <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--emerald-container); color: var(--emerald); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <i data-lucide="radio" style="width: 20px; height: 20px;"></i>
+              </div>
+              <div style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.6 (Build 7)</h4>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 5, 2026</span>
+                </div>
+                <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                  Material 3 Expressive theming synchronization, multi-format calendar export, and 28 official SXUK programme filtering enabled.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- VIEW 6: ACADEMIC PROFILE -->
+      <section id="view-profile" class="app-view-section">
+        <div class="app-body-layout" style="grid-template-columns: 1fr;">
+          <div class="profile-hero">
+            <div class="profile-big-avatar" id="profile-big-avatar">SX</div>
+            <div style="flex: 1;">
+              <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+                <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);" id="profile-full-name">
+                  SXUK Student
+                </h2>
+                <span style="font-size: 0.75rem; background: var(--primary-container); color: var(--primary-hover); padding: 3px 8px; border-radius: var(--radius-full); font-weight: 700;">
+                  Verified SXUK
+                </span>
+              </div>
+              
+              <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px;" id="profile-email-dept">
+                student@sxuk.edu.in • B.Tech in CSE
+              </div>
+
+              <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="profile-pills-row">
+                <span class="event-mini-tag" id="pill-branch">B.Tech in CSE</span>
+                <span class="event-mini-tag" id="pill-semester">Semester 5</span>
+                <span class="event-mini-tag" id="pill-year">3rd Year</span>
+              </div>
+            </div>
+
+            <div style="display: flex; gap: 12px;">
+              <div class="stat-counter-card">
+                <div class="stat-val" id="stat-saved-count">2</div>
+                <div class="stat-lbl">Saved Drives</div>
+              </div>
+              <div class="stat-counter-card">
+                <div class="stat-val">6</div>
+                <div class="stat-lbl">Eligible Events</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+            <div class="rail-widget">
+              <div class="widget-title">
+                <i data-lucide="compass" style="width: 18px; height: 18px; color: var(--primary);"></i>
+                <span>Opportunity Interests</span>
+              </div>
+              <div id="profile-interests-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+
+            <div class="rail-widget">
+              <div class="widget-title">
+                <i data-lucide="code" style="width: 18px; height: 18px; color: var(--emerald);"></i>
+                <span>Technical & Professional Skills</span>
+              </div>
+              <div id="profile-skills-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+            </div>
+          </div>
+
+          <div class="rail-widget" style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9375rem;">Connected Session</div>
+              <div style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px;">Session stored securely in browser state & Supabase Auth</div>
+            </div>
+            <button id="btn-logout-main" class="btn btn-outline" style="color: var(--rose); border-color: rgba(244,63,94,0.3);">
+              <i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+              <span>Sign Out Account</span>
+            </button>
+          </div>
+        </div>
+      </section>
 
     </main>
 
@@ -144,19 +462,169 @@
     </div>
   </div>
 
+  <!-- Edit Academic Details Modal -->
+  <div class="cs-modal-backdrop" id="edit-profile-modal">
+    <div class="cs-modal" style="max-width: 560px;">
+      <button class="modal-close-btn" id="btn-close-edit-modal"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      
+      <div style="padding: 28px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">Update Academic Details</h2>
+        <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 20px;">Changes sync directly to your SXUK Supabase database record.</p>
+
+        <form id="edit-profile-form" style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full Name</label>
+            <input type="text" id="edit-fullname" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);">
+          </div>
+
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">SXUK Programme / Branch</label>
+            <select id="edit-branch" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);"></select>
+          </div>
+
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Current Semester (1 to 8)</label>
+            <select id="edit-semester" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);">
+              <option value="1">Semester 1 (1st Year)</option>
+              <option value="2">Semester 2 (1st Year)</option>
+              <option value="3">Semester 3 (2nd Year)</option>
+              <option value="4">Semester 4 (2nd Year)</option>
+              <option value="5">Semester 5 (3rd Year)</option>
+              <option value="6">Semester 6 (3rd Year)</option>
+              <option value="7">Semester 7 (4th Year)</option>
+              <option value="8">Semester 8 (4th Year)</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button type="button" class="btn btn-outline" id="btn-cancel-edit">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-edit">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <script>
+    let globalCurrentUser = null;
+    let globalUserProfile = null;
+    let currentActiveTab = 'feed';
+
+    // Global SPA Tab Switcher
+    function switchAppTab(tabName, updateUrl = true) {
+      currentActiveTab = tabName;
+      if (updateUrl) {
+        history.replaceState(null, '', `#${tabName}`);
+      }
+
+      // 1. Hide all views & show current target
+      document.querySelectorAll('.app-view-section').forEach(sec => sec.classList.remove('active-view'));
+      const targetSec = document.getElementById(`view-${tabName}`);
+      if (targetSec) targetSec.classList.add('active-view');
+
+      // 2. Update Sidebar & Mobile Nav active states seamlessly
+      document.querySelectorAll('.sidebar-link').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-tab') === tabName);
+      });
+      document.querySelectorAll('.mobile-nav-item').forEach(link => {
+        link.classList.toggle('active', link.getAttribute('data-tab') === tabName);
+      });
+
+      // 3. Update Header UI controls based on active view
+      const searchContainer = document.getElementById('header-search-container');
+      const deptFilter = document.getElementById('department-filter-select');
+      const pageTitle = document.getElementById('header-page-title');
+      const exportIcsBtn = document.getElementById('btn-export-all-ics-header');
+      const markReadBtn = document.getElementById('btn-mark-all-read-header');
+      const editProfileBtn = document.getElementById('btn-edit-profile-header');
+
+      if (tabName === 'feed') {
+        searchContainer.style.display = 'block';
+        deptFilter.style.display = 'block';
+        pageTitle.style.display = 'none';
+        exportIcsBtn.style.display = 'none';
+        markReadBtn.style.display = 'none';
+        editProfileBtn.style.display = 'none';
+      } else {
+        searchContainer.style.display = 'none';
+        deptFilter.style.display = 'none';
+        pageTitle.style.display = 'block';
+
+        if (tabName === 'calendar') {
+          pageTitle.textContent = 'Calendar & Deadline Tracker';
+          exportIcsBtn.style.display = 'inline-flex';
+          markReadBtn.style.display = 'none';
+          editProfileBtn.style.display = 'none';
+        } else if (tabName === 'saved') {
+          pageTitle.textContent = 'Saved Opportunities & Bookmarks';
+          exportIcsBtn.style.display = 'none';
+          markReadBtn.style.display = 'none';
+          editProfileBtn.style.display = 'none';
+          if (window.renderSavedView) window.renderSavedView();
+        } else if (tabName === 'studio') {
+          pageTitle.textContent = 'AI Flyer & Poster Studio';
+          exportIcsBtn.style.display = 'none';
+          markReadBtn.style.display = 'none';
+          editProfileBtn.style.display = 'none';
+        } else if (tabName === 'notifications') {
+          pageTitle.textContent = 'Broadcast Signals & Alarms';
+          exportIcsBtn.style.display = 'none';
+          markReadBtn.style.display = 'inline-flex';
+          editProfileBtn.style.display = 'none';
+        } else if (tabName === 'profile') {
+          pageTitle.textContent = 'Academic Identity & Hub';
+          exportIcsBtn.style.display = 'none';
+          markReadBtn.style.display = 'none';
+          editProfileBtn.style.display = 'inline-flex';
+          if (window.refreshProfileUI) window.refreshProfileUI();
+        }
+      }
+
+      if (window.lucide) lucide.createIcons();
+      document.querySelector('.app-main').scrollTop = 0;
+    }
+
+    window.switchAppTab = switchAppTab;
+
     document.addEventListener('DOMContentLoaded', async () => {
       // 1. Auth Guard
       const user = await CS_AUTH.requireAuth();
       if (!user) return;
+      globalCurrentUser = user;
 
-      // 2. Setup Sidebar & User Information
+      // 2. Setup Persistent Sidebar & User Profile Header
       CS_NAV.renderAppSidebar('feed');
       const { profile } = await CS_NAV.populateUserInfo(user);
+      globalUserProfile = profile;
 
       if (window.lucide) lucide.createIcons();
 
-      // State
+      // Setup Submodules
+      setupFeedModule();
+      setupCalendarModule();
+      setupSavedModule();
+      setupStudioModule();
+      setupProfileModule();
+
+      // Check initial hash route
+      const initialHash = window.location.hash.replace('#', '') || 'feed';
+      const validTabs = ['feed', 'calendar', 'saved', 'studio', 'notifications', 'profile'];
+      if (validTabs.includes(initialHash)) {
+        switchAppTab(initialHash, false);
+      } else {
+        switchAppTab('feed', false);
+      }
+
+      window.addEventListener('hashchange', () => {
+        const hash = window.location.hash.replace('#', '') || 'feed';
+        if (validTabs.includes(hash)) {
+          switchAppTab(hash, false);
+        }
+      });
+    });
+
+    /* FEED MODULE */
+    function setupFeedModule() {
       let activeCategory = 'all';
       let searchQuery = '';
       let filterByDept = true;
@@ -170,12 +638,10 @@
       const deadlinesContainer = document.getElementById('deadlines-list-container');
       const resetBtn = document.getElementById('btn-reset-filters');
 
-      // Populate Department Filter Select
-      if (profile?.branch) {
-        deptFilterSelect.options[1].textContent = `My Dept (${profile.branch.slice(0, 18)}...)`;
+      if (globalUserProfile?.branch) {
+        deptFilterSelect.options[1].textContent = `My Dept (${globalUserProfile.branch.slice(0, 18)}...)`;
       }
 
-      // Render Categories
       function renderCategoryPills() {
         pillsContainer.innerHTML = '';
         SXUK_CATALOG.categories.forEach(cat => {
@@ -195,15 +661,11 @@
         if (window.lucide) lucide.createIcons();
       }
 
-      // Render Events Grid
       function renderEventsGrid() {
         const savedIds = CS_AUTH.getSavedEventIds();
         
         let filtered = SXUK_CATALOG.events.filter(event => {
-          // Category
           if (activeCategory !== 'all' && event.category !== activeCategory) return false;
-          
-          // Search
           if (searchQuery) {
             const q = searchQuery.toLowerCase();
             const inTitle = event.title.toLowerCase().includes(q);
@@ -211,13 +673,10 @@
             const inTags = event.tags.some(t => t.toLowerCase().includes(q));
             if (!inTitle && !inOrg && !inTags) return false;
           }
-
-          // Department filter
-          if (filterByDept && profile?.branch) {
-            const matchesDept = event.departments.includes('All Departments') || event.departments.includes(profile.branch);
+          if (filterByDept && globalUserProfile?.branch) {
+            const matchesDept = event.departments.includes('All Departments') || event.departments.includes(globalUserProfile.branch);
             if (!matchesDept) return false;
           }
-
           return true;
         });
 
@@ -231,7 +690,7 @@
 
         emptyState.style.display = 'none';
         gridContainer.innerHTML = filtered.map(event => {
-          const matchScore = SXUK_CATALOG.calculateMatchScore(event, profile);
+          const matchScore = SXUK_CATALOG.calculateMatchScore(event, globalUserProfile);
           const isSaved = savedIds.includes(event.id);
           const deadlineFormatted = new Date(event.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 
@@ -294,25 +753,20 @@
         }).join('');
 
         if (window.lucide) lucide.createIcons();
-
-        // Attach Card Click & Bookmark Handlers
         attachCardInteractions();
       }
 
       function attachCardInteractions() {
-        // Make the entire card clickable
-        document.querySelectorAll('.event-card').forEach(card => {
+        document.querySelectorAll('#view-feed .event-card').forEach(card => {
           card.style.cursor = 'pointer';
           card.addEventListener('click', (e) => {
-            // Ignore click if bookmark button or an anchor tag was clicked
             if (e.target.closest('.event-bookmark-btn') || e.target.closest('a')) return;
             const eventId = card.getAttribute('data-id');
             CS_NAV.openEventModal(eventId);
           });
         });
 
-        // Bookmark buttons
-        document.querySelectorAll('.event-bookmark-btn').forEach(btn => {
+        document.querySelectorAll('#view-feed .event-bookmark-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const eventId = btn.getAttribute('data-event-id');
@@ -320,23 +774,20 @@
             btn.classList.toggle('saved', newlySaved);
             btn.innerHTML = `<i data-lucide="${newlySaved ? 'bookmark-check' : 'bookmark'}" style="width:16px;height:16px;"></i>`;
             if (window.lucide) lucide.createIcons();
+            if (window.renderSavedView) window.renderSavedView();
           });
         });
       }
 
-      // Render Deadlines in Right Rail
       function renderDeadlines() {
         const sorted = [...SXUK_CATALOG.events].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
         deadlinesContainer.innerHTML = sorted.slice(0, 4).map(ev => {
           const d = new Date(ev.deadline);
-          const day = d.getDate();
-          const month = d.toLocaleDateString('en-US', { month: 'short' });
-
           return `
             <div class="deadline-item" style="cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
               <div class="deadline-date-box">
-                <span class="deadline-day">${day}</span>
-                <span class="deadline-month">${month}</span>
+                <span class="deadline-day">${d.getDate()}</span>
+                <span class="deadline-month">${d.toLocaleDateString('en-US', { month: 'short' })}</span>
               </div>
               <div class="deadline-content">
                 <div class="deadline-title">${ev.title}</div>
@@ -347,19 +798,16 @@
         }).join('');
       }
 
-      // Search bar listener
       searchInput.addEventListener('input', (e) => {
         searchQuery = e.target.value.trim();
         renderEventsGrid();
       });
 
-      // Department filter listener
       deptFilterSelect.addEventListener('change', (e) => {
         filterByDept = e.target.value === 'my-dept';
         renderEventsGrid();
       });
 
-      // Reset button
       resetBtn.addEventListener('click', () => {
         activeCategory = 'all';
         searchQuery = '';
@@ -370,13 +818,373 @@
         renderEventsGrid();
       });
 
-      window.refreshFeedSavedStates = renderEventsGrid;
+      window.refreshFeedSavedStates = () => {
+        renderEventsGrid();
+        if (window.renderSavedView) window.renderSavedView();
+      };
 
-      // Initialize
       renderCategoryPills();
       renderEventsGrid();
       renderDeadlines();
-    });
+    }
+
+    /* CALENDAR MODULE */
+    function setupCalendarModule() {
+      const calGrid = document.getElementById('calendar-days-grid');
+      const timelineContainer = document.getElementById('urgent-timeline-container');
+
+      let html = `
+        <div class="cal-cell other-month"><span class="cal-cell-num">30</span></div>
+        <div class="cal-cell other-month"><span class="cal-cell-num">31</span></div>
+      `;
+
+      const eventsByDay = {};
+      SXUK_CATALOG.events.forEach(ev => {
+        const evDate = new Date(ev.eventDate);
+        if (evDate.getMonth() === 8) {
+          const d = evDate.getDate();
+          if (!eventsByDay[d]) eventsByDay[d] = [];
+          eventsByDay[d].push({ ...ev, type: 'event' });
+        }
+        const deadDate = new Date(ev.deadline);
+        if (deadDate.getMonth() === 8) {
+          const d = deadDate.getDate();
+          if (!eventsByDay[d]) eventsByDay[d] = [];
+          eventsByDay[d].push({ ...ev, type: 'deadline' });
+        }
+      });
+
+      for (let day = 1; day <= 30; day++) {
+        const isToday = (day === 5);
+        const dayEvents = eventsByDay[day] || [];
+        let dotsHtml = '';
+        dayEvents.slice(0, 2).forEach(ev => {
+          if (ev.type === 'deadline') {
+            dotsHtml += `<div class="cal-dot deadline-dot" onclick="event.stopPropagation(); CS_NAV.openEventModal('${ev.id}')">⏳ Reg: ${ev.title.slice(0, 10)}...</div>`;
+          } else {
+            dotsHtml += `<div class="cal-dot" onclick="event.stopPropagation(); CS_NAV.openEventModal('${ev.id}')">${ev.title.slice(0, 12)}...</div>`;
+          }
+        });
+
+        html += `
+          <div class="cal-cell ${isToday ? 'today' : ''}">
+            <div class="cal-cell-num">${day} ${isToday ? '<span style="font-size:0.65rem; color:var(--primary);">(Today)</span>' : ''}</div>
+            ${dotsHtml}
+          </div>
+        `;
+      }
+
+      for (let day = 1; day <= 3; day++) {
+        html += `<div class="cal-cell other-month"><span class="cal-cell-num">${day}</span></div>`;
+      }
+
+      calGrid.innerHTML = html;
+
+      timelineContainer.innerHTML = SXUK_CATALOG.events.map(ev => {
+        const d = new Date(ev.deadline);
+        return `
+          <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
+              <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
+              <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+            </div>
+            <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('btn-export-all-ics-header').addEventListener('click', () => {
+        SXUK_CATALOG.events.forEach(ev => CS_NAV.generateIcsDownload(ev));
+      });
+    }
+
+    /* SAVED MODULE */
+    function setupSavedModule() {
+      const grid = document.getElementById('saved-events-grid');
+      const empty = document.getElementById('saved-empty-state');
+
+      window.renderSavedView = function() {
+        const savedIds = CS_AUTH.getSavedEventIds();
+        const savedEvents = SXUK_CATALOG.events.filter(e => savedIds.includes(e.id));
+
+        if (savedEvents.length === 0) {
+          grid.innerHTML = '';
+          empty.style.display = 'block';
+          if (window.lucide) lucide.createIcons();
+          return;
+        }
+
+        empty.style.display = 'none';
+        grid.innerHTML = savedEvents.map(event => {
+          const matchScore = SXUK_CATALOG.calculateMatchScore(event, globalUserProfile);
+          const deadlineFormatted = new Date(event.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          return `
+            <div class="event-card" data-id="${event.id}">
+              <div class="event-card-header">
+                <img src="${event.posterUrl}" alt="${event.title}" class="event-card-img">
+                <div class="event-match-badge">
+                  <i data-lucide="sparkles" style="width:12px;height:12px;"></i>
+                  <span>${matchScore}% Match</span>
+                </div>
+                <button class="event-bookmark-btn saved" data-event-id="${event.id}" title="Remove Bookmark">
+                  <i data-lucide="bookmark-check" style="width:16px;height:16px;"></i>
+                </button>
+              </div>
+
+              <div class="event-card-body">
+                <div class="event-meta-top">
+                  <span class="event-cat-tag cat-${event.category}">${event.category}</span>
+                  <div class="event-countdown">
+                    <i data-lucide="clock" style="width:12px;height:12px;"></i>
+                    <span>Due ${deadlineFormatted}</span>
+                  </div>
+                </div>
+
+                <h3 class="event-card-title">${event.title}</h3>
+                
+                <div class="event-organizer">
+                  <i data-lucide="building-2" style="width:14px;height:14px;color:var(--primary);"></i>
+                  <span>${event.organizer}</span>
+                </div>
+
+                <div class="event-tags-row">
+                  ${event.tags.map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
+                </div>
+
+                <div class="event-card-footer">
+                  <span style="font-size:0.8125rem; font-weight:700; color:var(--emerald);">
+                    ${event.prize ? `🏆 ${event.prize.split('+')[0]}` : 'Verified'}
+                  </span>
+                  <button class="btn btn-sm btn-outline btn-view-event" data-event-id="${event.id}">
+                    <span>View Details</span>
+                    <i data-lucide="arrow-right" style="width:14px;height:14px;margin-left:4px;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (window.lucide) lucide.createIcons();
+
+        document.querySelectorAll('#saved-events-grid .event-card').forEach(card => {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.event-bookmark-btn') || e.target.closest('a')) return;
+            CS_NAV.openEventModal(card.getAttribute('data-id'));
+          });
+        });
+
+        document.querySelectorAll('#saved-events-grid .event-bookmark-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const eventId = btn.getAttribute('data-event-id');
+            CS_AUTH.toggleSaveEvent(eventId);
+            window.renderSavedView();
+            if (window.refreshFeedSavedStates) window.refreshFeedSavedStates();
+          });
+        });
+      };
+
+      window.renderSavedView();
+    }
+
+    /* STUDIO MODULE */
+    function setupStudioModule() {
+      const dropzone = document.getElementById('flyer-dropzone');
+      const fileInput = document.getElementById('flyer-file-input');
+      const defaultView = document.getElementById('dropzone-default');
+      const previewWrap = document.getElementById('poster-preview-wrap');
+      const previewImg = document.getElementById('poster-preview-img');
+      const resetBtn = document.getElementById('btn-reset-flyer');
+      const jsonPreview = document.getElementById('ocr-json-preview');
+      const statusBadge = document.getElementById('ocr-status-badge');
+
+      function updateJsonPreview() {
+        const payload = {
+          title: document.getElementById('ocr-title').value,
+          category: document.getElementById('ocr-category').value,
+          deadline: document.getElementById('ocr-deadline').value,
+          organizer_and_venue: document.getElementById('ocr-organizer').value,
+          eligibility: document.getElementById('ocr-eligibility').value,
+          status: 'verified_extracted',
+          extracted_at: new Date().toISOString()
+        };
+        jsonPreview.textContent = JSON.stringify(payload, null, 2);
+      }
+
+      ['ocr-title', 'ocr-category', 'ocr-deadline', 'ocr-organizer', 'ocr-eligibility'].forEach(id => {
+        document.getElementById(id).addEventListener('input', updateJsonPreview);
+      });
+
+      function handleFile(file) {
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          previewImg.src = e.target.result;
+          defaultView.style.display = 'none';
+          previewWrap.style.display = 'block';
+          statusBadge.textContent = 'Extracting OCR...';
+          statusBadge.style.background = 'var(--accent-amber-container)';
+          statusBadge.style.color = 'var(--accent-amber)';
+
+          setTimeout(() => {
+            statusBadge.textContent = 'OCR Extraction Complete';
+            statusBadge.style.background = 'var(--emerald-container)';
+            statusBadge.style.color = 'var(--emerald)';
+            updateJsonPreview();
+          }, 600);
+        };
+        reader.readAsDataURL(file);
+      }
+
+      fileInput.addEventListener('change', (e) => {
+        if (e.target.files.length > 0) handleFile(e.target.files[0]);
+      });
+
+      resetBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        previewWrap.style.display = 'none';
+        defaultView.style.display = 'block';
+        fileInput.value = '';
+      });
+
+      document.querySelectorAll('.sample-flyer-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sampleId = parseInt(btn.getAttribute('data-sample'));
+          const event = SXUK_CATALOG.events[sampleId - 1] || SXUK_CATALOG.events[0];
+          previewImg.src = event.posterUrl;
+          defaultView.style.display = 'none';
+          previewWrap.style.display = 'block';
+
+          document.getElementById('ocr-title').value = event.title;
+          document.getElementById('ocr-category').value = event.category;
+          document.getElementById('ocr-deadline').value = event.deadline;
+          document.getElementById('ocr-organizer').value = `${event.organizer} • ${event.venue}`;
+          document.getElementById('ocr-eligibility').value = event.eligibility;
+
+          statusBadge.textContent = 'OCR Sample Synced';
+          statusBadge.style.background = 'var(--emerald-container)';
+          statusBadge.style.color = 'var(--emerald)';
+          updateJsonPreview();
+        });
+      });
+
+      document.getElementById('btn-broadcast-event').addEventListener('click', () => {
+        alert('Event successfully extracted and broadcast to SXUK student feed!');
+        switchAppTab('feed');
+      });
+
+      document.getElementById('btn-mark-all-read-header').addEventListener('click', () => {
+        alert('All signals marked as read.');
+      });
+
+      updateJsonPreview();
+    }
+
+    /* PROFILE MODULE */
+    function setupProfileModule() {
+      const bigAvatar = document.getElementById('profile-big-avatar');
+      const fullNameEl = document.getElementById('profile-full-name');
+      const emailDeptEl = document.getElementById('profile-email-dept');
+      const pillBranch = document.getElementById('pill-branch');
+      const pillSemester = document.getElementById('pill-semester');
+      const pillYear = document.getElementById('pill-year');
+      const savedCount = document.getElementById('stat-saved-count');
+      const interestsBox = document.getElementById('profile-interests-chips');
+      const skillsBox = document.getElementById('profile-skills-chips');
+      const editModal = document.getElementById('edit-profile-modal');
+      const editBranchSelect = document.getElementById('edit-branch');
+
+      window.refreshProfileUI = function() {
+        const name = globalUserProfile?.full_name || globalCurrentUser.email?.split('@')[0] || 'SXUK Student';
+        const email = globalUserProfile?.college_email || globalCurrentUser.email || 'student@sxuk.edu.in';
+        const branch = globalUserProfile?.branch || 'B.Tech in CSE';
+        const sem = globalUserProfile?.metadata?.semester || 5;
+        const year = Math.ceil(sem / 2);
+
+        bigAvatar.textContent = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        fullNameEl.textContent = name;
+        emailDeptEl.textContent = `${email} • ${branch}`;
+
+        pillBranch.textContent = branch;
+        pillSemester.textContent = `Semester ${sem}`;
+        pillYear.textContent = `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year`;
+
+        savedCount.textContent = CS_AUTH.getSavedEventIds().length;
+
+        const interests = globalUserProfile?.interests || ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'];
+        interestsBox.innerHTML = interests.map(i => `
+          <span style="padding:6px 14px; background:var(--primary-container); color:var(--primary-hover); font-weight:600; font-size:0.8125rem; border-radius:var(--radius-full);">${i}</span>
+        `).join('');
+
+        const skills = globalUserProfile?.skills || ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'];
+        skillsBox.innerHTML = skills.map(s => `
+          <span style="padding:6px 14px; background:var(--bg-tertiary); color:var(--text-primary); font-size:0.8125rem; border-radius:var(--radius-full); border:1px solid var(--border-subtle);">${s}</span>
+        `).join('');
+      };
+
+      SXUK_CATALOG.allBranches.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        editBranchSelect.appendChild(opt);
+      });
+
+      function openEditModal() {
+        document.getElementById('edit-fullname').value = globalUserProfile?.full_name || '';
+        editBranchSelect.value = globalUserProfile?.branch || SXUK_CATALOG.allBranches[0];
+        document.getElementById('edit-semester').value = globalUserProfile?.metadata?.semester || 1;
+        editModal.classList.add('active');
+      }
+
+      function closeEditModal() {
+        editModal.classList.remove('active');
+      }
+
+      document.getElementById('btn-edit-profile-header').addEventListener('click', openEditModal);
+      document.getElementById('btn-close-edit-modal').addEventListener('click', closeEditModal);
+      document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+
+      document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newName = document.getElementById('edit-fullname').value.trim();
+        const newBranch = editBranchSelect.value;
+        const newSem = parseInt(document.getElementById('edit-semester').value);
+
+        const saveBtn = document.getElementById('btn-save-edit');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        try {
+          const updated = await CS_AUTH.saveUserProfile({
+            full_name: newName,
+            branch: newBranch,
+            year: Math.ceil(newSem / 2),
+            metadata: { semester: newSem, onboarding_completed: true }
+          });
+          globalUserProfile = updated;
+          window.refreshProfileUI();
+          CS_NAV.populateUserInfo(globalCurrentUser);
+          closeEditModal();
+        } catch (err) {
+          alert(err.message || 'Error updating profile');
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Changes';
+        }
+      });
+
+      document.getElementById('btn-logout-main').addEventListener('click', () => {
+        if (confirm('Sign out of CampusSignal?')) {
+          CS_AUTH.signOutUser();
+        }
+      });
+
+      window.refreshProfileUI();
+    }
   </script>
 </body>
 </html>
