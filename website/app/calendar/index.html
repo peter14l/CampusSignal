@@ -203,6 +203,10 @@
 
       CS_NAV.renderAppSidebar('calendar');
       await CS_NAV.populateUserInfo(user);
+
+      // Fetch dynamic active events
+      const eventsList = await SXUK_CATALOG.fetchEvents(user);
+      CS_NAV.updateSidebarBadges(user, eventsList);
       if (window.lucide) lucide.createIcons();
 
       // September 2026 Grid Builder (Starts Tuesday Sept 1, 30 days)
@@ -217,7 +221,7 @@
 
       // Map events to day numbers
       const eventsByDay = {};
-      SXUK_CATALOG.events.forEach(ev => {
+      eventsList.forEach(ev => {
         const evDate = new Date(ev.eventDate);
         if (evDate.getMonth() === 8) { // Sept
           const d = evDate.getDate();
@@ -262,23 +266,27 @@
       calGrid.innerHTML = html;
 
       // Render Urgency Timeline
-      timelineContainer.innerHTML = SXUK_CATALOG.events.map(ev => {
-        const d = new Date(ev.deadline);
-        return `
-          <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
-              <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
-              <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+      if (eventsList.length === 0) {
+        timelineContainer.innerHTML = '<div style="padding:24px 16px; text-align:center; color:var(--text-muted); font-size:0.875rem;">No scheduled deadlines or opportunities.</div>';
+      } else {
+        timelineContainer.innerHTML = eventsList.map(ev => {
+          const d = new Date(ev.deadline);
+          return `
+            <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
+                <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
+                <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+              </div>
+              <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
             </div>
-            <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
 
       // Export All button
       document.getElementById('btn-export-all-ics').addEventListener('click', () => {
-        SXUK_CATALOG.events.forEach(ev => CS_NAV.generateIcsDownload(ev));
+        eventsList.forEach(ev => CS_NAV.generateIcsDownload(ev));
       });
     });
   </script>

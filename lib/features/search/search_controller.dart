@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
+import '../auth/auth_controller.dart';
 
 class SearchFilterState {
   final List<String> categories;
@@ -97,7 +98,17 @@ class SearchControllerNotifier extends Notifier<SearchState> {
 
     Future.microtask(() => _loadEvents());
 
-    return const SearchState();
+    final isDemoMode = ref.watch(authControllerProvider.select((s) => s.isDemoMode));
+    return SearchState(
+      recentSearches: isDemoMode
+          ? const [
+              'UX Design Internship',
+              'Google Developer Student Club',
+              'Resume Workshop',
+              'Hackathon 2026',
+            ]
+          : const [],
+    );
   }
 
   Future<void> _loadEvents() async {

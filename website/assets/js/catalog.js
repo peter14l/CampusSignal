@@ -237,8 +237,8 @@ const SXUK_CATALOG = {
 
   // Fetch Events from Supabase for real users or return mock data for guest demo mode
   async fetchEvents(user) {
-    const isGuest = !user || user.is_guest === true || user.id === 'guest-demo-sxuk-2026';
-    if (isGuest) {
+    const isDemo = window.CS_AUTH?.isDemoUser ? window.CS_AUTH.isDemoUser(user) : (!user || user.is_guest === true || user.id === 'guest-demo-sxuk-2026');
+    if (isDemo) {
       return [...this.events];
     }
 

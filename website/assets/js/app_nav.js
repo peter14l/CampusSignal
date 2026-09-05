@@ -34,7 +34,7 @@ function renderAppSidebar(activeTab = 'feed') {
       <a href="${appRoot}index.html#calendar" data-tab="calendar" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
         <i data-lucide="calendar" style="width:18px;height:18px;"></i>
         <span>Calendar & Deadlines</span>
-        <span class="sidebar-badge">4</span>
+        <span class="sidebar-badge" id="nav-calendar-badge" style="display:none;"></span>
       </a>
       <a href="${appRoot}index.html#saved" data-tab="saved" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
@@ -47,7 +47,7 @@ function renderAppSidebar(activeTab = 'feed') {
       <a href="${appRoot}index.html#notifications" data-tab="notifications" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span>Broadcast Signals</span>
-        <span class="sidebar-badge" style="background:var(--accent-amber);color:#000;">2</span>
+        <span class="sidebar-badge" id="nav-notifications-badge" style="background:var(--accent-amber);color:#000;display:none;"></span>
       </a>
       <a href="${appRoot}index.html#profile" data-tab="profile" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
         <i data-lucide="user" style="width:18px;height:18px;"></i>
@@ -159,7 +159,39 @@ async function populateUserInfo(user) {
   const headerAvatar = document.getElementById('header-user-avatar');
   if (headerAvatar) headerAvatar.textContent = avatarText;
 
+  updateSidebarBadges(user, window.activeEventsList || []);
+
   return { user, profile };
+}
+
+function updateSidebarBadges(user, eventsList = []) {
+  const isDemo = window.CS_AUTH?.isDemoUser ? window.CS_AUTH.isDemoUser(user) : false;
+  const calBadge = document.getElementById('nav-calendar-badge');
+  const notifBadge = document.getElementById('nav-notifications-badge');
+
+  if (isDemo) {
+    if (calBadge) {
+      calBadge.textContent = '4';
+      calBadge.style.display = 'inline-flex';
+    }
+    if (notifBadge) {
+      notifBadge.textContent = '3';
+      notifBadge.style.display = 'inline-flex';
+    }
+  } else {
+    const deadlinesCount = eventsList.filter(e => e.deadline).length;
+    if (calBadge) {
+      if (deadlinesCount > 0) {
+        calBadge.textContent = deadlinesCount;
+        calBadge.style.display = 'inline-flex';
+      } else {
+        calBadge.style.display = 'none';
+      }
+    }
+    if (notifBadge) {
+      notifBadge.style.display = 'none';
+    }
+  }
 }
 
 // Global Event Detail Modal Opener
@@ -378,5 +410,6 @@ window.CS_NAV = {
   openEventModal,
   closeEventModal,
   generateIcsDownload,
-  initAppTheme
+  initAppTheme,
+  updateSidebarBadges
 };

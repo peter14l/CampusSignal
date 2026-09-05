@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
+import '../auth/auth_controller.dart';
 
 enum CalendarViewMode { month, agenda }
 
@@ -103,8 +104,9 @@ class CalendarController extends Notifier<CalendarState> {
         eventMap[e.id] = e;
       }
 
-      // If user has few saved items, supplement with feed events so agenda is rich
-      if (eventMap.length < 4) {
+      // If in demo mode and user has few saved items, supplement with feed events so demo agenda is rich
+      final isDemoMode = ref.read(authControllerProvider).isDemoMode;
+      if (isDemoMode && eventMap.length < 4) {
         final feedEvents = await _repository.getFeedEvents(category: 'for_you');
         for (final e in feedEvents) {
           eventMap[e.id] = e;

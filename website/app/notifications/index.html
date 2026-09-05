@@ -49,9 +49,29 @@
       </header>
 
       <div class="app-body-layout" style="grid-template-columns: 1fr;">
-        
-        <div style="display: flex; flex-direction: column; gap: 12px;" id="notifications-list-container">
-          
+        <div style="display: flex; flex-direction: column; gap: 12px;" id="notifications-list-container"></div>
+      </div>
+
+    </main>
+
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      CS_NAV.renderAppSidebar('notifications');
+      await CS_NAV.populateUserInfo(user);
+      CS_NAV.updateSidebarBadges(user, []);
+
+      const container = document.getElementById('notifications-list-container');
+      const isDemo = CS_AUTH.isDemoUser(user);
+
+      if (isDemo) {
+        container.innerHTML = `
           <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--accent-amber);">
             <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-amber-container); color: var(--accent-amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
               <i data-lucide="alarm-clock" style="width: 20px; height: 20px;"></i>
@@ -88,7 +108,7 @@
             </div>
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.7 (Build 8)</h4>
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.8 (Build 9)</h4>
                 <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 5, 2026</span>
               </div>
               <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
@@ -96,24 +116,19 @@
               </p>
             </div>
           </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 48px 16px; background: var(--bg-surface); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md);">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--bg-tertiary); display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); margin-bottom: 12px;">
+              <i data-lucide="bell-off" style="width: 24px; height: 24px;"></i>
+            </div>
+            <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">No Broadcasts Yet</h4>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">You are all caught up with university announcements and signal alerts.</p>
+          </div>
+        `;
+      }
 
-        </div>
-
-      </div>
-
-    </main>
-
-    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
-
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', async () => {
-      const user = await CS_AUTH.requireAuth();
-      if (!user) return;
-
-      CS_NAV.renderAppSidebar('notifications');
-      await CS_NAV.populateUserInfo(user);
       if (window.lucide) lucide.createIcons();
 
       document.getElementById('btn-mark-all-read').addEventListener('click', () => {

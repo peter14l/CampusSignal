@@ -97,14 +97,14 @@ function initMobileNav() {
    3. Dynamic Version & Release Notes Fetcher
    ========================================================================== */
 const DEFAULT_VERSION_DATA = {
-  version: "1.0.7",
-  versionCode: 8,
-  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7.apk",
+  version: "1.0.8",
+  versionCode: 9,
+  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk",
   archApkUrls: {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk"
   },
   archSizes: {
     "arm64-v8a": "29.3 MB",
@@ -119,7 +119,7 @@ const DEFAULT_VERSION_DATA = {
     "universal": "3a6d9c2f5b8e1a4d7c0f3b6e9a2d5c8f1e4a7d0b3c6f9a2d5e8b1c4f7a0d3e6a"
   },
   publishedAt: "2026-09-05",
-  releaseNotes: "• Clean demo vs authenticated user state isolation across mobile and web\n• Official high-resolution App Logo badge in About CampusSignal screen\n• Pruned unused dependencies and optimized build footprint\n• Unified v1.0.7 (Build 8) release stability"
+  releaseNotes: "• Strict demo state isolation for Calendar, Deadline Tracker & Broadcast Signals\n• Dynamic navigation and action badge counts reflecting real user states\n• Official high-resolution App Logo badge on About screen\n• Unified v1.0.8 (Build 9) release stability"
 };
 
 async function initVersionData() {

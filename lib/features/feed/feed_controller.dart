@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
+import '../auth/auth_controller.dart';
 import '../profile/profile_controller.dart';
 
 class FeedState {
@@ -60,7 +61,8 @@ class FeedController extends Notifier<FeedState> {
     }
 
     try {
-      final userBranch = ref.read(profileControllerProvider).profile?.branch;
+      final userBranch = ref.read(authControllerProvider).profile?.branch ??
+          ref.read(profileControllerProvider).profile?.branch;
       final events = await _repository.getFeedEvents(
         category: state.selectedCategory,
         userBranch: userBranch,

@@ -240,33 +240,34 @@
       const editBranchSelect = document.getElementById('edit-branch');
 
       function refreshProfileUI() {
-        const name = profile?.full_name || user.email?.split('@')[0] || 'SXUK Student';
-        const email = profile?.college_email || user.email || 'student@sxuk.edu.in';
-        const branch = profile?.branch || 'B.Tech in CSE';
-        const sem = profile?.metadata?.semester || 5;
-        const year = Math.ceil(sem / 2);
+        const isDemo = CS_AUTH.isDemoUser(user);
+        const name = profile?.full_name || (isDemo ? 'SXUK Student' : (user.email?.split('@')[0] || 'User'));
+        const email = profile?.college_email || user.email || (isDemo ? 'student@sxuk.edu.in' : '');
+        const branch = profile?.branch || (isDemo ? 'B.Tech in CSE' : 'Department Not Specified');
+        const sem = profile?.metadata?.semester || (isDemo ? 5 : null);
+        const year = sem ? Math.ceil(sem / 2) : null;
 
-        bigAvatar.textContent = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        bigAvatar.textContent = name.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'U';
         fullNameEl.textContent = name;
-        emailDeptEl.textContent = `${email} • ${branch}`;
+        emailDeptEl.textContent = email ? (branch !== 'Department Not Specified' ? `${email} • ${branch}` : email) : branch;
 
         pillBranch.textContent = branch;
-        pillSemester.textContent = `Semester ${sem}`;
-        pillYear.textContent = `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year`;
+        pillSemester.textContent = sem ? `Semester ${sem}` : 'Semester --';
+        pillYear.textContent = year ? `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year` : 'Year --';
 
-        savedCount.textContent = CS_AUTH.getSavedEventIds().length;
+        savedCount.textContent = CS_AUTH.getSavedEventIds(user).length;
 
         // Render Interests
-        const interests = profile?.interests || ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'];
-        interestsBox.innerHTML = interests.map(i => `
+        const interests = profile?.interests || (isDemo ? ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'] : []);
+        interestsBox.innerHTML = interests.length ? interests.map(i => `
           <span style="padding:6px 14px; background:var(--primary-container); color:var(--primary-hover); font-weight:600; font-size:0.8125rem; border-radius:var(--radius-full);">${i}</span>
-        `).join('');
+        `).join('') : '<p style="color:var(--text-muted); font-size:0.8125rem;">No interests specified.</p>';
 
         // Render Skills
-        const skills = profile?.skills || ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'];
-        skillsBox.innerHTML = skills.map(s => `
+        const skills = profile?.skills || (isDemo ? ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'] : []);
+        skillsBox.innerHTML = skills.length ? skills.map(s => `
           <span style="padding:6px 14px; background:var(--bg-tertiary); color:var(--text-primary); font-size:0.8125rem; border-radius:var(--radius-full); border:1px solid var(--border-subtle);">${s}</span>
-        `).join('');
+        `).join('') : '<p style="color:var(--text-muted); font-size:0.8125rem;">No skills listed.</p>';
       }
 
       // Populate Branch Select in Modal

@@ -83,14 +83,17 @@
 
       CS_NAV.renderAppSidebar('saved');
       const { profile } = await CS_NAV.populateUserInfo(user);
+      window.activeEventsList = await SXUK_CATALOG.fetchEvents(user);
+      CS_NAV.updateSidebarBadges(user, window.activeEventsList);
       if (window.lucide) lucide.createIcons();
 
       const grid = document.getElementById('saved-events-grid');
       const empty = document.getElementById('saved-empty-state');
 
       function renderSaved() {
-        const savedIds = CS_AUTH.getSavedEventIds();
-        const savedEvents = SXUK_CATALOG.events.filter(e => savedIds.includes(e.id));
+        const savedIds = CS_AUTH.getSavedEventIds(user);
+        const sourceEvents = window.activeEventsList || [];
+        const savedEvents = sourceEvents.filter(e => savedIds.includes(e.id));
 
         if (savedEvents.length === 0) {
           grid.innerHTML = '';
