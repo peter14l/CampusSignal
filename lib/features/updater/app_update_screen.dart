@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/widgets/interactive_spring.dart';
 import 'update_controller.dart';
 
@@ -29,8 +30,8 @@ class _AppUpdateScreenState extends ConsumerState<AppUpdateScreen> {
 
     final updateResult = updateState.updateResult;
     final hasUpdate = updateResult?.hasUpdate ?? false;
-    final currentVersion = updateResult?.currentVersion ?? '1.0.1';
-    final currentCode = updateResult?.currentVersionCode ?? 2;
+    final currentVersion = updateResult?.currentVersion ?? AppConstants.appVersion;
+    final currentCode = updateResult?.currentVersionCode ?? int.parse(AppConstants.appBuildNumber);
     final updateInfo = updateResult?.updateInfo;
 
     return Scaffold(

@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/widgets/app_logo_badge.dart';
 import '../../core/widgets/category_chip.dart';
+import '../../core/widgets/department_picker_modal.dart';
 import '../../core/widgets/m3e_event_card.dart';
 import '../../core/widgets/m3e_speed_dial_fab.dart';
 import '../../core/widgets/micro_animated_icon.dart';
@@ -59,14 +60,15 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   String _selectedDepartment = 'all';
 
-  final List<String> _departments = const [
+  static const List<String> _quickFilterDepts = [
     'all',
-    'Computer Science & Engineering',
-    'Data Science & AI',
-    'Information Technology',
-    'Business Administration (BBA / MBA)',
-    'Law (BA.LLB / BBA.LLB)',
-    'Mass Communication & Media',
+    'B.Tech in CSE',
+    'B.Tech in AI & ML',
+    'B.Sc. (Honours) in Statistics and Data Science',
+    'B.Com. (Honours)',
+    'B.M.S. (Honours)',
+    'M.Sc. Computer Science',
+    'LLM. Law',
   ];
 
   @override
@@ -282,19 +284,46 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
             const SliverToBoxAdapter(child: SizedBox(height: 8)),
 
-            // Department & Branch Filter Row
+            // Department & Branch Filter Row with categorized bottom sheet
             SliverToBoxAdapter(
               child: SizedBox(
                 height: 34,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
-                  itemCount: _departments.length,
+                  itemCount: _quickFilterDepts.length + 1,
                   separatorBuilder: (context, index) => const SizedBox(width: 6),
                   itemBuilder: (context, idx) {
-                    final dept = _departments[idx];
+                    if (idx == _quickFilterDepts.length) {
+                      final isCustomSelected = !_quickFilterDepts.contains(_selectedDepartment) && _selectedDepartment != 'all';
+                      return ActionChip(
+                        label: Text(isCustomSelected ? _selectedDepartment : 'More Courses...'),
+                        avatar: Icon(
+                          isCustomSelected ? LucideIcons.circleCheck : LucideIcons.layers,
+                          size: 13,
+                          color: isCustomSelected ? colorScheme.onPrimaryContainer : colorScheme.primary,
+                        ),
+                        backgroundColor: isCustomSelected ? colorScheme.primaryContainer : colorScheme.surfaceContainer,
+                        side: BorderSide(
+                          color: isCustomSelected ? colorScheme.primary : colorScheme.outlineVariant.withValues(alpha: 0.5),
+                        ),
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
+                        labelStyle: TextStyle(
+                          fontSize: 11,
+                          fontWeight: isCustomSelected ? FontWeight.w700 : FontWeight.w600,
+                          color: isCustomSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+                        ),
+                        onPressed: () {
+                          HapticFeedback.selectionClick();
+                          _showDepartmentFilterSheet(context);
+                        },
+                      );
+                    }
+
+                    final dept = _quickFilterDepts[idx];
                     final isSelected = _selectedDepartment == dept;
-                    final label = dept == 'all' ? 'All Campus' : dept.split(' (').first;
+                    final label = dept == 'all' ? 'All Campus' : dept;
                     return FilterChip(
                       label: Text(label),
                       selected: isSelected,
@@ -417,6 +446,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
         ),
       ),
       floatingActionButton: const M3ESpeedDialFab(),
+    );
+  }
+
+  void _showDepartmentFilterSheet(BuildContext context) {
+    DepartmentPickerSheet.show(
+      context,
+      currentSelection: _selectedDepartment,
+      includeAllCampus: true,
+      onSelected: (programme) {
+        setState(() => _selectedDepartment = programme);
+      },
     );
   }
 }

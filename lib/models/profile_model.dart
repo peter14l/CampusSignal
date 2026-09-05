@@ -76,8 +76,14 @@ class ProfileModel {
       return const {};
     }
 
-    final parsedYear = parseInt(json['year'] ?? json['grad_year'] ?? json['academic_year']);
-    final parsedSem = parseInt(json['semester'] ?? json['sem']);
+    final metadataMap = parseMetadata(json['metadata']);
+    final parsedYear = parseInt(json['year'] ?? json['grad_year'] ?? json['academic_year'] ?? metadataMap['year']);
+    final parsedSem = parseInt(json['semester'] ?? json['sem'] ?? metadataMap['semester']);
+    final parsedAvatar = json['avatar_url']?.toString() ??
+        json['avatarUrl']?.toString() ??
+        json['photo_url']?.toString() ??
+        metadataMap['avatar_url']?.toString() ??
+        metadataMap['avatarUrl']?.toString();
 
     return ProfileModel(
       id: json['id']?.toString() ?? '',
@@ -88,18 +94,19 @@ class ProfileModel {
       collegeEmail: json['college_email']?.toString() ??
           json['collegeEmail']?.toString() ??
           json['email']?.toString(),
-      branch: json['branch']?.toString() ?? json['department']?.toString(),
+      branch: json['branch']?.toString() ?? json['department']?.toString() ?? metadataMap['branch']?.toString(),
       year: parsedYear ?? (parsedSem != null ? ((parsedSem + 1) ~/ 2) : null),
       semester: parsedSem ?? (parsedYear != null ? ((parsedYear * 2) - 1) : null),
-      avatarUrl: json['avatar_url']?.toString() ?? json['avatarUrl']?.toString() ?? json['photo_url']?.toString(),
-      interests: parseStringList(json['interests']),
-      skills: parseStringList(json['skills']),
-      metadata: parseMetadata(json['metadata']),
+      avatarUrl: parsedAvatar,
+      interests: parseStringList(json['interests'] ?? metadataMap['interests']),
+      skills: parseStringList(json['skills'] ?? metadataMap['skills']),
+      metadata: metadataMap,
       createdAt: parseDate(json['created_at'] ?? json['createdAt']),
       updatedAt: parseDate(json['updated_at'] ?? json['updatedAt']),
     );
   }
 
+  /// Full JSON map for local cache (SharedPreferences)
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -114,6 +121,26 @@ class ProfileModel {
       'metadata': metadata,
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
+    };
+  }
+
+  /// Supabase public.profiles schema-compliant payload
+  Map<String, dynamic> toSupabaseJson() {
+    final mergedMetadata = Map<String, dynamic>.from(metadata);
+    if (semester != null) mergedMetadata['semester'] = semester;
+    if (avatarUrl != null && avatarUrl!.isNotEmpty) mergedMetadata['avatar_url'] = avatarUrl;
+
+    return {
+      'id': id,
+      'full_name': fullName,
+      'college_email': collegeEmail,
+      'branch': branch,
+      'year': year,
+      'interests': interests,
+      'skills': skills,
+      'metadata': mergedMetadata,
+      if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
+      'updated_at': DateTime.now().toIso8601String(),
     };
   }
 

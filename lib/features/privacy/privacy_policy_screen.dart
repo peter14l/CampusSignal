@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:share_plus/share_plus.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
 import '../../core/widgets/interactive_spring.dart';
 
@@ -11,8 +12,8 @@ class PrivacyPolicyScreen extends ConsumerWidget {
 
   void _exportPersonalData(BuildContext context) {
     final exportData = {
-      'app': 'CampusSignal',
-      'version': '1.0.0 (SXUK Campus Edition)',
+      'app': AppConstants.appName,
+      'version': AppConstants.appVersionDisplay,
       'exported_at': DateTime.now().toIso8601String(),
       'profile': kDefaultProfile.toJson(),
       'data_retention_policy': 'Zero permanent telemetry. Ephemeral local caches only.',

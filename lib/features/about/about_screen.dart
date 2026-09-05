@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/widgets/interactive_spring.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -77,7 +78,7 @@ class AboutScreen extends StatelessWidget {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    'Version 1.0.0 (Build PRD)',
+                    'Version ${AppConstants.appVersionDisplay}',
                     style: theme.textTheme.labelSmall?.copyWith(
                       color: theme.colorScheme.onSecondaryContainer,
                       fontWeight: FontWeight.w700,
@@ -189,8 +190,8 @@ class AboutScreen extends StatelessWidget {
             subtitle: 'View third-party software packages and attributions',
             onTap: () => showLicensePage(
               context: context,
-              applicationName: 'CampusSignal',
-              applicationVersion: '1.0.0',
+              applicationName: AppConstants.appName,
+              applicationVersion: AppConstants.appVersionDisplay,
               applicationLegalese:
                   '© 2026 CampusSignal for SXUK. Built with open source libraries.',
             ),

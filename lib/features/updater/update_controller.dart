@@ -1,5 +1,5 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/services/app_update_service.dart';
 import '../../models/app_update_info.dart';
 
@@ -78,8 +78,8 @@ class UpdateController extends Notifier<UpdateState> {
     } catch (e) {
       final fallback = CheckUpdateResult(
         hasUpdate: false,
-        currentVersion: '1.0.1',
-        currentVersionCode: 2,
+        currentVersion: AppConstants.appVersion,
+        currentVersionCode: int.parse(AppConstants.appBuildNumber),
         errorMessage: e.toString(),
       );
       state = state.copyWith(

@@ -9,6 +9,7 @@ import 'package:http/http.dart' as http;
 import 'package:open_filex/open_filex.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:path_provider/path_provider.dart';
+import '../constants/app_constants.dart';
 import '../../models/app_update_info.dart';
 
 class CheckUpdateResult {
@@ -45,10 +46,10 @@ class AppUpdateService {
     } catch (e) {
       debugPrint('Failed to fetch PackageInfo: $e');
       return PackageInfo(
-        appName: 'CampusSignal',
+        appName: AppConstants.appName,
         packageName: 'in.edu.sxuk.campussignal',
-        version: '1.0.1',
-        buildNumber: '2',
+        version: AppConstants.appVersion,
+        buildNumber: AppConstants.appBuildNumber,
         buildSignature: '',
       );
     }
@@ -60,7 +61,7 @@ class AppUpdateService {
     try {
       packageInfo = await getPackageInfo();
       final currentVersion = packageInfo.version;
-      final currentCode = int.tryParse(packageInfo.buildNumber) ?? 1;
+      final currentCode = int.tryParse(packageInfo.buildNumber) ?? int.parse(AppConstants.appBuildNumber);
 
       final uri = Uri.parse('$r2VersionMetadataUrl?t=${DateTime.now().millisecondsSinceEpoch}');
       final response = await _client.get(uri).timeout(const Duration(seconds: 8));
@@ -96,8 +97,8 @@ class AppUpdateService {
       debugPrint('Error checking for update: $e');
       return CheckUpdateResult(
         hasUpdate: false,
-        currentVersion: packageInfo?.version ?? '1.0.1',
-        currentVersionCode: int.tryParse(packageInfo?.buildNumber ?? '2') ?? 2,
+        currentVersion: packageInfo?.version ?? AppConstants.appVersion,
+        currentVersionCode: int.tryParse(packageInfo?.buildNumber ?? AppConstants.appBuildNumber) ?? int.parse(AppConstants.appBuildNumber),
         errorMessage: e.toString(),
       );
     }

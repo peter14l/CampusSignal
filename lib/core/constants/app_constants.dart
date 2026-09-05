@@ -7,22 +7,92 @@ class AppConstants {
 
   static const String appName = 'CampusSignal';
   static const String appTagline = 'Signal, not noise. Campus discovery simplified.';
+  static const String appVersion = '1.0.5';
+  static const String appBuildNumber = '6';
+  static const String appVersionDisplay = 'v1.0.5 (Build 6)';
 
   /// SXUK College Email Domain
   static const String collegeEmailDomain = '@sxuk.edu.in';
 
-  /// College Branches / Departments
+  /// College Branches / Academic Programmes categorized by Degree Level and School
+  static const Map<String, Map<String, List<String>>> categorizedProgrammes = {
+    'Undergraduate (UG)': {
+      'Faculty of Commerce & Management': [
+        'B.Com. (Honours)',
+        'B.M.S. (Honours)',
+      ],
+      'Faculty of Arts & Humanities': [
+        'B.A. (Honours) in English with Minor in Psychology & Mass Communication',
+        'B.A. (Honours) in Economics with Minor in Statistics',
+        'B.A. (Honours) in Mass Communication with Minor in Psychology and Film Studies',
+        'B.A. (Honours) in Psychology with Minor in Mass Communication & Social Work',
+      ],
+      'Faculty of Science & Technology': [
+        'B.Sc. (Honours) in Statistics and Data Science',
+        'B.Tech in CSE',
+        'B.Tech in AI & ML',
+        'B.Tech in ECE',
+        'B.Tech in IT',
+      ],
+    },
+    'Postgraduate & Doctoral (PG / Ph.D.)': {
+      'Postgraduate (PG)': [
+        'M.A. Economics',
+        'M.A. English',
+        'M.A. Mass Communication',
+        'M.A. Psychology',
+        'M.S.W Social Work',
+        'M.Com. Commerce',
+        'M.Sc. Statistics',
+        'LLM. Law',
+        'M.Sc. Computer Science',
+      ],
+      'Doctoral (Ph.D.)': [
+        'Ph.D. in Commerce',
+        'Ph.D. in Economics',
+        'Ph.D. in English',
+        'Ph.D. in Law',
+        'Ph.D. in Management',
+        'Ph.D. in Mass Communication',
+        'Ph.D. in Psychology',
+        'Ph.D. in Social Work',
+      ],
+    },
+  };
+
+  /// All official SXUK programmes in a flat list
   static const List<String> branches = [
-    'Computer Science & Engg',
-    'Information Technology',
-    'Data Science',
-    'Electronics & Comm',
-    'BCA',
-    'MCA',
-    'Commerce & Finance',
-    'Management',
-    'Law',
-    'Mass Comm',
+    // Undergraduate (UG)
+    'B.Com. (Honours)',
+    'B.M.S. (Honours)',
+    'B.A. (Honours) in English with Minor in Psychology & Mass Communication',
+    'B.A. (Honours) in Economics with Minor in Statistics',
+    'B.A. (Honours) in Mass Communication with Minor in Psychology and Film Studies',
+    'B.A. (Honours) in Psychology with Minor in Mass Communication & Social Work',
+    'B.Sc. (Honours) in Statistics and Data Science',
+    'B.Tech in CSE',
+    'B.Tech in AI & ML',
+    'B.Tech in ECE',
+    'B.Tech in IT',
+    // Postgraduate (PG)
+    'M.A. Economics',
+    'M.A. English',
+    'M.A. Mass Communication',
+    'M.A. Psychology',
+    'M.S.W Social Work',
+    'M.Com. Commerce',
+    'M.Sc. Statistics',
+    'LLM. Law',
+    'M.Sc. Computer Science',
+    // Doctoral (Ph.D.)
+    'Ph.D. in Commerce',
+    'Ph.D. in Economics',
+    'Ph.D. in English',
+    'Ph.D. in Law',
+    'Ph.D. in Management',
+    'Ph.D. in Mass Communication',
+    'Ph.D. in Psychology',
+    'Ph.D. in Social Work',
   ];
 
   /// College Academic Years

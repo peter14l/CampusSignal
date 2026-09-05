@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
+import '../../core/constants/app_constants.dart';
 import '../../core/services/fcm_notification_service.dart';
 import '../../core/services/gemini_ocr_service.dart';
 import '../../core/services/r2_storage_service.dart';
@@ -70,17 +71,7 @@ class _AiAnnouncementCreatorScreenState
   bool _isCampusWide = true;
   final Set<String> _selectedBranches = {};
 
-  final List<String> _availableBranches = const [
-    'Computer Science & Engineering',
-    'Data Science & AI',
-    'Information Technology',
-    'Business Administration (BBA / MBA)',
-    'Commerce & Finance (B.Com / M.Com)',
-    'Economics & Data Analytics',
-    'Law (BA.LLB / BBA.LLB)',
-    'Mass Communication & Media',
-    'Psychology & Social Sciences',
-  ];
+  final List<String> _availableBranches = AppConstants.branches;
 
   final List<Map<String, dynamic>> _announcementTypes = const [
     {'id': 'hackathon', 'label': 'Hackathon', 'icon': LucideIcons.code},

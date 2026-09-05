@@ -101,9 +101,7 @@ class AuthController extends Notifier<AuthState> {
     // 2. Check active Firebase Auth user (if initialized)
     fb.User? fbUser;
     try {
-      if (fb.FirebaseAuth.instance.app != null) {
-        fbUser = fb.FirebaseAuth.instance.currentUser;
-      }
+      fbUser = fb.FirebaseAuth.instance.currentUser;
     } catch (_) {}
 
     // 3. Determine if authenticated from any valid session source
@@ -199,13 +197,42 @@ class AuthController extends Notifier<AuthState> {
             .maybeSingle();
 
         if (res != null) {
-          final profile = ProfileModel.fromJson(res);
+          final remoteProfile = ProfileModel.fromJson(res);
+          final current = state.profile;
+
+          // Merge without losing locally cached skills/interests if remote has empty arrays
+          final mergedProfile = remoteProfile.copyWith(
+            collegeEmail: email ?? remoteProfile.collegeEmail ?? current?.collegeEmail,
+            avatarUrl: (remoteProfile.avatarUrl != null && remoteProfile.avatarUrl!.isNotEmpty)
+                ? remoteProfile.avatarUrl
+                : current?.avatarUrl,
+            interests: remoteProfile.interests.isNotEmpty
+                ? remoteProfile.interests
+                : (current?.interests ?? const []),
+            skills: remoteProfile.skills.isNotEmpty
+                ? remoteProfile.skills
+                : (current?.skills ?? const []),
+            branch: (remoteProfile.branch != null && remoteProfile.branch!.isNotEmpty)
+                ? remoteProfile.branch
+                : current?.branch,
+            semester: remoteProfile.semester ?? current?.semester,
+            year: remoteProfile.year ?? current?.year,
+          );
+
           state = state.copyWith(
             isAuthenticated: true,
-            profile: profile,
-            email: email ?? profile.collegeEmail,
+            profile: mergedProfile,
+            email: email ?? mergedProfile.collegeEmail,
           );
-          await _persistAuth(profile, email ?? profile.collegeEmail);
+          await _persistAuth(mergedProfile, email ?? mergedProfile.collegeEmail);
+
+          // If local cache had interests/skills/branch missing in remote DB, sync back
+          if (remoteProfile.interests.isEmpty && mergedProfile.interests.isNotEmpty ||
+              remoteProfile.skills.isEmpty && mergedProfile.skills.isNotEmpty) {
+            try {
+              await client.from('profiles').upsert(mergedProfile.toSupabaseJson());
+            } catch (_) {}
+          }
           return;
         }
       } catch (e) {
@@ -329,7 +356,7 @@ class AuthController extends Notifier<AuthState> {
             if (photoUrl != null && profile.avatarUrl != photoUrl) {
               profile = profile.copyWith(avatarUrl: photoUrl);
               try {
-                await client.from('profiles').upsert(profile.toJson());
+                await client.from('profiles').upsert(profile.toSupabaseJson());
               } catch (_) {}
             }
 
@@ -362,7 +389,7 @@ class AuthController extends Notifier<AuthState> {
             );
 
             try {
-              await client.from('profiles').upsert(initialProfile.toJson());
+              await client.from('profiles').upsert(initialProfile.toSupabaseJson());
             } catch (e) {
               debugPrint('Notice: Initial Supabase profile row upsert: $e');
             }
@@ -642,7 +669,7 @@ class AuthController extends Notifier<AuthState> {
 
     if (client != null && SupabaseConfig.isConfigured) {
       try {
-        await client.from('profiles').upsert(effectiveProfile.toJson());
+        await client.from('profiles').upsert(effectiveProfile.toSupabaseJson());
       } catch (e) {
         debugPrint('Error persisting profile to Supabase: $e');
       }

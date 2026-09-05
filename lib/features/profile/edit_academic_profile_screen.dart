@@ -3,6 +3,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/constants/app_constants.dart';
+import '../../core/widgets/department_picker_modal.dart';
 import '../../models/profile_model.dart';
 import 'profile_controller.dart';
 import 'tag_selection_sheet.dart';
@@ -25,26 +27,6 @@ class _EditAcademicProfileScreenState
   late List<String> _skills;
   late List<String> _interests;
 
-  final Map<String, List<String>> _departmentSchools = {
-    'School of Technology': [
-      'Computer Science & Engineering',
-      'Information Technology',
-      'Data Science & AI',
-    ],
-    'School of Business & Commerce': [
-      'Business Administration (BBA / MBA)',
-      'Commerce & Finance (B.Com / M.Com)',
-      'Economics & Data Analytics',
-    ],
-    'School of Law': [
-      'Law (BA.LLB / BBA.LLB)',
-    ],
-    'School of Arts & Social Sciences': [
-      'Mass Communication & Media',
-      'Psychology & Social Sciences',
-    ],
-  };
-
   @override
   void initState() {
     super.initState();
@@ -52,7 +34,9 @@ class _EditAcademicProfileScreenState
         ref.read(profileControllerProvider).profile ?? const ProfileModel(id: '');
 
     _nameController = TextEditingController(text: currentProfile.fullName);
-    _selectedBranch = currentProfile.branch ?? 'Computer Science & Engineering';
+    _selectedBranch = currentProfile.branch != null && AppConstants.branches.contains(currentProfile.branch)
+        ? currentProfile.branch!
+        : AppConstants.branches.first;
     _selectedSemester = currentProfile.semester ??
         (currentProfile.year != null ? (currentProfile.year! * 2 - 1) : 3);
     _skills = List<String>.from(currentProfile.skills);
@@ -238,7 +222,7 @@ class _EditAcademicProfileScreenState
 
             // Academic Department & Degree Section
             Text(
-              'DEPARTMENT & FACULTY',
+              'DEPARTMENT & PROGRAMME',
               style: theme.textTheme.labelSmall?.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
@@ -248,98 +232,90 @@ class _EditAcademicProfileScreenState
             ),
             const SizedBox(height: 8),
 
-            Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: colorScheme.surfaceContainerLow,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+            InkWell(
+              onTap: () {
+                HapticFeedback.selectionClick();
+                DepartmentPickerSheet.show(
+                  context,
+                  currentSelection: _selectedBranch,
+                  onSelected: (programme) {
+                    setState(() => _selectedBranch = programme);
+                  },
+                );
+              },
+              borderRadius: BorderRadius.circular(20),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                  ),
                 ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ..._departmentSchools.entries.map((entry) {
-                    final schoolName = entry.key;
-                    final deptList = entry.value;
-
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 44,
+                      height: 44,
+                      decoration: BoxDecoration(
+                        color: colorScheme.primaryContainer,
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Icon(
+                        LucideIcons.graduationCap,
+                        color: colorScheme.primary,
+                        size: 22,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            schoolName,
-                            style: theme.textTheme.labelMedium?.copyWith(
+                            'Enrolled Programme',
+                            style: theme.textTheme.labelSmall?.copyWith(
                               fontSize: 11,
+                              color: colorScheme.onSurfaceVariant,
                               fontWeight: FontWeight.w600,
-                              color: colorScheme.outline,
                             ),
                           ),
-                          const SizedBox(height: 6),
-                          ...deptList.map((dept) {
-                            final isSelected = _selectedBranch == dept;
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 6),
-                              child: InkWell(
-                                onTap: () {
-                                  HapticFeedback.selectionClick();
-                                  setState(() => _selectedBranch = dept);
-                                },
-                                borderRadius: BorderRadius.circular(12),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 10),
-                                  decoration: BoxDecoration(
-                                    color: isSelected
-                                        ? colorScheme.primaryContainer
-                                        : colorScheme.surfaceContainer,
-                                    borderRadius: BorderRadius.circular(12),
-                                    border: Border.all(
-                                      color: isSelected
-                                          ? colorScheme.primary
-                                          : colorScheme.outlineVariant
-                                              .withValues(alpha: 0.4),
-                                    ),
-                                  ),
-                                  child: Row(
-                                    children: [
-                                      Icon(
-                                        isSelected
-                                            ? LucideIcons.circleCheck
-                                            : LucideIcons.circle,
-                                        size: 16,
-                                        color: isSelected
-                                            ? colorScheme.onPrimaryContainer
-                                            : colorScheme.outline,
-                                      ),
-                                      const SizedBox(width: 10),
-                                      Expanded(
-                                        child: Text(
-                                          dept,
-                                          style: theme.textTheme.bodyMedium?.copyWith(
-                                            fontSize: 13,
-                                            fontWeight: isSelected
-                                                ? FontWeight.w700
-                                                : FontWeight.w500,
-                                            color: isSelected
-                                                ? colorScheme.onPrimaryContainer
-                                                : colorScheme.onSurface,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            );
-                          }),
+                          const SizedBox(height: 3),
+                          Text(
+                            _selectedBranch,
+                            style: theme.textTheme.titleSmall?.copyWith(
+                              fontSize: 14.5,
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.onSurface,
+                            ),
+                          ),
                         ],
                       ),
-                    );
-                  }),
-                ],
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: colorScheme.surfaceContainerHigh,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        children: [
+                          Text(
+                            'Change',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              color: colorScheme.primary,
+                            ),
+                          ),
+                          const SizedBox(width: 4),
+                          Icon(LucideIcons.chevronRight, size: 14, color: colorScheme.primary),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
             const SizedBox(height: 20),

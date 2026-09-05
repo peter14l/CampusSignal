@@ -8,7 +8,7 @@ final ProfileModel kDefaultProfile = ProfileModel(
   id: 'user-sxuk-aarav-001',
   fullName: 'Aarav Sharma',
   collegeEmail: 'aarav.sharma@sxuk.edu.in',
-  branch: 'Computer Science & Engg',
+  branch: 'B.Tech in CSE',
   year: 3,
   semester: 5,
   interests: const [

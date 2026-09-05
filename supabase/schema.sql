@@ -16,6 +16,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     college_email TEXT UNIQUE,
     branch TEXT,
     year INT,
+    semester INT,
+    avatar_url TEXT,
     interests TEXT[] DEFAULT '{}'::TEXT[],
     skills TEXT[] DEFAULT '{}'::TEXT[],
     metadata JSONB DEFAULT '{}'::jsonb,

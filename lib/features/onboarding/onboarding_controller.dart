@@ -21,7 +21,7 @@ class OnboardingState {
     this.fullName = '',
     this.collegeEmail,
     this.avatarUrl,
-    this.branch = 'Computer Science & Engineering',
+    this.branch = 'B.Tech in CSE',
     this.semester = 3,
     this.year = 2,
     this.selectedInterests = const [
@@ -91,7 +91,7 @@ class OnboardingController extends Notifier<OnboardingState> {
         fullName: profile.fullName.isNotEmpty ? profile.fullName : 'SXUK Student',
         collegeEmail: profile.collegeEmail,
         avatarUrl: profile.avatarUrl,
-        branch: profile.branch ?? 'Computer Science & Engineering',
+        branch: profile.branch ?? 'B.Tech in CSE',
         semester: initialSemester,
         year: computedYear,
         selectedInterests: profile.interests.isNotEmpty

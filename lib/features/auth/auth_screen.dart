@@ -150,28 +150,38 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
       backgroundColor: colorScheme.surface,
       body: Stack(
         children: [
-          // Background ambient gradient blobs
+          // Background ambient gradient aura
           Positioned(
-            top: -60,
-            right: -60,
+            top: -100,
+            right: -80,
             child: Container(
-              width: 240,
-              height: 240,
+              width: 320,
+              height: 320,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                gradient: RadialGradient(
+                  colors: [
+                    colorScheme.primary.withValues(alpha: 0.15),
+                    colorScheme.primary.withValues(alpha: 0.0),
+                  ],
+                ),
               ),
             ),
           ),
           Positioned(
-            bottom: -50,
-            left: -50,
+            bottom: -80,
+            left: -80,
             child: Container(
-              width: 220,
-              height: 220,
+              width: 300,
+              height: 300,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: colorScheme.tertiaryContainer.withValues(alpha: 0.35),
+                gradient: RadialGradient(
+                  colors: [
+                    colorScheme.tertiary.withValues(alpha: 0.12),
+                    colorScheme.tertiary.withValues(alpha: 0.0),
+                  ],
+                ),
               ),
             ),
           ),
@@ -181,8 +191,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
             child: Center(
               child: SingleChildScrollView(
                 physics: const BouncingScrollPhysics(),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
                 child: FadeTransition(
                   opacity: _fadeAnimation,
                   child: SlideTransition(
@@ -193,30 +202,40 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Brand Hero Icon
+                          // Brand Hero Icon with dynamic elevation & badge
                           Center(
                             child: Stack(
                               clipBehavior: Clip.none,
                               children: [
                                 Container(
-                                  width: 92,
-                                  height: 92,
+                                  width: 88,
+                                  height: 88,
                                   decoration: BoxDecoration(
-                                    color: colorScheme.surfaceContainerHigh,
-                                    borderRadius: BorderRadius.circular(28),
+                                    gradient: LinearGradient(
+                                      begin: Alignment.topLeft,
+                                      end: Alignment.bottomRight,
+                                      colors: [
+                                        colorScheme.primaryContainer,
+                                        colorScheme.surfaceContainerHigh,
+                                      ],
+                                    ),
+                                    borderRadius: BorderRadius.circular(26),
+                                    border: Border.all(
+                                      color: colorScheme.primary.withValues(alpha: 0.25),
+                                      width: 1.5,
+                                    ),
                                     boxShadow: [
                                       BoxShadow(
-                                        color: colorScheme.primary
-                                            .withValues(alpha: 0.08),
-                                        blurRadius: 20,
-                                        offset: const Offset(0, 8),
+                                        color: colorScheme.primary.withValues(alpha: 0.16),
+                                        blurRadius: 24,
+                                        offset: const Offset(0, 10),
                                       ),
                                     ],
                                   ),
                                   child: Center(
                                     child: Icon(
                                       LucideIcons.radio,
-                                      size: 44,
+                                      size: 42,
                                       color: colorScheme.primary,
                                     ),
                                   ),
@@ -225,22 +244,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                   top: -6,
                                   right: -6,
                                   child: Container(
-                                    width: 32,
-                                    height: 32,
+                                    width: 30,
+                                    height: 30,
                                     decoration: BoxDecoration(
-                                      color: colorScheme.tertiaryContainer,
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          colorScheme.secondary,
+                                          colorScheme.secondaryContainer,
+                                        ],
+                                      ),
                                       shape: BoxShape.circle,
-                                      boxShadow: const [
+                                      boxShadow: [
                                         BoxShadow(
-                                          color: Colors.black12,
-                                          blurRadius: 4,
+                                          color: colorScheme.secondary.withValues(alpha: 0.3),
+                                          blurRadius: 8,
+                                          offset: const Offset(0, 2),
                                         ),
                                       ],
                                     ),
                                     child: Icon(
-                                      LucideIcons.graduationCap,
-                                      size: 16,
-                                      color: colorScheme.onTertiaryContainer,
+                                      LucideIcons.sparkles,
+                                      size: 15,
+                                      color: colorScheme.onSecondary,
                                     ),
                                   ),
                                 ),
@@ -249,152 +274,174 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           ),
                           const SizedBox(height: 24),
 
-                          // Title & Subtitle
+                          // University Brand Header & Subtitle
                           Text(
                             authState.isOtpSent
                                 ? 'Enter Verification Code'
-                                : 'Welcome to CampusSignal',
+                                : 'CampusSignal',
                             style: theme.textTheme.headlineMedium?.copyWith(
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -0.6,
                               color: colorScheme.onSurface,
                             ),
                             textAlign: TextAlign.center,
                           ),
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 6),
                           Text(
                             authState.isOtpSent
                                 ? 'We sent a 6-digit code to ${authState.email}'
-                                : 'Sign in with your Google or college account to discover personalized SXUK opportunities.',
+                                : 'St. Xavier\'s University, Kolkata — The official real-time opportunities & campus notices hub.',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
+                              fontSize: 13.5,
+                              height: 1.4,
                             ),
                             textAlign: TextAlign.center,
                           ),
                           const SizedBox(height: 28),
 
-                          // Error Banner
-                          if (authState.errorMessage != null) ...[
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 16, vertical: 12),
-                              margin: const EdgeInsets.only(bottom: 20),
-                              decoration: BoxDecoration(
-                                color: colorScheme.errorContainer
-                                    .withValues(alpha: 0.7),
-                                borderRadius: BorderRadius.circular(12),
+                          // Main Auth Container (Elevated Glass Card)
+                          Container(
+                            padding: const EdgeInsets.all(22),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerLowest,
+                              borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
                               ),
-                              child: Row(
-                                children: [
-                                  Icon(LucideIcons.alertCircle,
-                                      color: colorScheme.onErrorContainer,
-                                      size: 18),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      authState.errorMessage!,
-                                      style:
-                                          theme.textTheme.bodySmall?.copyWith(
-                                        color: colorScheme.onErrorContainer,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-
-                          if (!authState.isOtpSent) ...[
-                            // Primary Google Sign-In Button
-                            InteractiveSpring(
-                              onTap: authState.isLoading ? null : () => _handleGoogleSignIn(),
-                              child: Container(
-                                height: 52,
-                                decoration: BoxDecoration(
-                                  color: colorScheme.surfaceContainerLowest,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: colorScheme.outlineVariant,
-                                    width: 1.2,
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withValues(alpha: 0.04),
-                                      blurRadius: 10,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _buildGoogleGLogo(),
-                                    const SizedBox(width: 12),
-                                    Text(
-                                      'Continue with Google',
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // Divider Row
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Divider(
-                                    color: colorScheme.outlineVariant.withValues(alpha: 0.6),
-                                  ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                                  child: Text(
-                                    'OR USE COLLEGE EMAIL',
-                                    style: TextStyle(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: 0.8,
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
-                                Expanded(
-                                  child: Divider(
-                                    color: colorScheme.outlineVariant.withValues(alpha: 0.6),
-                                  ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 20),
-                          ],
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: [
+                                // Error Banner
+                                if (authState.errorMessage != null) ...[
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                                    margin: const EdgeInsets.only(bottom: 18),
+                                    decoration: BoxDecoration(
+                                      color: colorScheme.errorContainer.withValues(alpha: 0.8),
+                                      borderRadius: BorderRadius.circular(14),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Icon(LucideIcons.alertCircle,
+                                            color: colorScheme.onErrorContainer, size: 18),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            authState.errorMessage!,
+                                            style: theme.textTheme.bodySmall?.copyWith(
+                                              color: colorScheme.onErrorContainer,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
 
-                          // Form Area: Email or OTP
-                          AnimatedSwitcher(
-                            duration: AppMotion.durationMedium3,
-                            switchInCurve: AppMotion.spring,
-                            switchOutCurve: AppMotion.emphasizedAccelerate,
-                            child: authState.isOtpSent
-                                ? _buildOtpSection(context, authState)
-                                : _buildEmailSection(context, authState),
+                                if (!authState.isOtpSent) ...[
+                                  // Primary Google Sign-In Button
+                                  InteractiveSpring(
+                                    onTap: authState.isLoading ? null : () => _handleGoogleSignIn(),
+                                    child: Container(
+                                      height: 52,
+                                      decoration: BoxDecoration(
+                                        color: colorScheme.surface,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: colorScheme.outlineVariant.withValues(alpha: 0.8),
+                                          width: 1.2,
+                                        ),
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.black.withValues(alpha: 0.04),
+                                            blurRadius: 8,
+                                            offset: const Offset(0, 3),
+                                          ),
+                                        ],
+                                      ),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          _buildGoogleGLogo(),
+                                          const SizedBox(width: 12),
+                                          Text(
+                                            'Continue with Google',
+                                            style: TextStyle(
+                                              fontSize: 15.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: colorScheme.onSurface,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+
+                                  const SizedBox(height: 20),
+
+                                  // Divider Row
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Divider(
+                                          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14),
+                                        child: Text(
+                                          'OR SIGN IN WITH EMAIL',
+                                          style: TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w800,
+                                            letterSpacing: 0.8,
+                                            color: colorScheme.outline,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Divider(
+                                          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 18),
+                                ],
+
+                                // Form Area: Email or OTP
+                                AnimatedSwitcher(
+                                  duration: AppMotion.durationMedium3,
+                                  switchInCurve: AppMotion.spring,
+                                  switchOutCurve: AppMotion.emphasizedAccelerate,
+                                  child: authState.isOtpSent
+                                      ? _buildOtpSection(context, authState)
+                                      : _buildEmailSection(context, authState),
+                                ),
+                              ],
+                            ),
                           ),
 
                           const SizedBox(height: 24),
 
-                          // Quick Test Triggers for Google Sign-in Paths
+                          // Quick Preview Triggers
                           Container(
                             padding: const EdgeInsets.all(12),
                             decoration: BoxDecoration(
                               color: colorScheme.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(14),
+                              borderRadius: BorderRadius.circular(16),
                               border: Border.all(
-                                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
                               ),
                             ),
                             child: Column(
@@ -405,11 +452,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                     Icon(LucideIcons.sparkles, size: 14, color: colorScheme.primary),
                                     const SizedBox(width: 6),
                                     Text(
-                                      'GOOGLE AUTH PREVIEW MODES',
+                                      'GOOGLE AUTH PREVIEW / TEST',
                                       style: TextStyle(
                                         fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.6,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: 0.7,
                                         color: colorScheme.primary,
                                       ),
                                     ),
@@ -424,11 +471,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                             ? null
                                             : () => _handleGoogleSignIn(forceMockExisting: true),
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                                           visualDensity: VisualDensity.compact,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
                                         ),
                                         child: const Text(
-                                          'Existing User\n(Direct Feed)',
+                                          'Existing User (Feed)',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                                         ),
@@ -441,11 +491,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                             ? null
                                             : () => _handleGoogleSignIn(forceMockNew: true),
                                         style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
+                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
                                           visualDensity: VisualDensity.compact,
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(10),
+                                          ),
                                         ),
                                         child: const Text(
-                                          'New User\n(Department/Chips)',
+                                          'New User (Setup)',
                                           textAlign: TextAlign.center,
                                           style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                                         ),
@@ -457,15 +510,14 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                             ),
                           ),
 
-                          const SizedBox(height: 28),
+                          const SizedBox(height: 24),
 
                           // Footer Terms Note
                           Text(
-                            'By continuing you agree to the SXUK CampusSignal Terms & Privacy Policy',
+                            'By continuing you agree to SXUK CampusSignal Terms & Privacy Policy',
                             style: theme.textTheme.bodySmall?.copyWith(
                               fontSize: 11,
-                              color: colorScheme.onSurfaceVariant
-                                  .withValues(alpha: 0.7),
+                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                             ),
                             textAlign: TextAlign.center,
                           ),

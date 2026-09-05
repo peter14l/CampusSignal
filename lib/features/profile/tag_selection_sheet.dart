@@ -19,15 +19,10 @@ class TagSelectionSheet extends ConsumerStatefulWidget {
     required bool isSkill,
     required List<String> currentTags,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
-
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
-      backgroundColor: colorScheme.surfaceContainerLowest,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
+      backgroundColor: Colors.transparent,
       builder: (ctx) => TagSelectionSheet(
         isSkill: isSkill,
         currentTags: currentTags,

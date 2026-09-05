@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
 import '../../core/theme/theme_controller.dart';
 import '../../core/widgets/interactive_spring.dart';
@@ -428,7 +429,7 @@ class SettingsScreen extends ConsumerWidget {
                     child: Icon(LucideIcons.info, size: 18, color: colorScheme.onSurface),
                   ),
                   title: const Text('About CampusSignal', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
-                  subtitle: const Text('Version 1.0.2 (Production Release)', style: TextStyle(fontSize: 12)),
+                  subtitle: const Text('Version ${AppConstants.appVersionDisplay}', style: TextStyle(fontSize: 12)),
                   trailing: Icon(LucideIcons.chevronRight, size: 18, color: colorScheme.onSurfaceVariant),
                   onTap: () => context.push('/about'),
                 ),

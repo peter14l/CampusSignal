@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
 import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
@@ -512,7 +513,7 @@ class ProfileScreen extends ConsumerWidget {
                     _buildHubTile(
                       icon: LucideIcons.info,
                       title: 'About CampusSignal',
-                      subtitle: 'Version 1.0.0 (SXUK Release)',
+                      subtitle: 'Version ${AppConstants.appVersionDisplay}',
                       onTap: () => context.push('/about'),
                       colorScheme: colorScheme,
                     ),

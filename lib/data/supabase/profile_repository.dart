@@ -36,10 +36,7 @@ class ProfileRepository {
   /// Updates or upserts user profile data.
   Future<ProfileModel?> updateProfile(ProfileModel profile) async {
     try {
-      final payload = {
-        ...profile.toJson(),
-        'updated_at': DateTime.now().toIso8601String(),
-      };
+      final payload = profile.toSupabaseJson();
 
       final response = await _client
           .from('profiles')

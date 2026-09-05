@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 /// Represents metadata for an app version update stored in Cloudflare R2
 class AppUpdateInfo {
   final String version;

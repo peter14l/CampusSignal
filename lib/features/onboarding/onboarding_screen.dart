@@ -1,9 +1,11 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/motion.dart';
+import '../../core/widgets/department_picker_modal.dart';
 import 'onboarding_controller.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -17,18 +19,6 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _skillInputController = TextEditingController();
   final TextEditingController _interestInputController = TextEditingController();
-
-  final List<String> _departmentOptions = const [
-    'Computer Science & Engineering',
-    'Information Technology',
-    'Data Science & AI',
-    'Commerce & Finance (B.Com / M.Com)',
-    'Business Administration (BBA / MBA)',
-    'Law (BA.LLB / BBA.LLB)',
-    'Mass Communication & Media',
-    'Economics & Data Analytics',
-    'Psychology & Social Sciences',
-  ];
 
   final List<String> _preMadeInterests = const [
     'Hackathons',
@@ -392,30 +382,50 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 20),
 
-        // Department Dropdown
+        // Department / Degree Program Selector
         Text(
           'Department / Degree Program *',
           style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w700),
         ),
         const SizedBox(height: 6),
-        DropdownButtonFormField<String>(
-          initialValue: _departmentOptions.contains(state.branch)
-              ? state.branch
-              : _departmentOptions.first,
-          decoration: InputDecoration(
-            prefixIcon: Icon(LucideIcons.graduationCap, color: colorScheme.onSurfaceVariant, size: 18),
-          ),
-          items: _departmentOptions.map((dept) {
-            return DropdownMenuItem<String>(
-              value: dept,
-              child: Text(
-                dept,
-                style: theme.textTheme.bodyMedium,
-                overflow: TextOverflow.ellipsis,
+        InkWell(
+          onTap: () {
+            HapticFeedback.selectionClick();
+            _showDepartmentPicker(context, state.branch, (selected) {
+              onboardingCtrl.updateBranch(selected);
+            });
+          },
+          borderRadius: BorderRadius.circular(16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
               ),
-            );
-          }).toList(),
-          onChanged: (val) => onboardingCtrl.updateBranch(val),
+            ),
+            child: Row(
+              children: [
+                Icon(LucideIcons.graduationCap, color: colorScheme.primary, size: 20),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    state.branch != null && state.branch!.isNotEmpty
+                        ? state.branch!
+                        : 'Select your degree programme',
+                    style: theme.textTheme.bodyMedium?.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: state.branch != null && state.branch!.isNotEmpty
+                          ? colorScheme.onSurface
+                          : colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+                Icon(LucideIcons.chevronDown, color: colorScheme.onSurfaceVariant, size: 18),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 24),
 
@@ -657,6 +667,18 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Center(
         child: Icon(LucideIcons.user, color: colorScheme.onPrimary, size: 24),
       ),
+    );
+  }
+
+  void _showDepartmentPicker(
+    BuildContext context,
+    String? currentSelected,
+    ValueChanged<String> onSelected,
+  ) {
+    DepartmentPickerSheet.show(
+      context,
+      currentSelection: currentSelected,
+      onSelected: onSelected,
     );
   }
 }
