@@ -3,7 +3,7 @@
   "versionCode": 9,
   "minSupportedVersionCode": 1,
   "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk",
-  "fileSizeBytes": 70564514,
+  "fileSizeBytes": 70644768,
   "archApkUrls": {
     "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-arm64-v8a.apk",
     "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-armeabi-v7a.apk",
@@ -11,16 +11,16 @@
     "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk"
   },
   "archSizes": {
-    "arm64-v8a": "29.3 MB",
+    "arm64-v8a": "29.4 MB",
     "armeabi-v7a": "27.1 MB",
-    "x86_64": "30.8 MB",
-    "universal": "67.3 MB"
+    "x86_64": "30.9 MB",
+    "universal": "67.4 MB"
   },
   "sha256": {
-    "arm64-v8a": "8f3b6a9c1e4d7f2a5b8c0e3d6f9a2b5c8e1d4f7a0b3c6e9d2f5a8b1c4e7d0f3a",
-    "armeabi-v7a": "4c7e0a2d5f8b1e4a7c0d3f6a9b2e5c8f1a4d7b0e3c6f9a2d5e8b1c4f7a0d3e6b",
-    "x86_64": "9b1d4e7a0c3f6a9c2e5b8d1f4a7c0e3d6f9a2b5c8e1d4f7a0b3c6e9d2f5a8b1c",
-    "universal": "3a6d9c2f5b8e1a4d7c0f3b6e9a2d5c8f1e4a7d0b3c6f9a2d5e8b1c4f7a0d3e6a"
+    "arm64-v8a": "c433f7a4f059e0a5756cc5ce3ac8e8383ad4e4c83ad574ebfb70f9343f346ff1",
+    "armeabi-v7a": "e6bef9f6c92601463b021538c0e48aa4f04c3729f8d395e89accc6b13b58aa57",
+    "x86_64": "7821c83c729120899a13f9032f519369291df09d3839cb51ed612a3389198017",
+    "universal": "66706954f4c322317cf4a52ec47e240fb28df6b2f96544a52845b7d0766e525e"
   },
   "releaseNotes": "• Strict demo state isolation for Calendar, Deadline Tracker & Broadcast Signals\n• Dynamic navigation and action badge counts reflecting real user states\n• Official high-resolution App Logo badge on About screen\n• Unified v1.0.8 (Build 9) release stability",
   "publishedAt": "2026-09-05T16:35:00.000Z",
