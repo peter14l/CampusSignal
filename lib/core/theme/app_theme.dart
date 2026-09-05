@@ -280,9 +280,39 @@ class AppTheme {
     required Brightness brightness,
     ColorScheme? colorScheme,
   }) {
-    final scheme = colorScheme ?? (brightness == Brightness.light ? lightColorScheme : darkColorScheme);
-    final textTheme = _buildTextTheme(brightness);
+    ColorScheme scheme;
     final isDark = brightness == Brightness.dark;
+
+    if (colorScheme != null) {
+      // Harmonize and build distinct surface tonal levels from dynamic primary/surface
+      // to ensure UI sections have pronounced depth and contrast rather than a single flat tone.
+      final seedPrimary = colorScheme.primary;
+
+      if (isDark) {
+        scheme = colorScheme.copyWith(
+          surfaceContainerLowest: Color.alphaBlend(seedPrimary.withValues(alpha: 0.02), const Color(0xFF0C0F14)),
+          surfaceContainerLow: Color.alphaBlend(seedPrimary.withValues(alpha: 0.06), const Color(0xFF141820)),
+          surfaceContainer: Color.alphaBlend(seedPrimary.withValues(alpha: 0.10), const Color(0xFF1B212B)),
+          surfaceContainerHigh: Color.alphaBlend(seedPrimary.withValues(alpha: 0.15), const Color(0xFF232A37)),
+          surfaceContainerHighest: Color.alphaBlend(seedPrimary.withValues(alpha: 0.20), const Color(0xFF2D3545)),
+          outlineVariant: Color.alphaBlend(seedPrimary.withValues(alpha: 0.12), const Color(0xFF2D3545)),
+        );
+      } else {
+        scheme = colorScheme.copyWith(
+          surface: Color.alphaBlend(seedPrimary.withValues(alpha: 0.01), const Color(0xFFFAF9FD)),
+          surfaceContainerLowest: Colors.white,
+          surfaceContainerLow: Color.alphaBlend(seedPrimary.withValues(alpha: 0.04), const Color(0xFFF4F2FA)),
+          surfaceContainer: Color.alphaBlend(seedPrimary.withValues(alpha: 0.08), const Color(0xFFECE9F4)),
+          surfaceContainerHigh: Color.alphaBlend(seedPrimary.withValues(alpha: 0.12), const Color(0xFFE5E2EE)),
+          surfaceContainerHighest: Color.alphaBlend(seedPrimary.withValues(alpha: 0.16), const Color(0xFFDFDCE8)),
+          outlineVariant: Color.alphaBlend(seedPrimary.withValues(alpha: 0.14), const Color(0xFFC7C5D6)),
+        );
+      }
+    } else {
+      scheme = isDark ? darkColorScheme : lightColorScheme;
+    }
+
+    final textTheme = _buildTextTheme(brightness);
 
     return ThemeData(
       useMaterial3: true,

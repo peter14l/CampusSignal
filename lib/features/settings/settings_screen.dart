@@ -301,7 +301,7 @@ class SettingsScreen extends ConsumerWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
+              color: colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.6)),
             ),
@@ -344,7 +344,7 @@ class SettingsScreen extends ConsumerWidget {
 
           Container(
             decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
+              color: colorScheme.surfaceContainerHigh,
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.6)),
             ),

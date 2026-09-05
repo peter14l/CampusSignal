@@ -108,17 +108,22 @@ class ProfileModel {
 
   /// Full JSON map for local cache (SharedPreferences)
   Map<String, dynamic> toJson() {
+    final mergedMetadata = Map<String, dynamic>.from(metadata);
+    if (semester != null) mergedMetadata['semester'] = semester;
+    if (year != null) mergedMetadata['year'] = year;
+    if (avatarUrl != null && avatarUrl!.isNotEmpty) mergedMetadata['avatar_url'] = avatarUrl;
+
     return {
       'id': id,
       'full_name': fullName,
       'college_email': collegeEmail,
       'branch': branch,
-      'year': year,
-      'semester': semester,
+      'year': year ?? (semester != null ? ((semester! + 1) ~/ 2) : null),
+      'semester': semester ?? (year != null ? ((year! * 2) - 1) : null),
       'avatar_url': avatarUrl,
       'interests': interests,
       'skills': skills,
-      'metadata': metadata,
+      'metadata': mergedMetadata,
       if (createdAt != null) 'created_at': createdAt!.toIso8601String(),
       if (updatedAt != null) 'updated_at': updatedAt!.toIso8601String(),
     };
@@ -128,6 +133,7 @@ class ProfileModel {
   Map<String, dynamic> toSupabaseJson() {
     final mergedMetadata = Map<String, dynamic>.from(metadata);
     if (semester != null) mergedMetadata['semester'] = semester;
+    if (year != null) mergedMetadata['year'] = year;
     if (avatarUrl != null && avatarUrl!.isNotEmpty) mergedMetadata['avatar_url'] = avatarUrl;
 
     return {
@@ -135,7 +141,8 @@ class ProfileModel {
       'full_name': fullName,
       'college_email': collegeEmail,
       'branch': branch,
-      'year': year,
+      'year': year ?? (semester != null ? ((semester! + 1) ~/ 2) : null),
+      'semester': semester,
       'interests': interests,
       'skills': skills,
       'metadata': mergedMetadata,

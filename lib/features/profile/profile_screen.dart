@@ -343,7 +343,7 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerLow,
+                  color: colorScheme.surfaceContainer,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                 ),
@@ -416,7 +416,7 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerLow,
+                  color: colorScheme.surfaceContainerHigh,
                   borderRadius: BorderRadius.circular(22),
                   border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
                 ),
@@ -428,7 +428,7 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(LucideIcons.wrench, size: 18, color: colorScheme.primary),
+                            Icon(LucideIcons.wrench, size: 18, color: colorScheme.tertiary),
                             const SizedBox(width: 8),
                             Text(
                               'Skills & Tech Domains',
@@ -441,7 +441,7 @@ class ProfileScreen extends ConsumerWidget {
                           ],
                         ),
                         IconButton(
-                          icon: Icon(LucideIcons.circlePlus, size: 20, color: colorScheme.primary),
+                          icon: Icon(LucideIcons.circlePlus, size: 20, color: colorScheme.tertiary),
                           onPressed: () => TagSelectionSheet.show(
                             context,
                             isSkill: true,
@@ -463,9 +463,9 @@ class ProfileScreen extends ConsumerWidget {
                         children: profile.skills.map((skill) {
                           return Chip(
                             label: Text(skill),
-                            backgroundColor: colorScheme.secondaryContainer,
+                            backgroundColor: colorScheme.tertiaryContainer,
                             labelStyle: TextStyle(
-                              color: colorScheme.onSecondaryContainer,
+                              color: colorScheme.onTertiaryContainer,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                             ),

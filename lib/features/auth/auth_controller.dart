@@ -200,7 +200,14 @@ class AuthController extends Notifier<AuthState> {
           final remoteProfile = ProfileModel.fromJson(res);
           final current = state.profile;
 
-          // Merge without losing locally cached skills/interests if remote has empty arrays
+          // Merge without losing locally cached details if remote values are unset or stale
+          final effectiveSemester = remoteProfile.semester ??
+              (remoteProfile.year != null ? ((remoteProfile.year! * 2) - 1) : null) ??
+              current?.semester;
+          final effectiveYear = remoteProfile.year ??
+              (effectiveSemester != null ? ((effectiveSemester + 1) ~/ 2) : null) ??
+              current?.year;
+
           final mergedProfile = remoteProfile.copyWith(
             collegeEmail: email ?? remoteProfile.collegeEmail ?? current?.collegeEmail,
             avatarUrl: (remoteProfile.avatarUrl != null && remoteProfile.avatarUrl!.isNotEmpty)
@@ -215,8 +222,8 @@ class AuthController extends Notifier<AuthState> {
             branch: (remoteProfile.branch != null && remoteProfile.branch!.isNotEmpty)
                 ? remoteProfile.branch
                 : current?.branch,
-            semester: remoteProfile.semester ?? current?.semester,
-            year: remoteProfile.year ?? current?.year,
+            semester: effectiveSemester,
+            year: effectiveYear,
           );
 
           state = state.copyWith(
@@ -226,9 +233,10 @@ class AuthController extends Notifier<AuthState> {
           );
           await _persistAuth(mergedProfile, email ?? mergedProfile.collegeEmail);
 
-          // If local cache had interests/skills/branch missing in remote DB, sync back
-          if (remoteProfile.interests.isEmpty && mergedProfile.interests.isNotEmpty ||
-              remoteProfile.skills.isEmpty && mergedProfile.skills.isNotEmpty) {
+          // If local cache had interests/skills/branch/semester missing in remote DB, sync back
+          if ((remoteProfile.interests.isEmpty && mergedProfile.interests.isNotEmpty) ||
+              (remoteProfile.skills.isEmpty && mergedProfile.skills.isNotEmpty) ||
+              (remoteProfile.semester == null && mergedProfile.semester != null)) {
             try {
               await client.from('profiles').upsert(mergedProfile.toSupabaseJson());
             } catch (_) {}
