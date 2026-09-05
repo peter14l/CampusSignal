@@ -198,7 +198,11 @@ async function signInWithGoogle() {
   const currentPath = window.location.pathname.replace(/\\/g, '/');
   
   let targetPath = '/app/index.html';
-  if (currentPath.includes('/website/')) {
+  if (currentPath.includes('/CampusSignal/website/')) {
+    targetPath = '/CampusSignal/website/app/index.html';
+  } else if (currentPath.includes('/CampusSignal/')) {
+    targetPath = '/CampusSignal/app/index.html';
+  } else if (currentPath.includes('/website/')) {
     targetPath = '/website/app/index.html';
   }
 
