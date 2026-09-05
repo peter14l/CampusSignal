@@ -188,8 +188,21 @@ async function signInWithGoogle() {
   const sb = getSupabase();
   if (!sb) throw new Error('Supabase client not initialized');
 
-  // Calculate redirect URL to /app/
-  const redirectUrl = new URL('/app/', window.location.origin).href;
+  // Google OAuth requires http:// or https:// protocol (cannot redirect to file://)
+  if (window.location.protocol === 'file:') {
+    throw new Error('Google OAuth requires a local web server (http://localhost:5500 or http://localhost:8080). Open via Live Server or use "Guest Demo Preview Mode" below to test immediately.');
+  }
+
+  // Compute exact return URL to current origin + path
+  const currentOrigin = window.location.origin;
+  const currentPath = window.location.pathname.replace(/\\/g, '/');
+  
+  let targetPath = '/app/index.html';
+  if (currentPath.includes('/website/')) {
+    targetPath = '/website/app/index.html';
+  }
+
+  const redirectUrl = `${currentOrigin}${targetPath}`;
 
   const { data, error } = await sb.auth.signInWithOAuth({
     provider: 'google',
