@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/mock/mock_data.dart';
 import '../../models/notification_model.dart';
 
+import '../../features/auth/auth_controller.dart';
+
 class NotificationsState {
   final List<NotificationItem> notifications;
   final bool isLoading;
@@ -33,7 +35,10 @@ class NotificationsState {
 class NotificationsController extends Notifier<NotificationsState> {
   @override
   NotificationsState build() {
-    return NotificationsState(notifications: generateMockNotifications());
+    final isDemoMode = ref.watch(authControllerProvider.select((s) => s.isDemoMode));
+    return NotificationsState(
+      notifications: isDemoMode ? generateMockNotifications() : const [],
+    );
   }
 
   void markAsRead(String id) {

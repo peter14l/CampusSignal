@@ -164,14 +164,16 @@ async function populateUserInfo(user) {
 
 // Global Event Detail Modal Opener
 function openEventModal(eventId) {
-  const event = SXUK_CATALOG.events.find(e => e.id === eventId);
+  const eventsPool = window.activeEventsList || SXUK_CATALOG.events;
+  const event = eventsPool.find(e => e.id === eventId) || SXUK_CATALOG.events.find(e => e.id === eventId);
   if (!event) return;
 
   const modalBackdrop = document.getElementById('cs-event-modal-backdrop');
   const modalBody = document.getElementById('cs-event-modal-body');
   if (!modalBackdrop || !modalBody) return;
 
-  const isSaved = CS_AUTH.isEventSaved(event.id);
+  const currentUser = window.globalCurrentUser;
+  const isSaved = CS_AUTH.isEventSaved(event.id, currentUser);
   const formattedDate = new Date(event.eventDate).toLocaleDateString('en-US', {
     weekday: 'short', month: 'short', day: 'numeric', year: 'numeric', hour: '2-digit', minute: '2-digit'
   });
@@ -266,7 +268,7 @@ function openEventModal(eventId) {
   // Save button inside modal
   const modalSaveBtn = document.getElementById('modal-save-btn');
   modalSaveBtn.addEventListener('click', () => {
-    const newlySaved = CS_AUTH.toggleSaveEvent(event.id);
+    const newlySaved = CS_AUTH.toggleSaveEvent(event.id, window.globalCurrentUser);
     modalSaveBtn.innerHTML = `
       <i data-lucide="${newlySaved ? 'bookmark-check' : 'bookmark'}" style="width:16px;height:16px;margin-right:6px; color:${newlySaved ? 'var(--primary-hover)' : 'inherit'};"></i>
       <span>${newlySaved ? 'Bookmarked' : 'Save Drive'}</span>

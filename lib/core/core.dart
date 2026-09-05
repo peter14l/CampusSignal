@@ -1,5 +1,5 @@
 // Core barrel export for fast, clean modular imports
-export 'config/supabase_config.dart';
+export 'supabase/supabase_config.dart';
 export 'constants/app_constants.dart';
 export 'mock/mock_data.dart';
 export 'theme/app_theme.dart';

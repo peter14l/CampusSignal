@@ -9,9 +9,9 @@ class ProfileStats {
   final int remindersCount;
 
   const ProfileStats({
-    this.savedEventsCount = 6,
-    this.appliedCount = 3,
-    this.remindersCount = 4,
+    this.savedEventsCount = 0,
+    this.appliedCount = 0,
+    this.remindersCount = 0,
   });
 }
 
@@ -46,9 +46,13 @@ class ProfileState {
 class ProfileController extends Notifier<ProfileState> {
   @override
   ProfileState build() {
-    final authProfile = ref.watch(authControllerProvider).profile;
+    final authState = ref.watch(authControllerProvider);
+    final isDemo = authState.isDemoMode;
     return ProfileState(
-      profile: authProfile ?? kDefaultProfile,
+      profile: authState.profile ?? (isDemo ? kDefaultProfile : null),
+      stats: isDemo
+          ? const ProfileStats(savedEventsCount: 6, appliedCount: 3, remindersCount: 4)
+          : const ProfileStats(savedEventsCount: 0, appliedCount: 0, remindersCount: 0),
     );
   }
 

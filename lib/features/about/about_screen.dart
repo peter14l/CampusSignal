@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/widgets/app_logo_badge.dart';
 import '../../core/widgets/interactive_spring.dart';
 
 class AboutScreen extends StatelessWidget {
@@ -32,35 +33,10 @@ class AboutScreen extends StatelessWidget {
           Center(
             child: Column(
               children: [
-                Container(
-                  width: 88,
-                  height: 88,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        theme.colorScheme.primary,
-                        theme.colorScheme.primaryContainer
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            theme.colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: Icon(
-                      LucideIcons.radio,
-                      color: theme.colorScheme.onPrimary,
-                      size: 44,
-                    ),
-                  ),
+                const AppLogoBadge(
+                  size: 88,
+                  borderRadius: 24,
+                  hasShadow: true,
                 ),
                 const SizedBox(height: 16),
                 Text(

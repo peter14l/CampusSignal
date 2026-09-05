@@ -1,9 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:campus_signal/models/event_model.dart';
 import 'package:campus_signal/models/profile_model.dart';
-import 'package:campus_signal/models/club_model.dart';
 import 'package:campus_signal/models/notification_model.dart';
-import 'package:campus_signal/data/supabase/user_actions_repository.dart';
 
 void main() {
   group('EventModel Tests', () {
@@ -128,20 +126,7 @@ void main() {
     });
   });
 
-  group('ClubModel and NotificationModel Tests', () {
-    test('ClubModel parsing and serializing', () {
-      final json = {
-        'id': 'club-99',
-        'name': 'Robotics Club',
-        'description': 'Building next-gen bots',
-        'logo_r2_key': 'logos/robotics.png',
-      };
-      final club = ClubModel.fromJson(json);
-      expect(club.id, 'club-99');
-      expect(club.name, 'Robotics Club');
-      expect(club.logoR2Key, 'logos/robotics.png');
-    });
-
+  group('NotificationModel Tests', () {
     test('NotificationModel parsing', () {
       final json = {
         'id': 'notif-1',
@@ -155,14 +140,6 @@ void main() {
       expect(notif.id, 'notif-1');
       expect(notif.read, false);
       expect(notif.type, 'deadline');
-    });
-
-    test('UserStats data object test', () {
-      const stats = UserStats(savedCount: 5, appliedCount: 2, remindersCount: 3);
-      expect(stats.savedCount, 5);
-      expect(stats.appliedCount, 2);
-      expect(stats.remindersCount, 3);
-      expect(stats.toMap()['savedCount'], 5);
     });
   });
 }

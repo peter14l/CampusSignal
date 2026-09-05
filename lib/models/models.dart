@@ -1,5 +1,4 @@
 // Models barrel export
-export 'club_model.dart';
 export 'event_model.dart';
 export 'notification_model.dart';
 export 'profile_model.dart';

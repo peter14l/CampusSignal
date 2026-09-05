@@ -347,19 +347,31 @@ async function handlePostLoginRedirect() {
 }
 
 /**
- * Saved / Bookmarked Events Helpers (Persisted in Supabase user_actions or LocalStorage)
+ * Check if a user is in Demo / Guest mode
  */
-function getSavedEventIds() {
+function isDemoUser(user) {
+  return !user || user.is_guest === true || user.id === DEMO_GUEST_USER.id;
+}
+
+/**
+ * Saved / Bookmarked Events Helpers (User-scoped in Supabase or LocalStorage)
+ */
+function getSavedEventIds(user) {
   try {
-    const saved = localStorage.getItem(SAVED_EVENTS_STORAGE_KEY);
-    return saved ? JSON.parse(saved) : ['ev-1', 'ev-2'];
+    const isGuest = isDemoUser(user);
+    const key = isGuest ? SAVED_EVENTS_STORAGE_KEY : `${SAVED_EVENTS_STORAGE_KEY}_${user?.id || 'anon'}`;
+    const saved = localStorage.getItem(key);
+    if (saved) return JSON.parse(saved);
+    return isGuest ? ['ev-1', 'ev-2'] : [];
   } catch (e) {
-    return ['ev-1', 'ev-2'];
+    return [];
   }
 }
 
-function toggleSaveEvent(eventId) {
-  const savedIds = getSavedEventIds();
+function toggleSaveEvent(eventId, user) {
+  const isGuest = isDemoUser(user);
+  const key = isGuest ? SAVED_EVENTS_STORAGE_KEY : `${SAVED_EVENTS_STORAGE_KEY}_${user?.id || 'anon'}`;
+  const savedIds = getSavedEventIds(user);
   const index = savedIds.indexOf(eventId);
   let isSaved = false;
 
@@ -371,26 +383,30 @@ function toggleSaveEvent(eventId) {
     isSaved = true;
   }
 
-  localStorage.setItem(SAVED_EVENTS_STORAGE_KEY, JSON.stringify(savedIds));
+  localStorage.setItem(key, JSON.stringify(savedIds));
 
-  // Sync with Supabase user_actions if logged in
+  // Sync with Supabase saves/user_actions if real user
   const sb = getSupabase();
-  getCurrentUser().then(user => {
-    if (user && !user.is_guest && sb) {
-      sb.from('user_actions').upsert({
+  if (user && !isGuest && sb) {
+    if (isSaved) {
+      sb.from('saves').insert({
         user_id: user.id,
         event_id: eventId,
-        action: isSaved ? 'save' : 'unsave',
-        created_at: new Date().toISOString()
-      }).catch(err => console.warn('User action sync note:', err.message));
+        saved_at: new Date().toISOString()
+      }).catch(err => console.warn('Save sync note:', err.message));
+    } else {
+      sb.from('saves').delete()
+        .eq('user_id', user.id)
+        .eq('event_id', eventId)
+        .catch(err => console.warn('Unsave sync note:', err.message));
     }
-  });
+  }
 
   return isSaved;
 }
 
-function isEventSaved(eventId) {
-  const saved = getSavedEventIds();
+function isEventSaved(eventId, user) {
+  const saved = getSavedEventIds(user);
   return saved.includes(eventId);
 }
 
@@ -407,6 +423,7 @@ window.CS_AUTH = {
   signOutUser,
   requireAuth,
   handlePostLoginRedirect,
+  isDemoUser,
   getSavedEventIds,
   toggleSaveEvent,
   isEventSaved,

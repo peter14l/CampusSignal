@@ -235,6 +235,61 @@ const SXUK_CATALOG = {
     }
   ],
 
+  // Fetch Events from Supabase for real users or return mock data for guest demo mode
+  async fetchEvents(user) {
+    const isGuest = !user || user.is_guest === true || user.id === 'guest-demo-sxuk-2026';
+    if (isGuest) {
+      return [...this.events];
+    }
+
+    const sb = window.CS_AUTH?.getSupabase ? window.CS_AUTH.getSupabase() : null;
+    if (!sb) {
+      return [];
+    }
+
+    try {
+      const { data, error } = await sb
+        .from('events')
+        .select('*')
+        .eq('status', 'published')
+        .order('starts_at', { ascending: true });
+
+      if (error) {
+        console.warn('Supabase fetch events notice:', error.message);
+        return [];
+      }
+
+      if (data && data.length > 0) {
+        return data.map(row => ({
+          id: row.id,
+          title: row.title || 'Untitled Opportunity',
+          category: (row.category || 'other').toLowerCase(),
+          organizer: row.organizer_name || 'SXUK Club/Dept',
+          deadline: row.deadline_at || row.starts_at || new Date().toISOString(),
+          eventDate: row.starts_at || new Date().toISOString(),
+          endDate: row.ends_at || row.starts_at || new Date().toISOString(),
+          venue: row.venue || 'SXUK Campus',
+          format: row.format || 'In-Person',
+          teamSize: row.team_size_text || 'Individual',
+          eligibility: row.eligibility_text || 'All SXUK Students',
+          departments: Array.isArray(row.eligibility_branches) ? row.eligibility_branches : ['All Departments'],
+          prize: row.metadata?.prize || 'Verified Event',
+          tags: Array.isArray(row.matched_tags) ? row.matched_tags : (row.metadata?.tags || ['SXUK']),
+          description: row.description || '',
+          posterUrl: row.poster_r2_key || 'https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=900&auto=format&fit=crop&q=80',
+          applyUrl: row.apply_url || '#',
+          contactEmail: row.metadata?.contact_email || 'campus@sxuk.edu.in',
+          isVerified: true
+        }));
+      }
+
+      return [];
+    } catch (e) {
+      console.error('Error fetching live events:', e);
+      return [];
+    }
+  },
+
   // Compute Match Score based on profile branch & skills
   calculateMatchScore(event, userProfile) {
     if (!userProfile) return 85;

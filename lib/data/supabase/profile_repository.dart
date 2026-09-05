@@ -5,17 +5,21 @@ import '../../core/mock/mock_data.dart';
 import '../../models/profile_model.dart';
 import 'supabase_client.dart';
 
+import '../../features/auth/auth_controller.dart';
+
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) {
   final client = ref.watch(supabaseClientProvider);
-  return ProfileRepository(client);
+  final isDemoMode = ref.watch(authControllerProvider.select((s) => s.isDemoMode));
+  return ProfileRepository(client, isDemoMode: isDemoMode);
 });
 
 class ProfileRepository {
   final SupabaseClient _client;
+  final bool isDemoMode;
 
-  ProfileRepository(this._client);
+  ProfileRepository(this._client, {this.isDemoMode = false});
 
-  /// Retrieves user profile by userId, with fallback to default mock student profile.
+  /// Retrieves user profile by userId, with fallback to default mock student profile only during demo mode.
   Future<ProfileModel?> getProfile(String userId) async {
     try {
       final response = await _client
@@ -28,9 +32,9 @@ class ProfileRepository {
         return ProfileModel.fromJson(response);
       }
     } catch (e) {
-      debugPrint('Error getting profile for user $userId ($e). Using mock profile.');
+      debugPrint('Error getting profile for user $userId ($e).');
     }
-    return kDefaultProfile.copyWith(id: userId);
+    return isDemoMode ? kDefaultProfile.copyWith(id: userId) : null;
   }
 
   /// Updates or upserts user profile data.

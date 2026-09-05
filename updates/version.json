@@ -1,16 +1,16 @@
 {
-  "version": "1.0.6",
-  "versionCode": 7,
+  "version": "1.0.7",
+  "versionCode": 8,
   "minSupportedVersionCode": 1,
-  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6.apk",
+  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7.apk",
   "fileSizeBytes": 70564514,
   "archApkUrls": {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.7.apk"
   },
-  "releaseNotes": "• Dynamic Material You M3 Surface Tonal Harmonization across all screens\n• Fixed Academic Semester persistence & Supabase bidirectional sync\n• Distinct tonal separation for Profile cards, Settings sections & Badges\n• Unified v1.0.6 (Build 7) version consistency",
-  "publishedAt": "2026-09-05T04:10:00.000Z",
+  "releaseNotes": "• Clean demo vs authenticated user state isolation across mobile and web\n• Official high-resolution App Logo badge in About CampusSignal screen\n• Pruned unused dependencies and optimized build footprint\n• Unified v1.0.7 (Build 8) release stability",
+  "publishedAt": "2026-09-05T16:15:00.000Z",
   "mandatory": false
 }

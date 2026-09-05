@@ -7,20 +7,25 @@ import '../../core/mock/mock_data.dart';
 import '../../models/event_model.dart';
 import '../../models/reminder_model.dart';
 import '../supabase/supabase_client.dart';
+import '../../features/auth/auth_controller.dart';
 
 export '../../core/mock/mock_data.dart' show kMockEvents, kMockSavedEventIds, kMockReminders;
 
 /// Repository implementing the Events data layer.
 class EventsRepository {
   final SupabaseClient _supabase;
+  final bool isDemoMode;
   static const String _customEventsPrefKey = 'campussignal_custom_events';
   
   // Local in-memory caches for fast reactivity and offline fallback
-  final List<EventModel> _cachedEvents = generateMockEvents();
-  final Set<String> _savedEventIds = Set<String>.from(kMockSavedEventIds);
-  late final List<ReminderModel> _reminders = generateMockReminders(events: _cachedEvents);
+  final List<EventModel> _cachedEvents;
+  final Set<String> _savedEventIds;
+  late final List<ReminderModel> _reminders;
 
-  EventsRepository(this._supabase) {
+  EventsRepository(this._supabase, {this.isDemoMode = false})
+      : _cachedEvents = isDemoMode ? generateMockEvents() : [],
+        _savedEventIds = isDemoMode ? Set<String>.from(kMockSavedEventIds) : <String>{},
+        _reminders = isDemoMode ? generateMockReminders() : [] {
     _loadCustomEventsFromDisk();
   }
 
@@ -77,26 +82,29 @@ class EventsRepository {
           query = query.ilike('category', '%$category%');
         }
         final response = await query.order('starts_at', ascending: true);
-        if (response.isNotEmpty) {
-          final List<dynamic> rows = response as List<dynamic>;
-          final dbEvents = rows
-              .map((r) => EventModel.fromJson(r as Map<String, dynamic>))
-              .toList();
+        final List<dynamic> rows = (response as List<dynamic>?) ?? [];
+        final dbEvents = rows
+            .map((r) => EventModel.fromJson(r as Map<String, dynamic>))
+            .toList();
 
-          // Merge custom local created events with DB events
-          for (final cached in _cachedEvents) {
-            if (!dbEvents.any((e) => e.id == cached.id)) {
-              dbEvents.insert(0, cached);
-            }
+        // Merge custom user-created events with DB events
+        for (final cached in _cachedEvents) {
+          if (!dbEvents.any((e) => e.id == cached.id)) {
+            dbEvents.insert(0, cached);
           }
-          return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
         }
+        return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
       }
     } catch (e) {
       debugPrint('Supabase getFeedEvents fallback: $e');
     }
 
-    // Fallback to rich in-memory dataset
+    if (!isDemoMode) {
+      // Real mode with offline or empty DB: Only show custom events created by the user
+      return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
+    }
+
+    // Demo mode fallback to rich in-memory dataset
     return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
   }
 
@@ -246,11 +254,63 @@ class EventsRepository {
 
   /// Get all saved events.
   Future<List<EventModel>> getSavedEvents() async {
+    if (!isDemoMode && _supabase.auth.currentUser != null) {
+      try {
+        final user = _supabase.auth.currentUser!;
+        final response = await _supabase
+            .from('saves')
+            .select('event_id, events(*)')
+            .eq('user_id', user.id)
+            .order('saved_at', ascending: false);
+
+        if (response.isNotEmpty) {
+          final events = <EventModel>[];
+          for (final item in response as List<dynamic>) {
+            if (item['events'] != null && item['events'] is Map<String, dynamic>) {
+              events.add(EventModel.fromJson(item['events'] as Map<String, dynamic>));
+            }
+          }
+          return events;
+        }
+      } catch (e) {
+        debugPrint('Supabase getSavedEvents fallback: $e');
+      }
+    }
     return _cachedEvents.where((e) => _savedEventIds.contains(e.id)).toList();
   }
 
   /// Get all active reminders.
   Future<List<ReminderModel>> getReminders() async {
+    if (!isDemoMode && _supabase.auth.currentUser != null) {
+      try {
+        final user = _supabase.auth.currentUser!;
+        final response = await _supabase
+            .from('reminders')
+            .select('id, user_id, event_id, remind_at, fired, events(*)')
+            .eq('user_id', user.id)
+            .order('remind_at', ascending: true);
+
+        if (response.isNotEmpty) {
+          return (response as List<dynamic>).map((json) {
+            final map = json as Map<String, dynamic>;
+            EventModel? eventModel;
+            if (map['events'] is Map<String, dynamic>) {
+              eventModel = EventModel.fromJson(map['events']);
+            }
+            return ReminderModel(
+              id: map['id']?.toString() ?? '',
+              userId: map['user_id']?.toString() ?? user.id,
+              eventId: map['event_id']?.toString() ?? '',
+              remindAt: DateTime.tryParse(map['remind_at']?.toString() ?? '') ?? DateTime.now(),
+              fired: map['fired'] == true,
+              event: eventModel,
+            );
+          }).toList();
+        }
+      } catch (e) {
+        debugPrint('Supabase getReminders fallback: $e');
+      }
+    }
     return List.from(_reminders);
   }
 
@@ -264,7 +324,7 @@ class EventsRepository {
     final event = await getEventById(eventId);
     final reminder = ReminderModel(
       id: 'rem-${DateTime.now().millisecondsSinceEpoch}',
-      userId: _supabase.auth.currentUser?.id ?? 'mock-user-id',
+      userId: _supabase.auth.currentUser?.id ?? (isDemoMode ? 'mock-user-id' : 'current-user'),
       eventId: eventId,
       remindAt: remindAt,
       event: event,
@@ -329,5 +389,6 @@ class EventsRepository {
 /// Provider for EventsRepository.
 final eventsRepositoryProvider = Provider<EventsRepository>((ref) {
   final supabase = ref.watch(supabaseClientProvider);
-  return EventsRepository(supabase);
+  final isDemoMode = ref.watch(authControllerProvider.select((s) => s.isDemoMode));
+  return EventsRepository(supabase, isDemoMode: isDemoMode);
 });

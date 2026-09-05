@@ -364,7 +364,7 @@
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.6 (Build 7)</h4>
+                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.7 (Build 8)</h4>
                   <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 5, 2026</span>
                 </div>
                 <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
@@ -597,6 +597,9 @@
       const { profile } = await CS_NAV.populateUserInfo(user);
       globalUserProfile = profile;
 
+      // 3. Fetch active events (Supabase live DB for real users, mock catalog for guest demo)
+      window.activeEventsList = await SXUK_CATALOG.fetchEvents(user);
+
       if (window.lucide) lucide.createIcons();
 
       // Setup Submodules
@@ -604,6 +607,7 @@
       setupCalendarModule();
       setupSavedModule();
       setupStudioModule();
+      setupNotificationsModule();
       setupProfileModule();
 
       // Check initial hash route
@@ -662,19 +666,21 @@
       }
 
       function renderEventsGrid() {
-        const savedIds = CS_AUTH.getSavedEventIds();
+        const savedIds = CS_AUTH.getSavedEventIds(globalCurrentUser);
+        const sourceEvents = window.activeEventsList || [];
         
-        let filtered = SXUK_CATALOG.events.filter(event => {
+        let filtered = sourceEvents.filter(event => {
           if (activeCategory !== 'all' && event.category !== activeCategory) return false;
           if (searchQuery) {
             const q = searchQuery.toLowerCase();
             const inTitle = event.title.toLowerCase().includes(q);
-            const inOrg = event.organizer.toLowerCase().includes(q);
-            const inTags = event.tags.some(t => t.toLowerCase().includes(q));
+            const inOrg = (event.organizer || '').toLowerCase().includes(q);
+            const inTags = (event.tags || []).some(t => t.toLowerCase().includes(q));
             if (!inTitle && !inOrg && !inTags) return false;
           }
           if (filterByDept && globalUserProfile?.branch) {
-            const matchesDept = event.departments.includes('All Departments') || event.departments.includes(globalUserProfile.branch);
+            const depts = event.departments || ['All Departments'];
+            const matchesDept = depts.includes('All Departments') || depts.includes(globalUserProfile.branch);
             if (!matchesDept) return false;
           }
           return true;
@@ -735,7 +741,7 @@
                 </div>
 
                 <div class="event-tags-row">
-                  ${event.tags.map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
+                  ${(event.tags || []).map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
                 </div>
 
                 <div class="event-card-footer">
@@ -770,7 +776,7 @@
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const eventId = btn.getAttribute('data-event-id');
-            const newlySaved = CS_AUTH.toggleSaveEvent(eventId);
+            const newlySaved = CS_AUTH.toggleSaveEvent(eventId, globalCurrentUser);
             btn.classList.toggle('saved', newlySaved);
             btn.innerHTML = `<i data-lucide="${newlySaved ? 'bookmark-check' : 'bookmark'}" style="width:16px;height:16px;"></i>`;
             if (window.lucide) lucide.createIcons();
@@ -780,7 +786,12 @@
       }
 
       function renderDeadlines() {
-        const sorted = [...SXUK_CATALOG.events].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        const sourceEvents = window.activeEventsList || [];
+        const sorted = [...sourceEvents].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        if (sorted.length === 0) {
+          deadlinesContainer.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:0.8125rem;">No active upcoming deadlines</div>';
+          return;
+        }
         deadlinesContainer.innerHTML = sorted.slice(0, 4).map(ev => {
           const d = new Date(ev.deadline);
           return `
@@ -832,6 +843,7 @@
     function setupCalendarModule() {
       const calGrid = document.getElementById('calendar-days-grid');
       const timelineContainer = document.getElementById('urgent-timeline-container');
+      const sourceEvents = window.activeEventsList || [];
 
       let html = `
         <div class="cal-cell other-month"><span class="cal-cell-num">30</span></div>
@@ -839,7 +851,7 @@
       `;
 
       const eventsByDay = {};
-      SXUK_CATALOG.events.forEach(ev => {
+      sourceEvents.forEach(ev => {
         const evDate = new Date(ev.eventDate);
         if (evDate.getMonth() === 8) {
           const d = evDate.getDate();
@@ -880,22 +892,26 @@
 
       calGrid.innerHTML = html;
 
-      timelineContainer.innerHTML = SXUK_CATALOG.events.map(ev => {
-        const d = new Date(ev.deadline);
-        return `
-          <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
-            <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
-              <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
-              <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+      if (sourceEvents.length === 0) {
+        timelineContainer.innerHTML = '<div style="padding:16px; text-align:center; color:var(--text-muted); font-size:0.8125rem;">No scheduled events in calendar</div>';
+      } else {
+        timelineContainer.innerHTML = sourceEvents.map(ev => {
+          const d = new Date(ev.deadline);
+          return `
+            <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
+              <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
+                <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
+                <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+              </div>
+              <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
+              <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
             </div>
-            <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
-            <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
-          </div>
-        `;
-      }).join('');
+          `;
+        }).join('');
+      }
 
       document.getElementById('btn-export-all-ics-header').addEventListener('click', () => {
-        SXUK_CATALOG.events.forEach(ev => CS_NAV.generateIcsDownload(ev));
+        sourceEvents.forEach(ev => CS_NAV.generateIcsDownload(ev));
       });
     }
 
@@ -905,8 +921,9 @@
       const empty = document.getElementById('saved-empty-state');
 
       window.renderSavedView = function() {
-        const savedIds = CS_AUTH.getSavedEventIds();
-        const savedEvents = SXUK_CATALOG.events.filter(e => savedIds.includes(e.id));
+        const savedIds = CS_AUTH.getSavedEventIds(globalCurrentUser);
+        const sourceEvents = window.activeEventsList || [];
+        const savedEvents = sourceEvents.filter(e => savedIds.includes(e.id));
 
         if (savedEvents.length === 0) {
           grid.innerHTML = '';
@@ -950,7 +967,7 @@
                 </div>
 
                 <div class="event-tags-row">
-                  ${event.tags.map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
+                  ${(event.tags || []).map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
                 </div>
 
                 <div class="event-card-footer">
@@ -981,7 +998,7 @@
           btn.addEventListener('click', (e) => {
             e.stopPropagation();
             const eventId = btn.getAttribute('data-event-id');
-            CS_AUTH.toggleSaveEvent(eventId);
+            CS_AUTH.toggleSaveEvent(eventId, globalCurrentUser);
             window.renderSavedView();
             if (window.refreshFeedSavedStates) window.refreshFeedSavedStates();
           });
@@ -1084,6 +1101,72 @@
       updateJsonPreview();
     }
 
+    /* NOTIFICATIONS MODULE */
+    function setupNotificationsModule() {
+      const container = document.getElementById('notifications-list-container');
+      if (!container) return;
+      const isDemo = CS_AUTH.isDemoUser(globalCurrentUser);
+      if (isDemo) {
+        container.innerHTML = `
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--accent-amber);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-amber-container); color: var(--accent-amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="alarm-clock" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">SXUK GenAI Hackathon 2026 Registration Closes in 3 Days</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">2 hours ago</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                ACM Student Chapter reminds eligible B.Tech and Data Science teams to submit member GitHub handles before Sept 8, 11:59 PM.
+              </p>
+            </div>
+          </div>
+
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--primary);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--primary-container); color: var(--primary-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">New Placement Drive: EY Global Delivery Services 2027</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Yesterday</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                Central Placement Cell has approved pre-placement registration for B.Tech (CSE/AI/IT/ECE), B.Com, and BMS students with >= 7.5 CGPA.
+              </p>
+            </div>
+          </div>
+
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--emerald);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--emerald-container); color: var(--emerald); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="radio" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.7 (Build 8)</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 5, 2026</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                Material 3 Expressive theming synchronization, multi-format calendar export, and 28 official SXUK programme filtering enabled.
+              </p>
+            </div>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 48px 16px; background: var(--bg-surface); border: 1px dashed var(--border-subtle); border-radius: var(--radius-md);">
+            <div style="width: 48px; height: 48px; border-radius: 50%; background: var(--bg-tertiary); display: inline-flex; align-items: center; justify-content: center; color: var(--text-muted); margin-bottom: 12px;">
+              <i data-lucide="bell-off" style="width: 24px; height: 24px;"></i>
+            </div>
+            <h4 style="font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">No Broadcasts Yet</h4>
+            <p style="color: var(--text-secondary); font-size: 0.875rem;">You are all caught up with university announcements and signal alerts.</p>
+          </div>
+        `;
+      }
+      if (window.lucide) lucide.createIcons();
+    }
+
     /* PROFILE MODULE */
     function setupProfileModule() {
       const bigAvatar = document.getElementById('profile-big-avatar');
@@ -1099,31 +1182,32 @@
       const editBranchSelect = document.getElementById('edit-branch');
 
       window.refreshProfileUI = function() {
-        const name = globalUserProfile?.full_name || globalCurrentUser.email?.split('@')[0] || 'SXUK Student';
-        const email = globalUserProfile?.college_email || globalCurrentUser.email || 'student@sxuk.edu.in';
-        const branch = globalUserProfile?.branch || 'B.Tech in CSE';
-        const sem = globalUserProfile?.metadata?.semester || 5;
-        const year = Math.ceil(sem / 2);
+        const isDemo = CS_AUTH.isDemoUser(globalCurrentUser);
+        const name = globalUserProfile?.full_name || (isDemo ? 'SXUK Student' : (globalCurrentUser.email?.split('@')[0] || 'User'));
+        const email = globalUserProfile?.college_email || globalCurrentUser.email || (isDemo ? 'student@sxuk.edu.in' : '');
+        const branch = globalUserProfile?.branch || (isDemo ? 'B.Tech in CSE' : 'Department Not Specified');
+        const sem = globalUserProfile?.metadata?.semester || (isDemo ? 5 : null);
+        const year = sem ? Math.ceil(sem / 2) : null;
 
-        bigAvatar.textContent = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        bigAvatar.textContent = name.split(' ').map(n => n[0]).filter(Boolean).slice(0, 2).join('').toUpperCase() || 'U';
         fullNameEl.textContent = name;
-        emailDeptEl.textContent = `${email} • ${branch}`;
+        emailDeptEl.textContent = email ? (branch !== 'Department Not Specified' ? `${email} • ${branch}` : email) : branch;
 
         pillBranch.textContent = branch;
-        pillSemester.textContent = `Semester ${sem}`;
-        pillYear.textContent = `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year`;
+        pillSemester.textContent = sem ? `Semester ${sem}` : 'Semester --';
+        pillYear.textContent = year ? `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year` : 'Year --';
 
-        savedCount.textContent = CS_AUTH.getSavedEventIds().length;
+        savedCount.textContent = CS_AUTH.getSavedEventIds(globalCurrentUser).length;
 
-        const interests = globalUserProfile?.interests || ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'];
-        interestsBox.innerHTML = interests.map(i => `
+        const interests = globalUserProfile?.interests || (isDemo ? ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'] : []);
+        interestsBox.innerHTML = interests.length ? interests.map(i => `
           <span style="padding:6px 14px; background:var(--primary-container); color:var(--primary-hover); font-weight:600; font-size:0.8125rem; border-radius:var(--radius-full);">${i}</span>
-        `).join('');
+        `).join('') : '<p style="color:var(--text-muted); font-size:0.8125rem;">No interests added yet.</p>';
 
-        const skills = globalUserProfile?.skills || ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'];
-        skillsBox.innerHTML = skills.map(s => `
+        const skills = globalUserProfile?.skills || (isDemo ? ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'] : []);
+        skillsBox.innerHTML = skills.length ? skills.map(s => `
           <span style="padding:6px 14px; background:var(--bg-tertiary); color:var(--text-primary); font-size:0.8125rem; border-radius:var(--radius-full); border:1px solid var(--border-subtle);">${s}</span>
-        `).join('');
+        `).join('') : '<p style="color:var(--text-muted); font-size:0.8125rem;">No skills listed yet.</p>';
       };
 
       SXUK_CATALOG.allBranches.forEach(b => {

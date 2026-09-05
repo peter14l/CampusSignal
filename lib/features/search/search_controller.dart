@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../../core/mock/mock_data.dart';
+import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
 
 class SearchFilterState {
@@ -95,9 +95,15 @@ class SearchControllerNotifier extends Notifier<SearchState> {
       _debounceTimer?.cancel();
     });
 
-    final events = generateMockEvents();
+    Future.microtask(() => _loadEvents());
 
-    return SearchState(
+    return const SearchState();
+  }
+
+  Future<void> _loadEvents() async {
+    final repository = ref.read(eventsRepositoryProvider);
+    final events = await repository.getFeedEvents();
+    state = state.copyWith(
       allEvents: events,
       filteredResults: events,
     );

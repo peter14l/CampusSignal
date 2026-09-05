@@ -26,6 +26,7 @@ class AuthState {
   final int resendCountdown;
   final ProfileModel? profile;
   final bool isAuthenticated;
+  final bool isDemoMode;
 
   const AuthState({
     this.isLoading = false,
@@ -36,6 +37,7 @@ class AuthState {
     this.resendCountdown = 0,
     this.profile,
     this.isAuthenticated = false,
+    this.isDemoMode = false,
   });
 
   AuthState copyWith({
@@ -47,6 +49,7 @@ class AuthState {
     int? resendCountdown,
     ProfileModel? profile,
     bool? isAuthenticated,
+    bool? isDemoMode,
     bool clearError = false,
     bool clearSuccess = false,
   }) {
@@ -59,6 +62,7 @@ class AuthState {
       resendCountdown: resendCountdown ?? this.resendCountdown,
       profile: profile ?? this.profile,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
+      isDemoMode: isDemoMode ?? this.isDemoMode,
     );
   }
 }
@@ -67,6 +71,7 @@ class AuthController extends Notifier<AuthState> {
   static const String _keyAuthProfile = 'campussignal_auth_profile';
   static const String _keyIsAuth = 'campussignal_is_authenticated';
   static const String _keyAuthEmail = 'campussignal_auth_email';
+  static const String _keyIsDemoMode = 'campussignal_is_demo_mode';
 
   Timer? _countdownTimer;
   final GoogleSignIn _googleSignIn = GoogleSignIn(
@@ -83,6 +88,7 @@ class AuthController extends Notifier<AuthState> {
     // 1. Read synchronous local storage
     final prefs = ref.watch(sharedPreferencesProvider);
     final isPersistedAuth = prefs.getBool(_keyIsAuth) ?? false;
+    final isDemoMode = prefs.getBool(_keyIsDemoMode) ?? false;
     final savedEmail = prefs.getString(_keyAuthEmail);
     final profileJsonStr = prefs.getString(_keyAuthProfile);
 
@@ -128,12 +134,13 @@ class AuthController extends Notifier<AuthState> {
                 interests: const ['Hackathons', 'Workshops', 'Cultural Fests'],
                 skills: const ['Python', 'UI/UX Design'],
               )
-            : (isAuthenticated
+            : (isAuthenticated && isDemoMode
                 ? kDefaultProfile.copyWith(collegeEmail: effectiveEmail)
                 : null));
 
     final initialAuthState = AuthState(
       isAuthenticated: isAuthenticated,
+      isDemoMode: isDemoMode,
       email: effectiveEmail,
       profile: effectiveProfile,
     );
@@ -142,10 +149,11 @@ class AuthController extends Notifier<AuthState> {
     return initialAuthState;
   }
 
-  Future<void> _persistAuth(ProfileModel profile, String? email) async {
+  Future<void> _persistAuth(ProfileModel profile, String? email, {bool isDemo = false}) async {
     try {
       final prefs = ref.read(sharedPreferencesProvider);
       await prefs.setBool(_keyIsAuth, true);
+      await prefs.setBool(_keyIsDemoMode, isDemo);
       if (email != null) {
         await prefs.setString(_keyAuthEmail, email);
       }
@@ -159,6 +167,7 @@ class AuthController extends Notifier<AuthState> {
     try {
       final prefs = ref.read(sharedPreferencesProvider);
       await prefs.remove(_keyIsAuth);
+      await prefs.remove(_keyIsDemoMode);
       await prefs.remove(_keyAuthEmail);
       await prefs.remove(_keyAuthProfile);
     } catch (e) {
@@ -484,10 +493,11 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
+        isDemoMode: true,
         profile: existingProfile,
         email: existingProfile.collegeEmail,
       );
-      await _persistAuth(existingProfile, existingProfile.collegeEmail);
+      await _persistAuth(existingProfile, existingProfile.collegeEmail, isDemo: true);
       return GoogleAuthStatus.authenticated;
     } else {
       final newProfile = const ProfileModel(
@@ -504,10 +514,11 @@ class AuthController extends Notifier<AuthState> {
       state = state.copyWith(
         isLoading: false,
         isAuthenticated: true,
+        isDemoMode: true,
         email: newProfile.collegeEmail,
         profile: newProfile,
       );
-      await _persistAuth(newProfile, newProfile.collegeEmail);
+      await _persistAuth(newProfile, newProfile.collegeEmail, isDemo: true);
       return GoogleAuthStatus.needsOnboarding;
     }
   }
