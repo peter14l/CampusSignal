@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup Your Academic Profile — CampusSignal</title>
+  <meta name="description" content="Personalize your SXUK CampusSignal experience with academic department filtering and domain interests.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/app.css">
+
+  <style>
+    .step-pill-indicator {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .step-indicator-item {
+      flex: 1;
+      height: 6px;
+      border-radius: var(--radius-full);
+      background: var(--bg-tertiary);
+      transition: background var(--transition-normal);
+    }
+    .step-indicator-item.active {
+      background: var(--primary);
+      box-shadow: 0 0 10px var(--primary-glow);
+    }
+    .step-indicator-item.completed {
+      background: var(--emerald);
+    }
+    .sem-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .sem-pill {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 10px;
+      border-radius: var(--radius-md);
+      font-weight: 600;
+      font-size: 0.875rem;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      text-align: center;
+    }
+    .sem-pill:hover {
+      border-color: var(--border-medium);
+      color: var(--text-primary);
+    }
+    .sem-pill.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      box-shadow: 0 2px 8px var(--primary-glow);
+    }
+    .chips-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .filter-chip {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-secondary);
+      padding: 7px 14px;
+      border-radius: var(--radius-full);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    .filter-chip:hover {
+      border-color: var(--border-medium);
+      color: var(--text-primary);
+    }
+    .filter-chip.active {
+      background: var(--primary-container);
+      border-color: var(--primary);
+      color: var(--primary-hover);
+      font-weight: 600;
+    }
+  </style>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Auth & Catalog Scripts -->
+  <script src="../assets/js/catalog.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/onboarding.js"></script>
+</head>
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top left, rgba(79, 85, 222, 0.12), transparent 50%), var(--bg-primary); padding: 24px;">
+
+  <div style="width: 100%; max-width: 580px; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: var(--radius-xl); padding: 36px 32px; box-shadow: var(--shadow-lg);">
+    
+    <!-- Top Progress Indicators -->
+    <div class="step-pill-indicator">
+      <div id="step-indicator-1" class="step-indicator-item active"></div>
+      <div id="step-indicator-2" class="step-indicator-item"></div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="onboarding-alert" style="display: none; padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.8125rem; margin-bottom: 20px;"></div>
+
+    <!-- Step 1: Academic Department & Semester -->
+    <div id="step-1-container">
+      <div style="margin-bottom: 24px;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;">Step 1 of 2</span>
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Academic Programme & Semester</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+          CampusSignal uses your official SXUK department to calculate match scores and filter eligibility.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Programme Dropdown -->
+        <div>
+          <label for="branch-select" style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">
+            Select Official SXUK Programme (28 Courses)
+          </label>
+          <select id="branch-select" 
+            style="width: 100%; height: 46px; padding: 0 14px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-family: var(--font-sans); font-size: 0.875rem;">
+            <!-- Populated dynamically via JS -->
+          </select>
+        </div>
+
+        <!-- Semester Selector -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary);">
+              Current Semester
+            </label>
+            <span id="computed-year-display" style="font-size: 0.75rem; font-weight: 700; color: var(--primary-hover); font-family: var(--font-mono);">
+              1st Academic Year
+            </span>
+          </div>
+          <div id="semester-grid" class="sem-grid">
+            <!-- Semesters 1 to 8 generated dynamically -->
+          </div>
+        </div>
+
+        <div style="margin-top: 12px; display: flex; justify-content: flex-end;">
+          <button id="btn-step1-next" type="button" class="btn btn-primary" style="height: 44px; padding: 0 24px; border-radius: var(--radius-md); font-weight: 600;">
+            <span>Continue to Personalization</span>
+            <i data-lucide="arrow-right" style="width: 16px; height: 16px; margin-left: 6px;"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Step 2: Personalization & Skills (Initially Hidden) -->
+    <div id="step-2-container" style="display: none;">
+      <div style="margin-bottom: 24px;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;">Step 2 of 2</span>
+        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Interests & Tech Skills</h1>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+          Pick the event categories and technical skills that align with your career goals.
+        </p>
+      </div>
+
+      <div style="display: flex; flex-direction: column; gap: 20px;">
+        
+        <!-- Interests -->
+        <div>
+          <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">
+            Opportunity Interests (Tap to toggle)
+          </label>
+          <div id="interests-chips-wrap" class="chips-grid"></div>
+        </div>
+
+        <!-- Skills -->
+        <div>
+          <label style="display: block; font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); margin-bottom: 8px;">
+            Technical & Soft Skills
+          </label>
+          <div id="skills-chips-wrap" class="chips-grid" style="margin-bottom: 12px;"></div>
+          
+          <!-- Custom Skill Add Input -->
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="custom-skill-input" placeholder="Add custom skill (e.g. Solidity, Next.js, Figma)..." 
+              style="flex: 1; height: 40px; padding: 0 12px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem;">
+            <button type="button" id="btn-add-custom-skill" class="btn btn-outline" style="height: 40px; padding: 0 16px; border-radius: var(--radius-md); font-size: 0.8125rem;">
+              <i data-lucide="plus" style="width: 14px; height: 14px; margin-right: 4px;"></i>
+              Add
+            </button>
+          </div>
+        </div>
+
+        <!-- Action Navigation -->
+        <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center;">
+          <button id="btn-step2-back" type="button" class="btn btn-outline" style="height: 44px; padding: 0 20px; border-radius: var(--radius-md); font-weight: 600;">
+            <i data-lucide="arrow-left" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            <span>Back</span>
+          </button>
+
+          <button id="btn-step2-submit" type="button" class="btn btn-primary" style="height: 44px; padding: 0 24px; border-radius: var(--radius-md); font-weight: 600;">
+            <span>Complete & Launch Feed</span>
+            <i data-lucide="sparkles" style="width: 16px; height: 16px; margin-left: 6px;"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

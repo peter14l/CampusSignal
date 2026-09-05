@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Broadcast Signals & Alarms — CampusSignal SXUK</title>
+  <meta name="description" content="Campus-wide broadcast signals, deadline reminders, and faculty announcements.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/app.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script src="../../assets/js/catalog.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/app_nav.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <aside class="app-sidebar" id="app-sidebar-container"></aside>
+
+    <main class="app-main">
+      
+      <header class="app-header">
+        <div>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+            Broadcast Signals & Alarms
+          </h1>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            Targeted notifications filtered by your SXUK department and course.
+          </p>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-mark-all-read" class="btn btn-sm btn-outline">
+            <i data-lucide="check-check" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            <span>Mark All Read</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="app-body-layout" style="grid-template-columns: 1fr;">
+        
+        <div style="display: flex; flex-direction: column; gap: 12px;" id="notifications-list-container">
+          
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--accent-amber);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--accent-amber-container); color: var(--accent-amber); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="alarm-clock" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">SXUK GenAI Hackathon 2026 Registration Closes in 3 Days</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">2 hours ago</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                ACM Student Chapter reminds eligible B.Tech and Data Science teams to submit member GitHub handles before Sept 8, 11:59 PM.
+              </p>
+            </div>
+          </div>
+
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--primary);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--primary-container); color: var(--primary-hover); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="briefcase" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">New Placement Drive: EY Global Delivery Services 2027</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Yesterday</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                Central Placement Cell has approved pre-placement registration for B.Tech (CSE/AI/IT/ECE), B.Com, and BMS students with >= 7.5 CGPA.
+              </p>
+            </div>
+          </div>
+
+          <div class="rail-widget" style="display: flex; gap: 16px; align-items: flex-start; border-left: 4px solid var(--emerald);">
+            <div style="width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--emerald-container); color: var(--emerald); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i data-lucide="radio" style="width: 20px; height: 20px;"></i>
+            </div>
+            <div style="flex: 1;">
+              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.6 (Build 7)</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 5, 2026</span>
+              </div>
+              <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+                Material 3 Expressive theming synchronization, multi-format calendar export, and 28 official SXUK programme filtering enabled.
+              </p>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      CS_NAV.renderAppSidebar('notifications');
+      await CS_NAV.populateUserInfo(user);
+      if (window.lucide) lucide.createIcons();
+
+      document.getElementById('btn-mark-all-read').addEventListener('click', () => {
+        alert('All signals marked as read.');
+      });
+    });
+  </script>
+</body>
+</html>

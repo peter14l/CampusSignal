@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Opportunities — CampusSignal SXUK</title>
+  <meta name="description" content="Manage bookmarked hackathons, internships, and workshops saved to your SXUK profile.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/app.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script src="../../assets/js/catalog.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/app_nav.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar-container"></aside>
+
+    <!-- Main Content -->
+    <main class="app-main">
+      
+      <!-- Top Header -->
+      <header class="app-header">
+        <div>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+            Saved Opportunities & Bookmarks
+          </h1>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            Synchronized with your Supabase account and local offline storage.
+          </p>
+        </div>
+      </header>
+
+      <div class="app-body-layout" style="grid-template-columns: 1fr;">
+        
+        <div class="events-grid" id="saved-events-grid"></div>
+
+        <div id="saved-empty-state" style="display:none; text-align:center; padding:80px 20px; background:var(--bg-secondary); border-radius:var(--radius-xl); border:1px dashed var(--border-medium);">
+          <i data-lucide="bookmark" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:12px;"></i>
+          <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">No bookmarks saved yet</h3>
+          <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:6px; max-width:400px; margin-left:auto; margin-right:auto;">
+            Bookmark hackathons, career drives, and workshops from the Discovery Feed for one-click access.
+          </p>
+          <a href="../index.html" class="btn btn-primary" style="margin-top:20px; display:inline-flex; align-items:center; gap:8px;">
+            <i data-lucide="compass" style="width:16px;height:16px;"></i>
+            <span>Browse Discovery Feed</span>
+          </a>
+        </div>
+
+      </div>
+
+    </main>
+
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <!-- Global Modal -->
+  <div class="cs-modal-backdrop" id="cs-event-modal-backdrop">
+    <div class="cs-modal">
+      <button class="modal-close-btn" id="cs-modal-close-btn"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <div id="cs-event-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      CS_NAV.renderAppSidebar('saved');
+      const { profile } = await CS_NAV.populateUserInfo(user);
+      if (window.lucide) lucide.createIcons();
+
+      const grid = document.getElementById('saved-events-grid');
+      const empty = document.getElementById('saved-empty-state');
+
+      function renderSaved() {
+        const savedIds = CS_AUTH.getSavedEventIds();
+        const savedEvents = SXUK_CATALOG.events.filter(e => savedIds.includes(e.id));
+
+        if (savedEvents.length === 0) {
+          grid.innerHTML = '';
+          empty.style.display = 'block';
+          if (window.lucide) lucide.createIcons();
+          return;
+        }
+
+        empty.style.display = 'none';
+        grid.innerHTML = savedEvents.map(event => {
+          const matchScore = SXUK_CATALOG.calculateMatchScore(event, profile);
+          const deadlineFormatted = new Date(event.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          return `
+            <div class="event-card" data-id="${event.id}">
+              <div class="event-card-header">
+                <img src="${event.posterUrl}" alt="${event.title}" class="event-card-img">
+                <div class="event-match-badge">
+                  <i data-lucide="sparkles" style="width:12px;height:12px;"></i>
+                  <span>${matchScore}% Match</span>
+                </div>
+                <button class="event-bookmark-btn saved" data-event-id="${event.id}" title="Remove Bookmark">
+                  <i data-lucide="bookmark-check" style="width:16px;height:16px;"></i>
+                </button>
+              </div>
+
+              <div class="event-card-body">
+                <div class="event-meta-top">
+                  <span class="event-cat-tag cat-${event.category}">${event.category}</span>
+                  <div class="event-countdown">
+                    <i data-lucide="clock" style="width:12px;height:12px;"></i>
+                    <span>Due ${deadlineFormatted}</span>
+                  </div>
+                </div>
+
+                <h3 class="event-card-title">${event.title}</h3>
+                
+                <div class="event-organizer">
+                  <i data-lucide="building-2" style="width:14px;height:14px;color:var(--primary);"></i>
+                  <span>${event.organizer}</span>
+                </div>
+
+                <div class="event-tags-row">
+                  ${event.tags.map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
+                </div>
+
+                <div class="event-card-footer">
+                  <span style="font-size:0.8125rem; font-weight:700; color:var(--emerald);">
+                    ${event.prize ? `🏆 ${event.prize.split('+')[0]}` : 'Verified'}
+                  </span>
+                  <button class="btn btn-sm btn-outline btn-view-event" data-event-id="${event.id}">
+                    <span>View Details</span>
+                    <i data-lucide="arrow-right" style="width:14px;height:14px;margin-left:4px;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (window.lucide) lucide.createIcons();
+
+        // Bind clicks
+        document.querySelectorAll('.btn-view-event, .event-card-title').forEach(el => {
+          el.addEventListener('click', () => {
+            const card = el.closest('.event-card');
+            CS_NAV.openEventModal(card.getAttribute('data-id'));
+          });
+        });
+
+        document.querySelectorAll('.event-bookmark-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const eventId = btn.getAttribute('data-event-id');
+            CS_AUTH.toggleSaveEvent(eventId);
+            renderSaved();
+          });
+        });
+      }
+
+      window.refreshFeedSavedStates = renderSaved;
+      renderSaved();
+    });
+  </script>
+</body>
+</html>

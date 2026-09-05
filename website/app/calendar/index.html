@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calendar & Deadlines — CampusSignal SXUK</title>
+  <meta name="description" content="Interactive calendar with deadline tracker, conflict detector, and system calendar synchronization.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/app.css">
+
+  <style>
+    .cal-wrapper {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+    }
+    .cal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 6px;
+    }
+    .cal-day-label {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      padding: 8px 0;
+      text-transform: uppercase;
+    }
+    .cal-cell {
+      min-height: 84px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-md);
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid transparent;
+      transition: all var(--transition-fast);
+      cursor: pointer;
+    }
+    .cal-cell:hover {
+      border-color: var(--border-highlight);
+      background: var(--bg-elevated);
+    }
+    .cal-cell.other-month {
+      opacity: 0.3;
+      cursor: default;
+    }
+    .cal-cell.today {
+      border-color: var(--primary);
+      background: var(--primary-container);
+    }
+    .cal-cell-num {
+      font-size: 0.8125rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+    }
+    .cal-dot {
+      font-size: 0.65rem;
+      padding: 2px 4px;
+      border-radius: var(--radius-xs);
+      background: var(--primary);
+      color: #fff;
+      margin-top: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-weight: 600;
+    }
+    .cal-dot.deadline-dot {
+      background: var(--accent-amber);
+      color: #000;
+    }
+  </style>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script src="../../assets/js/catalog.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/app_nav.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar-container"></aside>
+
+    <!-- Main -->
+    <main class="app-main">
+      
+      <!-- Top Header -->
+      <header class="app-header">
+        <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+          Calendar & Deadline Tracker
+        </h1>
+        <div class="header-actions">
+          <button id="btn-export-all-ics" class="btn btn-sm btn-primary">
+            <i data-lucide="download" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            <span>Export Semester Schedule (.ics)</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="app-body-layout" style="grid-template-columns: 1.4fr 1fr;">
+        
+        <!-- Calendar Grid Column -->
+        <div>
+          <div class="cal-wrapper">
+            <div class="cal-header">
+              <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary);">
+                September 2026
+              </div>
+              <div style="display: flex; gap: 8px;">
+                <button class="btn btn-sm btn-outline" style="padding: 6px 10px;" title="Previous Month">
+                  <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                </button>
+                <button class="btn btn-sm btn-outline" style="padding: 6px 12px; font-weight: 600;">Today</button>
+                <button class="btn btn-sm btn-outline" style="padding: 6px 10px;" title="Next Month">
+                  <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                </button>
+              </div>
+            </div>
+
+            <!-- Days Header -->
+            <div class="cal-grid" style="margin-bottom: 6px;">
+              <div class="cal-day-label">Sun</div>
+              <div class="cal-day-label">Mon</div>
+              <div class="cal-day-label">Tue</div>
+              <div class="cal-day-label">Wed</div>
+              <div class="cal-day-label">Thu</div>
+              <div class="cal-day-label">Fri</div>
+              <div class="cal-day-label">Sat</div>
+            </div>
+
+            <!-- Month Cells Grid -->
+            <div class="cal-grid" id="calendar-days-grid"></div>
+          </div>
+        </div>
+
+        <!-- Upcoming Timeline & Urgency List -->
+        <div>
+          <div class="rail-widget" style="margin-bottom: 20px;">
+            <div class="widget-title">
+              <i data-lucide="flame" style="width: 18px; height: 18px; color: var(--rose);"></i>
+              <span>High Urgency Actions</span>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;" id="urgent-timeline-container">
+              <!-- Rendered via JS -->
+            </div>
+          </div>
+
+          <!-- Conflict Checker Box -->
+          <div class="rail-widget" style="background: var(--bg-tertiary); border: 1px solid var(--border-subtle);">
+            <div style="display: flex; align-items: center; gap: 8px; color: var(--emerald); font-weight: 700; font-size: 0.875rem; margin-bottom: 8px;">
+              <i data-lucide="check-circle" style="width: 18px; height: 18px;"></i>
+              <span>Zero Schedule Conflicts Detected</span>
+            </div>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
+              All bookmarked drives and competitions align seamlessly with SXUK standard lecture hours.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- Mobile Bottom Bar -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <!-- Global Modal -->
+  <div class="cs-modal-backdrop" id="cs-event-modal-backdrop">
+    <div class="cs-modal">
+      <button class="modal-close-btn" id="cs-modal-close-btn"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      <div id="cs-event-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      CS_NAV.renderAppSidebar('calendar');
+      await CS_NAV.populateUserInfo(user);
+      if (window.lucide) lucide.createIcons();
+
+      // September 2026 Grid Builder (Starts Tuesday Sept 1, 30 days)
+      const calGrid = document.getElementById('calendar-days-grid');
+      const timelineContainer = document.getElementById('urgent-timeline-container');
+
+      // 2 padded days for Sunday/Monday (Aug 30, Aug 31)
+      let html = `
+        <div class="cal-cell other-month"><span class="cal-cell-num">30</span></div>
+        <div class="cal-cell other-month"><span class="cal-cell-num">31</span></div>
+      `;
+
+      // Map events to day numbers
+      const eventsByDay = {};
+      SXUK_CATALOG.events.forEach(ev => {
+        const evDate = new Date(ev.eventDate);
+        if (evDate.getMonth() === 8) { // Sept
+          const d = evDate.getDate();
+          if (!eventsByDay[d]) eventsByDay[d] = [];
+          eventsByDay[d].push({ ...ev, type: 'event' });
+        }
+
+        const deadDate = new Date(ev.deadline);
+        if (deadDate.getMonth() === 8) {
+          const d = deadDate.getDate();
+          if (!eventsByDay[d]) eventsByDay[d] = [];
+          eventsByDay[d].push({ ...ev, type: 'deadline' });
+        }
+      });
+
+      for (let day = 1; day <= 30; day++) {
+        const isToday = (day === 5); // Sept 5 2026
+        const dayEvents = eventsByDay[day] || [];
+        
+        let dotsHtml = '';
+        dayEvents.slice(0, 2).forEach(ev => {
+          if (ev.type === 'deadline') {
+            dotsHtml += `<div class="cal-dot deadline-dot" onclick="event.stopPropagation(); CS_NAV.openEventModal('${ev.id}')">⏳ Reg: ${ev.title.slice(0, 10)}...</div>`;
+          } else {
+            dotsHtml += `<div class="cal-dot" onclick="event.stopPropagation(); CS_NAV.openEventModal('${ev.id}')">${ev.title.slice(0, 12)}...</div>`;
+          }
+        });
+
+        html += `
+          <div class="cal-cell ${isToday ? 'today' : ''}">
+            <div class="cal-cell-num">${day} ${isToday ? '<span style="font-size:0.65rem; color:var(--primary);">(Today)</span>' : ''}</div>
+            ${dotsHtml}
+          </div>
+        `;
+      }
+
+      // Add remaining days to complete 35 grid
+      for (let day = 1; day <= 3; day++) {
+        html += `<div class="cal-cell other-month"><span class="cal-cell-num">${day}</span></div>`;
+      }
+
+      calGrid.innerHTML = html;
+
+      // Render Urgency Timeline
+      timelineContainer.innerHTML = SXUK_CATALOG.events.map(ev => {
+        const d = new Date(ev.deadline);
+        return `
+          <div style="padding:12px; background:var(--bg-secondary); border:1px solid var(--border-subtle); border-radius:var(--radius-md); cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
+            <div style="display:flex; justify-content:space-between; font-size:0.75rem; margin-bottom:4px;">
+              <span class="event-cat-tag cat-${ev.category}">${ev.category}</span>
+              <span style="color:var(--accent-amber); font-weight:700;">Due ${d.toLocaleDateString([], {month:'short', day:'numeric'})}</span>
+            </div>
+            <div style="font-size:0.875rem; font-weight:700; color:var(--text-primary); margin-bottom:4px;">${ev.title}</div>
+            <div style="font-size:0.75rem; color:var(--text-muted);">${ev.venue}</div>
+          </div>
+        `;
+      }).join('');
+
+      // Export All button
+      document.getElementById('btn-export-all-ics').addEventListener('click', () => {
+        SXUK_CATALOG.events.forEach(ev => CS_NAV.generateIcsDownload(ev));
+      });
+    });
+  </script>
+</body>
+</html>

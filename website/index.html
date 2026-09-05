@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CampusSignal — Signal, not noise. Campus discovery simplified for SXUK</title>
+  <meta name="description" content="The personalized discovery & broadcast layer for St. Xavier's University, Kolkata. Multimodal Gemini 2.5 Vision OCR, Material 3 Expressive theming, 28 degree programmes filtering, and exact system calendar sync.">
+  <meta name="keywords" content="CampusSignal, SXUK, St. Xaviers University Kolkata, Flutter, Material 3 Expressive, Gemini Vision OCR, Campus Events, Hackathons, Internships">
+  
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://campussignal.sxuk.edu.in/">
+  <meta property="og:title" content="CampusSignal — Personalized Discovery Layer for SXUK">
+  <meta property="og:description" content="Consolidating campus hackathons, internships, fests, and workshops into one intelligent feed with Multimodal Vision OCR and native calendar sync.">
+  <meta property="og:image" content="./assets/img/app_logo.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="./assets/img/app_logo.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="./assets/css/main.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-wrapper">
+    <nav class="navbar">
+      <div class="nav-brand-group">
+        <a href="./index.html" class="nav-brand">
+          <img src="./assets/img/app_logo.png" alt="CampusSignal Logo" class="nav-logo">
+          <div class="nav-brand-text">
+            <span class="nav-title">CampusSignal</span>
+            <span class="nav-tagline">SXUK Discovery</span>
+          </div>
+        </a>
+        <div class="nav-live-indicator" title="SXUK Production Signal Active">
+          <span class="pulse-dot"></span>
+          <span class="indicator-label">Live Signal</span>
+        </div>
+      </div>
+
+      <div class="nav-pill-menu">
+        <a href="#features" class="nav-pill-item">Features</a>
+        <a href="#ocr-studio" class="nav-pill-item">AI OCR</a>
+        <a href="#simulator" class="nav-pill-item">Live Demo</a>
+        <a href="#architecture" class="nav-pill-item">Architecture</a>
+        <a href="./download/index.html" class="nav-pill-item">Download</a>
+      </div>
+
+      <div class="nav-actions-group">
+        <button class="theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+          <i data-lucide="sun" class="theme-icon-sun"></i>
+          <i data-lucide="moon" class="theme-icon-moon"></i>
+        </button>
+
+        <a href="./auth/index.html" class="nav-auth-btn" id="navAuthBtn">
+          <span>Sign In</span>
+        </a>
+
+        <a href="./app/index.html" class="nav-app-btn" id="navAppBtn">
+          <span>Launch Web App</span>
+          <i data-lucide="arrow-up-right" style="width:15px;height:15px;"></i>
+        </a>
+
+        <button class="menu-toggle" aria-label="Open Navigation Menu">
+          <i data-lucide="menu" style="width:20px;height:20px;"></i>
+        </button>
+      </div>
+    </nav>
+  </header>
+
+  <!-- Mobile Drawer -->
+  <div class="drawer-overlay"></div>
+  <aside class="mobile-drawer">
+    <div class="drawer-header">
+      <div class="nav-brand">
+        <img src="./assets/img/app_logo.png" alt="CampusSignal Logo" class="nav-logo" style="width:32px;height:32px;">
+        <span>CampusSignal</span>
+      </div>
+      <button class="drawer-close" aria-label="Close Menu" style="color:var(--text-secondary);font-size:1.5rem;">
+        <i data-lucide="x" style="width:24px;height:24px;"></i>
+      </button>
+    </div>
+    <div class="drawer-links">
+      <a href="#features" class="drawer-link">Features</a>
+      <a href="#comparison" class="drawer-link">Why CampusSignal</a>
+      <a href="#ocr-studio" class="drawer-link">Vision OCR Studio</a>
+      <a href="#simulator" class="drawer-link">Live Feed Simulator</a>
+      <a href="#architecture" class="drawer-link">Architecture</a>
+      <a href="./download/index.html" class="drawer-link">Download APK Hub</a>
+      <a href="#faq" class="drawer-link">FAQ</a>
+      <a href="./privacy/index.html" class="drawer-link">Privacy Policy</a>
+      <a href="./terms/index.html" class="drawer-link">Terms of Service</a>
+    </div>
+    <div style="margin-top:auto; padding-top:20px; border-top:1px solid var(--border-subtle);">
+      <a href="./download/index.html" class="btn btn-primary" style="width:100%;">
+        <i data-lucide="download" style="width:18px;height:18px;"></i>
+        Download v1.0.6 APK
+      </a>
+    </div>
+  </aside>
+
+  <!-- Main Hero Section -->
+  <section class="hero">
+    <div class="hero-glow-bg"></div>
+    <div class="container hero-grid">
+      <div class="hero-content">
+        <div class="hero-badge">
+          <span class="hero-badge-pill">NEW RELEASE</span>
+          <span>SXUK Exclusive • <strong class="app-version-badge">v1.0.6 (Build 7)</strong></span>
+        </div>
+        <h1 class="hero-title">
+          Signal, not noise.<br>
+          <span class="accent-text">Campus discovery</span><br>
+          simplified.
+        </h1>
+        <p class="hero-lead">
+          The intelligent discovery and broadcast layer for <strong>St. Xavier's University, Kolkata</strong>.
+          Say goodbye to lost WhatsApp flyers and missed deadlines. Powered by Multimodal Gemini 2.5 Vision OCR, Material 3 Expressive theming, and exact calendar sync.
+        </p>
+
+        <div class="hero-actions">
+          <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-arm64-v8a.apk" class="btn btn-lg btn-primary" id="btn-download-arm64">
+            <i data-lucide="download" style="width:20px;height:20px;"></i>
+            <span>Download APK (arm64-v8a • 29.3 MB)</span>
+          </a>
+          <a href="#simulator" class="btn btn-lg btn-secondary">
+            <i data-lucide="play-circle" style="width:20px;height:20px;"></i>
+            <span>Try Live Simulator</span>
+          </a>
+        </div>
+
+        <div class="hero-stats">
+          <div class="stat-item">
+            <span class="stat-num">28</span>
+            <span class="stat-label">SXUK Degree Programmes</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">&lt;1.2s</span>
+            <span class="stat-label">Vision OCR Extraction</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">0 ms</span>
+            <span class="stat-label">Offline Cold Start (Drift)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hero Interactive Mockup -->
+      <div class="hero-mockup-wrapper">
+        <!-- Floating Badges -->
+        <div class="floating-badge floating-badge-1">
+          <div class="badge-icon-box" style="background:var(--accent-amber-container);color:var(--accent-amber);">
+            <i data-lucide="sparkles" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <div class="badge-text-title">Gemini 2.5 OCR</div>
+            <div class="badge-text-sub">Instant flyer to structured schema</div>
+          </div>
+        </div>
+
+        <div class="floating-badge floating-badge-2">
+          <div class="badge-icon-box" style="background:var(--emerald-container);color:var(--emerald);">
+            <i data-lucide="calendar-check" style="width:20px;height:20px;"></i>
+          </div>
+          <div>
+            <div class="badge-text-title">Exact Calendar Sync</div>
+            <div class="badge-text-sub">24h & 2h native alarm triggers</div>
+          </div>
+        </div>
+
+        <div class="device-frame">
+          <div class="device-speaker"></div>
+          <div class="device-notch"></div>
+          <div class="device-screen">
+            <div class="mockup-appbar">
+              <div>
+                <div class="mockup-greeting">Good Morning, Xavierian 👋</div>
+                <div class="mockup-sub">B.Tech CSE • Semester 5</div>
+              </div>
+              <div class="mockup-avatar">SX</div>
+            </div>
+
+            <div class="mockup-banner">
+              <div class="mockup-banner-icon">
+                <i data-lucide="zap" style="width:18px;height:18px;color:#FFF;"></i>
+              </div>
+              <div>
+                <div class="mockup-banner-title">3 Upcoming Deadlines</div>
+                <div class="mockup-banner-desc">SXUK Hackathon closes in 48 hours</div>
+              </div>
+            </div>
+
+            <div class="mockup-feed-chip-row">
+              <span class="mockup-chip active">All Signals</span>
+              <span class="mockup-chip">Hackathons</span>
+              <span class="mockup-chip">Internships</span>
+              <span class="mockup-chip">Fests</span>
+            </div>
+
+            <div class="mockup-card">
+              <div class="mockup-card-header">
+                <span class="mockup-card-tag">HACKATHON</span>
+                <span class="mockup-card-time">2d 14h left</span>
+              </div>
+              <div class="mockup-card-title">SXUK GenAI Hackathon 2026</div>
+              <div class="mockup-card-meta">
+                <span><i data-lucide="map-pin" style="width:11px;height:11px;display:inline;"></i> Lab 402</span>
+                <span>₹75K Prize</span>
+              </div>
+              <div class="mockup-card-footer">
+                <span style="font-size:0.625rem;color:#94A3B8;">ACM Student Chapter</span>
+                <span class="mockup-btn">Save</span>
+              </div>
+            </div>
+
+            <div class="mockup-card">
+              <div class="mockup-card-header">
+                <span class="mockup-card-tag" style="background:rgba(16,185,129,0.2);color:#10B981;">INTERNSHIP</span>
+                <span class="mockup-card-time">5d left</span>
+              </div>
+              <div class="mockup-card-title">EY GDS Tax & Tech 2027</div>
+              <div class="mockup-card-meta">
+                <span>Placement Cell</span>
+                <span>₹45k/mo</span>
+              </div>
+              <div class="mockup-card-footer">
+                <span style="font-size:0.625rem;color:#94A3B8;">3rd Year UG</span>
+                <span class="mockup-btn" style="background:var(--emerald);">Save</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Problem vs Solution Section -->
+  <section class="section" id="comparison">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">THE PROBLEM VS THE SIGNAL</span>
+        <h2 class="section-title">Built specifically to conquer campus notification fatigue.</h2>
+        <p class="section-desc">
+          University announcements at St. Xavier's are rich with world-class opportunities, but critical notices get buried under chat storms and degraded flyers.
+        </p>
+      </div>
+
+      <div class="comparison-grid">
+        <!-- Bad Side -->
+        <div class="comparison-card comparison-bad">
+          <div class="comparison-header">
+            <div class="comparison-icon bad-icon">
+              <i data-lucide="message-square-off" style="width:24px;height:24px;"></i>
+            </div>
+            <div>
+              <h3 class="comparison-title">The WhatsApp & Notice Board Chaos</h3>
+              <p style="font-size:0.875rem;color:var(--text-muted);">How opportunities were missed before</p>
+            </div>
+          </div>
+          <ul class="comparison-list">
+            <li class="comparison-item">
+              <i data-lucide="x-circle" style="color:var(--rose);" class="item-status-icon"></i>
+              <span><strong>Unsearchable Chat Flood:</strong> Vital hackathon & internship announcements get drowned in 500+ daily informal messages.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="x-circle" style="color:var(--rose);" class="item-status-icon"></i>
+              <span><strong>Compressed Paper Posters:</strong> Low-res flyers with tiny unclickable URLs and obscured registration deadlines.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="x-circle" style="color:var(--rose);" class="item-status-icon"></i>
+              <span><strong>Eligibility Blind Spots:</strong> Reading through dense PDFs just to check if your semester or degree qualifies.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="x-circle" style="color:var(--rose);" class="item-status-icon"></i>
+              <span><strong>No Native Reminders:</strong> Manually typing event dates into Google Calendar or forgetting until registration closes.</span>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Good Side -->
+        <div class="comparison-card comparison-good">
+          <div class="comparison-header">
+            <div class="comparison-icon good-icon">
+              <i data-lucide="sparkles" style="width:24px;height:24px;"></i>
+            </div>
+            <div>
+              <h3 class="comparison-title">The CampusSignal Experience</h3>
+              <p style="font-size:0.875rem;color:var(--emerald);">Structured, personalized, and deadline-guaranteed</p>
+            </div>
+          </div>
+          <ul class="comparison-list">
+            <li class="comparison-item">
+              <i data-lucide="check-circle-2" style="color:var(--emerald);" class="item-status-icon"></i>
+              <span><strong>Multimodal Vision OCR:</strong> Ingest any flyer image or PDF; Gemini 2.5 extracts dates, links, eligibility, and venues in &lt;1.2s.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="check-circle-2" style="color:var(--emerald);" class="item-status-icon"></i>
+              <span><strong>Targeted 28-Programme Engine:</strong> Automatic matching against your exact SXUK UG/PG faculty and academic year.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="check-circle-2" style="color:var(--emerald);" class="item-status-icon"></i>
+              <span><strong>Native Calendar Injection:</strong> 1-tap exact system alarm scheduling with proactive 24h & 2h countdown push alerts.</span>
+            </li>
+            <li class="comparison-item">
+              <i data-lucide="check-circle-2" style="color:var(--emerald);" class="item-status-icon"></i>
+              <span><strong>Drift SQLite Offline Cache:</strong> Instant 0ms cold start with full offline bookmarking and calendar access.</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Features Matrix -->
+  <section class="section" id="features">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">CORE CAPABILITIES</span>
+        <h2 class="section-title">Engineered for speed, clarity, and precision.</h2>
+        <p class="section-desc">
+          Every component in CampusSignal is tuned to help Xavierians discover, understand, and apply to opportunities without friction.
+        </p>
+      </div>
+
+      <div class="features-grid">
+        <!-- Feature 1 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="scan-line" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">Multimodal Gemini 2.5 Vision OCR</h3>
+          <p class="feature-description">
+            Upload messy camera snaps of notice board flyers. Our serverless edge pipeline uses Gemini 2.5 Flash to parse unstructured text into typed JSON with verified deadlines, venues, and registration links.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">Gemini 2.5 Vision</span>
+            <span class="feature-tag">Edge Pipeline</span>
+            <span class="feature-tag">Structured JSON</span>
+          </div>
+        </div>
+
+        <!-- Feature 2 -->
+        <div class="feature-card amber">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="palette" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">Material 3 Expressive Dynamic Theming</h3>
+          <p class="feature-description">
+            Full compliance with Android 14+ Material You tonal elevation. Dynamic wallpaper seed extraction harmonized with Deep SXUK Indigo and Amber accents for superior contrast.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">M3E Design</span>
+            <span class="feature-tag">Dynamic Seed Color</span>
+            <span class="feature-tag">Tonal Separation</span>
+          </div>
+        </div>
+
+        <!-- Feature 3 -->
+        <div class="feature-card emerald">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="layers" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">28 Degree Programmes Matrix</h3>
+          <p class="feature-description">
+            Precise filtering across Commerce, Arts, Science, Technology, and Law. Never miss an interdisciplinary data hackathon or a national moot court tailored for your exact cohort.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">SXUK UG & PG</span>
+            <span class="feature-tag">Cohort Matching</span>
+            <span class="feature-tag">Cross-Discipline</span>
+          </div>
+        </div>
+
+        <!-- Feature 4 -->
+        <div class="feature-card violet">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="bell-ring" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">System Calendar & Exact Alarms</h3>
+          <p class="feature-description">
+            Direct integration with native Android Calendar Provider. Schedules exact background alarms for 24-hour and 2-hour deadline warnings so you never miss a registration window.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">Exact Alarms</span>
+            <span class="feature-tag">Calendar Provider</span>
+            <span class="feature-tag">Local Notifications</span>
+          </div>
+        </div>
+
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="cloud-lightning" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">Zero-Egress Cloudflare R2 Delivery</h3>
+          <p class="feature-description">
+            Event poster assets and compressed flyer thumbnails are delivered instantly across Cloudflare's global edge network with zero egress bandwidth overhead and pre-signed security.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">Cloudflare R2</span>
+            <span class="feature-tag">Edge Caching</span>
+            <span class="feature-tag">Presigned PUT</span>
+          </div>
+        </div>
+
+        <!-- Feature 6 -->
+        <div class="feature-card emerald">
+          <div class="feature-icon-wrapper">
+            <i data-lucide="database" style="width:26px;height:26px;"></i>
+          </div>
+          <h3 class="feature-title">Drift SQLite Offline Resilience</h3>
+          <p class="feature-description">
+            CampusSignal caches your personalized feeds, saved opportunities, and reminders locally. Enjoy zero-latency instant loading even in basement computer labs with poor connectivity.
+          </p>
+          <div class="feature-tag-list">
+            <span class="feature-tag">Drift SQLite</span>
+            <span class="feature-tag">0ms Cold Start</span>
+            <span class="feature-tag">Offline Sync</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interactive Multimodal OCR Flyer Studio -->
+  <section class="section" id="ocr-studio" style="background:var(--bg-primary);">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">MULTIMODAL INTELLIGENCE</span>
+        <h2 class="section-title">Interactive Vision OCR Studio</h2>
+        <p class="section-desc">
+          Test how CampusSignal turns unstructured paper flyers and raw WhatsApp announcements into machine-typed JSON event entities.
+        </p>
+      </div>
+
+      <div class="ocr-studio">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:24px; flex-wrap:wrap; gap:12px;">
+          <div>
+            <h3 style="font-size:1.15rem; font-weight:700;">Select Sample Flyer Document</h3>
+            <p style="font-size:0.8125rem; color:var(--text-secondary);">Choose a simulated campus poster to test the Gemini 2.5 parsing pipeline</p>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <button class="btn btn-sm btn-primary flyer-preset-btn" data-preset="hackathon">Hackathon Poster</button>
+            <button class="btn btn-sm btn-secondary flyer-preset-btn" data-preset="internship">Placement Notice</button>
+          </div>
+        </div>
+
+        <div class="ocr-studio-grid">
+          <!-- Flyer Preview Box -->
+          <div>
+            <div class="flyer-preview-card" id="flyer-preview-box">
+              <div class="flyer-scan-line"></div>
+              <div class="flyer-demo-content">
+                <div style="display:flex; align-items:center; gap:8px; margin-bottom:12px; color:var(--accent-amber); font-weight:700;">
+                  <i data-lucide="file-text" style="width:16px;height:16px;"></i>
+                  <span>RAW SOURCE DOCUMENT</span>
+                </div>
+                <pre id="ocr-raw-text" style="font-family:var(--font-mono); font-size:0.75rem; line-height:1.5; white-space:pre-wrap; color:#D1D5DB;">ST. XAVIER'S UNIVERSITY, KOLKATA
+Department of Computer Science & ACM Student Chapter
+PRESENTS
+"SXUK GenAI Hackathon 2026"
+Themes: Agentic Workflows, Education Tech, Multimodal Search
+Date: September 12-14, 2026
+Venue: Fr. Beckers Block Lab 402
+Registration Deadline: September 08, 2026 11:59 PM IST
+Eligibility: B.Tech (CSE, AI&ML, ECE, IT), B.Sc Statistics & Data Science, M.Sc CS
+Prize Pool: INR 75,000 Cash + AWS/Google Cloud Credits
+Apply Link: https://forms.sxuk.edu.in/genai-hackathon-2026
+Contact: acm@sxuk.edu.in</pre>
+              </div>
+            </div>
+            <div class="ocr-controls">
+              <button class="btn btn-primary" id="btn-run-ocr" style="width:100%;">
+                <i data-lucide="sparkles" style="width:16px;height:16px;"></i>
+                <span>Analyze with Gemini 2.5 Vision</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Structured JSON Output -->
+          <div>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+              <span style="font-size:0.8125rem; font-weight:700; font-family:var(--font-mono); color:var(--text-secondary);">STRUCTURED SCHEMA OUTPUT</span>
+              <span style="font-size:0.75rem; color:var(--emerald); font-family:var(--font-mono);">
+                <i data-lucide="check-circle" style="width:12px;height:12px;display:inline;"></i> Validated Schema
+              </span>
+            </div>
+            <div class="ocr-parsed-output" id="ocr-json-output">
+              <span style="color:var(--text-muted);">// Click "Analyze with Gemini 2.5 Vision" to trigger multimodal parsing</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Live Opportunity Feed Simulator -->
+  <section class="section" id="simulator">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">LIVE SIMULATOR</span>
+        <h2 class="section-title">Experience the Personalized Feed</h2>
+        <p class="section-desc">
+          Filter through active campus signals, see automatic eligibility tagging, and test bookmarking into the native calendar.
+        </p>
+      </div>
+
+      <div class="feed-simulator-container">
+        <div class="feed-filter-bar">
+          <div class="filter-pills-row">
+            <button class="filter-pill active" data-category="all">All Opportunities</button>
+            <button class="filter-pill" data-category="hackathon">Hackathons</button>
+            <button class="filter-pill" data-category="internship">Internships</button>
+            <button class="filter-pill" data-category="workshop">Workshops</button>
+            <button class="filter-pill" data-category="fest">Fests & Culture</button>
+            <button class="filter-pill" data-category="seminar">Seminars</button>
+          </div>
+
+          <div class="search-input-box">
+            <i data-lucide="search" style="width:18px;height:18px;color:var(--text-muted);"></i>
+            <input type="text" id="sim-search-input" placeholder="Search title, club, eligibility..." aria-label="Search opportunities">
+          </div>
+        </div>
+
+        <div class="sim-events-grid" id="sim-feed-grid">
+          <!-- Populated dynamically via JS -->
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Architecture & Tech Stack -->
+  <section class="section" id="architecture">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">ENGINEERING BLUEPRINT</span>
+        <h2 class="section-title">Production Architecture & Modern Stack</h2>
+        <p class="section-desc">
+          Zero bloat, high security, and sub-second edge distribution designed specifically for university-scale delivery.
+        </p>
+      </div>
+
+      <div class="architecture-box">
+        <div class="arch-flow-grid">
+          <!-- Node 1 -->
+          <div class="arch-node">
+            <div class="arch-node-icon">
+              <i data-lucide="smartphone" style="width:24px;height:24px;"></i>
+            </div>
+            <h4 class="arch-node-title">Flutter M3E Client</h4>
+            <p class="arch-node-sub">Riverpod MVVM + Drift SQLite + Native Calendar Provider</p>
+            <span class="arch-node-badge">Android 14+ Ready</span>
+          </div>
+
+          <!-- Node 2 -->
+          <div class="arch-node">
+            <div class="arch-node-icon" style="background:var(--accent-amber-container);color:var(--accent-amber);">
+              <i data-lucide="cpu" style="width:24px;height:24px;"></i>
+            </div>
+            <h4 class="arch-node-title">Gemini 2.5 Vision</h4>
+            <p class="arch-node-sub">Multimodal document parsing & schema extraction</p>
+            <span class="arch-node-badge">&lt;1.2s Latency</span>
+          </div>
+
+          <!-- Node 3 -->
+          <div class="arch-node">
+            <div class="arch-node-icon" style="background:var(--emerald-container);color:var(--emerald);">
+              <i data-lucide="shield-check" style="width:24px;height:24px;"></i>
+            </div>
+            <h4 class="arch-node-title">Supabase Cloud</h4>
+            <p class="arch-node-sub">PostgreSQL + Row-Level Security (RLS) + Email OTP</p>
+            <span class="arch-node-badge">DPDP Act 2023 Compliant</span>
+          </div>
+
+          <!-- Node 4 -->
+          <div class="arch-node">
+            <div class="arch-node-icon" style="background:var(--violet-container);color:var(--violet);">
+              <i data-lucide="cloud" style="width:24px;height:24px;"></i>
+            </div>
+            <h4 class="arch-node-title">Cloudflare R2 Edge</h4>
+            <p class="arch-node-sub">Zero-egress poster storage & split-ABI APK delivery</p>
+            <span class="arch-node-badge">Global CDN Cache</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- APK Download Section -->
+  <section class="section" id="download">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">DIRECT APK DISTRIBUTION</span>
+        <h2 class="section-title">Download CampusSignal for Android</h2>
+        <p class="section-desc">
+          Split-ABI APK builds deliver the smallest possible download footprint tailored for your device architecture.
+        </p>
+      </div>
+
+      <div class="download-hub-card">
+        <div class="version-banner">
+          <div class="version-info">
+            <span class="version-tagline">CampusSignal Production Release</span>
+            <span class="version-meta">Version <strong class="app-version-badge">v1.0.6 (Build 7)</strong> • Verified SHA-256 Checksums</span>
+          </div>
+          <div id="detected-arch-badge" class="nav-tag-badge" style="font-size:0.8125rem; padding:6px 14px;">
+            <i data-lucide="cpu" style="width:14px;height:14px;display:inline;"></i> Detecting Architecture...
+          </div>
+        </div>
+
+        <div class="apk-matrix-grid">
+          <!-- ARM64 -->
+          <div class="apk-card recommended" data-arch="arm64-v8a">
+            <span class="recommended-pill">Recommended</span>
+            <div class="apk-abi-name">arm64-v8a</div>
+            <p class="apk-desc">For modern 64-bit Android smartphones (Snapdragon, MediaTek, Pixel, Samsung).</p>
+            <div class="apk-size-tag">Size: <span class="apk-size-val" data-arch="arm64-v8a">29.3 MB</span></div>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-arm64-v8a.apk" class="btn btn-primary apk-download-link" data-arch="arm64-v8a">
+              <i data-lucide="download" style="width:16px;height:16px;"></i> Download arm64
+            </a>
+          </div>
+
+          <!-- ARMv7 -->
+          <div class="apk-card" data-arch="armeabi-v7a">
+            <div class="apk-abi-name">armeabi-v7a</div>
+            <p class="apk-desc">For legacy 32-bit Android phones and entry-level devices.</p>
+            <div class="apk-size-tag">Size: <span class="apk-size-val" data-arch="armeabi-v7a">27.1 MB</span></div>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-armeabi-v7a.apk" class="btn btn-secondary apk-download-link" data-arch="armeabi-v7a">
+              <i data-lucide="download" style="width:16px;height:16px;"></i> Download v7a
+            </a>
+          </div>
+
+          <!-- x86_64 -->
+          <div class="apk-card" data-arch="x86_64">
+            <div class="apk-abi-name">x86_64</div>
+            <p class="apk-desc">For Android Studio Emulators, Chromebooks, and Windows WSA subsystem.</p>
+            <div class="apk-size-tag">Size: <span class="apk-size-val" data-arch="x86_64">30.8 MB</span></div>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-x86_64.apk" class="btn btn-secondary apk-download-link" data-arch="x86_64">
+              <i data-lucide="download" style="width:16px;height:16px;"></i> Download x86_64
+            </a>
+          </div>
+
+          <!-- Universal -->
+          <div class="apk-card" data-arch="universal">
+            <div class="apk-abi-name">Universal APK</div>
+            <p class="apk-desc">All CPU architectures bundled in one package. Guaranteed compatibility.</p>
+            <div class="apk-size-tag">Size: <span class="apk-size-val" data-arch="universal">67.3 MB</span></div>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6.apk" class="btn btn-secondary apk-download-link" data-arch="universal" id="btn-download-universal">
+              <i data-lucide="download" style="width:16px;height:16px;"></i> Download Universal
+            </a>
+          </div>
+        </div>
+
+        <div style="text-align:center; margin-top:20px;">
+          <a href="./download/index.html" class="btn btn-secondary">
+            <i data-lucide="qr-code" style="width:16px;height:16px;"></i>
+            <span>View Dedicated Download Hub & Installation Guide →</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="section" id="faq">
+    <div class="container">
+      <div class="section-header">
+        <span class="section-tag">FREQUENTLY ASKED QUESTIONS</span>
+        <h2 class="section-title">Everything you need to know</h2>
+        <p class="section-desc">Got questions about authentication, offline access, or privacy? We have answers.</p>
+      </div>
+
+      <div class="faq-accordion">
+        <div class="faq-item active">
+          <button class="faq-question" aria-expanded="true">
+            <span>Do I need an official SXUK email to use CampusSignal?</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="faq-answer">
+            Yes. To maintain an authentic student community and prevent spam, account creation requires verifying your <code>@sxuk.edu.in</code> student email via a secure 6-digit one-time password (OTP).
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How does the Gemini 2.5 Vision OCR process flyers?</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="faq-answer">
+            When an event coordinator uploads a poster photo or PDF, our Supabase Edge function sends the document through Gemini 2.5 Flash. It identifies critical details like event title, organizer club, dates, deadlines, eligibility criteria, and application links, outputting structured data into Postgres.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Can I use the app when I have no internet connection?</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="faq-answer">
+            Absolutely. CampusSignal uses Drift SQLite for complete local persistence. Your saved bookmarks, cached event feeds, and scheduled calendar alarms work smoothly even with zero network coverage.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>How does calendar sync and push notifications work?</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="faq-answer">
+            When you save an event, CampusSignal injects an entry into your device's native system calendar and registers exact local alarms for 24 hours and 2 hours prior to the registration deadline.
+          </div>
+        </div>
+
+        <div class="faq-item">
+          <button class="faq-question" aria-expanded="false">
+            <span>Is my personal student data tracked or sold?</span>
+            <i data-lucide="chevron-down" class="faq-icon" style="width:20px;height:20px;"></i>
+          </button>
+          <div class="faq-answer">
+            Never. CampusSignal contains zero third-party ads, zero tracking SDKs, and zero telemetry analytics. We comply fully with India's Digital Personal Data Protection (DPDP) Act 2023.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand-col">
+          <div class="nav-brand">
+            <img src="./assets/img/app_logo.png" alt="CampusSignal Logo" class="nav-logo" style="width:32px;height:32px;">
+            <span>CampusSignal</span>
+          </div>
+          <p class="footer-desc">
+            The personalized discovery and broadcast layer for St. Xavier's University, Kolkata (SXUK). Signal, not noise.
+          </p>
+          <div style="font-family:var(--font-mono);font-size:0.75rem;color:var(--text-muted);">
+            Running Version <span class="app-version-badge">v1.0.6 (Build 7)</span>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Navigation</h4>
+          <div class="footer-links-list">
+            <a href="#features" class="footer-link">Core Features</a>
+            <a href="#comparison" class="footer-link">Why CampusSignal</a>
+            <a href="#ocr-studio" class="footer-link">Vision OCR Studio</a>
+            <a href="#simulator" class="footer-link">Live Feed Simulator</a>
+            <a href="#architecture" class="footer-link">Architecture</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Distribution</h4>
+          <div class="footer-links-list">
+            <a href="./download/index.html" class="footer-link">Download Hub</a>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6-arm64-v8a.apk" class="footer-link">ARM64 APK</a>
+            <a href="https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.6.apk" class="footer-link">Universal APK</a>
+            <a href="./download/index.html#checksums" class="footer-link">SHA-256 Checksums</a>
+            <a href="./download/index.html#guide" class="footer-link">Installation Guide</a>
+          </div>
+        </div>
+
+        <div>
+          <h4 class="footer-col-title">Legal & Community</h4>
+          <div class="footer-links-list">
+            <a href="./privacy/index.html" class="footer-link">Privacy Policy</a>
+            <a href="./terms/index.html" class="footer-link">Terms of Service</a>
+            <a href="https://www.sxuk.edu.in/" target="_blank" rel="noopener noreferrer" class="footer-link">SXUK Official Portal ↗</a>
+            <a href="https://github.com/peter14l/CampusSignal" target="_blank" rel="noopener noreferrer" class="footer-link">GitHub Repository ↗</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 CampusSignal. Developed for St. Xavier's University, Kolkata (SXUK).
+        </div>
+        <div style="display:flex;gap:20px;">
+          <a href="./privacy/index.html">Privacy</a>
+          <a href="./terms/index.html">Terms</a>
+          <a href="./download/index.html">Downloads</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="./assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Opportunity Feed — CampusSignal SXUK</title>
+  <meta name="description" content="Personalized discovery feed of hackathons, campus drives, workshops, and fests for St. Xavier's University students.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+  <link rel="stylesheet" href="../assets/css/app.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script src="../assets/js/catalog.js"></script>
+  <script src="../assets/js/auth.js"></script>
+  <script src="../assets/js/app_nav.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <!-- Left Navigation Sidebar -->
+    <aside class="app-sidebar" id="app-sidebar-container"></aside>
+
+    <!-- App Main Body -->
+    <main class="app-main">
+      
+      <!-- Sticky Top Header -->
+      <header class="app-header">
+        <div class="header-search-wrap">
+          <i data-lucide="search" class="header-search-icon" style="width: 18px; height: 18px;"></i>
+          <input type="text" id="feed-search-input" class="header-search-input" placeholder="Search hackathons, tech tags, EY GDS, workshops...">
+        </div>
+
+        <div class="header-actions">
+          <!-- Department Quick Filter -->
+          <select id="department-filter-select" style="max-width: 220px; height: 38px; border-radius: var(--radius-md); background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; padding: 0 10px;">
+            <option value="all">All Disciplines</option>
+            <option value="my-dept" selected>My Department Filter</option>
+          </select>
+
+          <!-- Theme Toggle -->
+          <button class="theme-toggle btn btn-sm btn-outline" aria-label="Toggle Theme" style="height: 38px; width: 38px; padding: 0; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-md);">
+            <i data-lucide="sun" style="width: 18px; height: 18px;"></i>
+          </button>
+        </div>
+      </header>
+
+      <!-- Feed Content & Right Deadlines Layout -->
+      <div class="app-body-layout">
+        
+        <!-- Main Feed Column -->
+        <div class="app-feed-column">
+          
+          <!-- Category Filter Bar -->
+          <div class="category-pills-bar" id="category-pills-container">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- Active Filter & Stats Banner -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <div style="font-size: 0.875rem; color: var(--text-secondary);">
+              Showing <span id="event-count-badge" style="font-weight: 700; color: var(--text-primary);">6</span> verified campus signals
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--emerald);">
+              <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
+              <span>SXUK Verified Broadcasts</span>
+            </div>
+          </div>
+
+          <!-- Cards Grid -->
+          <div class="events-grid" id="events-grid-container">
+            <!-- Event Cards Rendered Here -->
+          </div>
+
+          <!-- Empty State (Hidden) -->
+          <div id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px dashed var(--border-medium);">
+            <i data-lucide="compass" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px;"></i>
+            <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">No matching opportunities found</h3>
+            <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">Try clearing search keywords or switching category filters.</p>
+            <button id="btn-reset-filters" class="btn btn-outline btn-sm" style="margin-top: 16px;">
+              <span>Reset All Filters</span>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Right Side Quick Rail -->
+        <aside class="app-rail-column">
+          
+          <!-- Urgent Deadlines Rail Widget -->
+          <div class="rail-widget">
+            <div class="widget-title">
+              <i data-lucide="alarm-clock" style="width: 18px; height: 18px; color: var(--accent-amber);"></i>
+              <span>Closing Soon</span>
+            </div>
+            <div id="deadlines-list-container" style="display: flex; flex-direction: column; gap: 8px;">
+              <!-- Deadlines populated via JS -->
+            </div>
+          </div>
+
+          <!-- AI Flyer Studio Mini Callout -->
+          <div class="rail-widget" style="background: linear-gradient(135deg, rgba(79, 85, 222, 0.15) 0%, rgba(139, 92, 246, 0.1) 100%); border-color: var(--border-highlight);">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
+              <div style="width: 32px; height: 32px; border-radius: var(--radius-sm); background: var(--primary); display: flex; align-items: center; justify-content: center; color: #fff;">
+                <i data-lucide="sparkles" style="width: 16px; height: 16px;"></i>
+              </div>
+              <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">Got a Campus Poster?</h4>
+            </div>
+            <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5; margin-bottom: 14px;">
+              Upload any WhatsApp poster or club flyer. Our Vision OCR extracts dates, venues & eligibility automatically.
+            </p>
+            <a href="./studio/index.html" class="btn btn-sm btn-primary" style="width: 100%; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 6px;">
+              <i data-lucide="scan-line" style="width: 14px; height: 14px;"></i>
+              <span>Open AI Flyer Studio</span>
+            </a>
+          </div>
+
+        </aside>
+
+      </div>
+
+    </main>
+
+    <!-- Mobile Navigation Bottom Bar -->
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <!-- Global Event Details Modal -->
+  <div class="cs-modal-backdrop" id="cs-event-modal-backdrop">
+    <div class="cs-modal">
+      <button class="modal-close-btn" id="cs-modal-close-btn" aria-label="Close modal">
+        <i data-lucide="x" style="width: 20px; height: 20px;"></i>
+      </button>
+      <div id="cs-event-modal-body"></div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      // 1. Auth Guard
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      // 2. Setup Sidebar & User Information
+      CS_NAV.renderAppSidebar('feed');
+      const { profile } = await CS_NAV.populateUserInfo(user);
+
+      if (window.lucide) lucide.createIcons();
+
+      // State
+      let activeCategory = 'all';
+      let searchQuery = '';
+      let filterByDept = true;
+
+      const pillsContainer = document.getElementById('category-pills-container');
+      const gridContainer = document.getElementById('events-grid-container');
+      const searchInput = document.getElementById('feed-search-input');
+      const deptFilterSelect = document.getElementById('department-filter-select');
+      const countBadge = document.getElementById('event-count-badge');
+      const emptyState = document.getElementById('events-empty-state');
+      const deadlinesContainer = document.getElementById('deadlines-list-container');
+      const resetBtn = document.getElementById('btn-reset-filters');
+
+      // Populate Department Filter Select
+      if (profile?.branch) {
+        deptFilterSelect.options[1].textContent = `My Dept (${profile.branch.slice(0, 18)}...)`;
+      }
+
+      // Render Categories
+      function renderCategoryPills() {
+        pillsContainer.innerHTML = '';
+        SXUK_CATALOG.categories.forEach(cat => {
+          const pill = document.createElement('button');
+          pill.className = `cat-pill ${activeCategory === cat.id ? 'active' : ''}`;
+          pill.innerHTML = `
+            <i data-lucide="${cat.icon}" style="width:14px;height:14px;"></i>
+            <span>${cat.label}</span>
+          `;
+          pill.addEventListener('click', () => {
+            activeCategory = cat.id;
+            renderCategoryPills();
+            renderEventsGrid();
+          });
+          pillsContainer.appendChild(pill);
+        });
+        if (window.lucide) lucide.createIcons();
+      }
+
+      // Render Events Grid
+      function renderEventsGrid() {
+        const savedIds = CS_AUTH.getSavedEventIds();
+        
+        let filtered = SXUK_CATALOG.events.filter(event => {
+          // Category
+          if (activeCategory !== 'all' && event.category !== activeCategory) return false;
+          
+          // Search
+          if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            const inTitle = event.title.toLowerCase().includes(q);
+            const inOrg = event.organizer.toLowerCase().includes(q);
+            const inTags = event.tags.some(t => t.toLowerCase().includes(q));
+            if (!inTitle && !inOrg && !inTags) return false;
+          }
+
+          // Department filter
+          if (filterByDept && profile?.branch) {
+            const matchesDept = event.departments.includes('All Departments') || event.departments.includes(profile.branch);
+            if (!matchesDept) return false;
+          }
+
+          return true;
+        });
+
+        countBadge.textContent = filtered.length;
+
+        if (filtered.length === 0) {
+          gridContainer.innerHTML = '';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        emptyState.style.display = 'none';
+        gridContainer.innerHTML = filtered.map(event => {
+          const matchScore = SXUK_CATALOG.calculateMatchScore(event, profile);
+          const isSaved = savedIds.includes(event.id);
+          const deadlineFormatted = new Date(event.deadline).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+
+          return `
+            <div class="event-card" data-id="${event.id}">
+              <div class="event-card-header">
+                <img src="${event.posterUrl}" alt="${event.title}" class="event-card-img" loading="lazy">
+                <div class="event-match-badge">
+                  <i data-lucide="sparkles" style="width:12px;height:12px;"></i>
+                  <span>${matchScore}% Match</span>
+                </div>
+                <button class="event-bookmark-btn ${isSaved ? 'saved' : ''}" data-event-id="${event.id}" title="${isSaved ? 'Remove Bookmark' : 'Save Event'}">
+                  <i data-lucide="${isSaved ? 'bookmark-check' : 'bookmark'}" style="width:16px;height:16px;"></i>
+                </button>
+              </div>
+
+              <div class="event-card-body">
+                <div class="event-meta-top">
+                  <span class="event-cat-tag cat-${event.category}">${event.category}</span>
+                  <div class="event-countdown">
+                    <i data-lucide="clock" style="width:12px;height:12px;"></i>
+                    <span>Due ${deadlineFormatted}</span>
+                  </div>
+                </div>
+
+                <h3 class="event-card-title">${event.title}</h3>
+                
+                <div class="event-organizer">
+                  <i data-lucide="building-2" style="width:14px;height:14px;color:var(--primary);"></i>
+                  <span>${event.organizer}</span>
+                </div>
+
+                <div class="event-info-row">
+                  <div class="event-info-item">
+                    <i data-lucide="map-pin" style="width:14px;height:14px;"></i>
+                    <span>${event.venue}</span>
+                  </div>
+                  <div class="event-info-item">
+                    <i data-lucide="users" style="width:14px;height:14px;"></i>
+                    <span>${event.teamSize}</span>
+                  </div>
+                </div>
+
+                <div class="event-tags-row">
+                  ${event.tags.map(t => `<span class="event-mini-tag">#${t}</span>`).join('')}
+                </div>
+
+                <div class="event-card-footer">
+                  <span style="font-size:0.8125rem; font-weight:700; color:var(--emerald);">
+                    ${event.prize ? `🏆 ${event.prize.split('+')[0]}` : 'Verified Entry'}
+                  </span>
+                  <button class="btn btn-sm btn-outline btn-view-event" data-event-id="${event.id}">
+                    <span>Details</span>
+                    <i data-lucide="arrow-right" style="width:14px;height:14px;margin-left:4px;"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        if (window.lucide) lucide.createIcons();
+
+        // Attach Card Click & Bookmark Handlers
+        attachCardInteractions();
+      }
+
+      function attachCardInteractions() {
+        // Details buttons & card clicks
+        document.querySelectorAll('.btn-view-event, .event-card-title').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const card = el.closest('.event-card');
+            const eventId = card.getAttribute('data-id');
+            CS_NAV.openEventModal(eventId);
+          });
+        });
+
+        // Bookmark buttons
+        document.querySelectorAll('.event-bookmark-btn').forEach(btn => {
+          btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const eventId = btn.getAttribute('data-event-id');
+            const newlySaved = CS_AUTH.toggleSaveEvent(eventId);
+            btn.classList.toggle('saved', newlySaved);
+            btn.innerHTML = `<i data-lucide="${newlySaved ? 'bookmark-check' : 'bookmark'}" style="width:16px;height:16px;"></i>`;
+            if (window.lucide) lucide.createIcons();
+          });
+        });
+      }
+
+      // Render Deadlines in Right Rail
+      function renderDeadlines() {
+        const sorted = [...SXUK_CATALOG.events].sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+        deadlinesContainer.innerHTML = sorted.slice(0, 4).map(ev => {
+          const d = new Date(ev.deadline);
+          const day = d.getDate();
+          const month = d.toLocaleDateString('en-US', { month: 'short' });
+
+          return `
+            <div class="deadline-item" style="cursor:pointer;" onclick="CS_NAV.openEventModal('${ev.id}')">
+              <div class="deadline-date-box">
+                <span class="deadline-day">${day}</span>
+                <span class="deadline-month">${month}</span>
+              </div>
+              <div class="deadline-content">
+                <div class="deadline-title">${ev.title}</div>
+                <div class="deadline-time">Closes ${d.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
+      // Search bar listener
+      searchInput.addEventListener('input', (e) => {
+        searchQuery = e.target.value.trim();
+        renderEventsGrid();
+      });
+
+      // Department filter listener
+      deptFilterSelect.addEventListener('change', (e) => {
+        filterByDept = e.target.value === 'my-dept';
+        renderEventsGrid();
+      });
+
+      // Reset button
+      resetBtn.addEventListener('click', () => {
+        activeCategory = 'all';
+        searchQuery = '';
+        searchInput.value = '';
+        filterByDept = false;
+        deptFilterSelect.value = 'all';
+        renderCategoryPills();
+        renderEventsGrid();
+      });
+
+      window.refreshFeedSavedStates = renderEventsGrid;
+
+      // Initialize
+      renderCategoryPills();
+      renderEventsGrid();
+      renderDeadlines();
+    });
+  </script>
+</body>
+</html>

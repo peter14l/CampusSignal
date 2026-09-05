@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Academic Profile & Hub — CampusSignal SXUK</title>
+  <meta name="description" content="Manage your St. Xavier's University degree department, academic semester, skills, and sync with Supabase.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="../../assets/css/main.css">
+  <link rel="stylesheet" href="../../assets/css/app.css">
+
+  <style>
+    .profile-hero {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .profile-big-avatar {
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--violet) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      font-weight: 800;
+      color: #fff;
+      box-shadow: 0 4px 16px var(--primary-glow);
+    }
+    .stat-counter-card {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+    }
+    .stat-lbl {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+  </style>
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script src="../../assets/js/catalog.js"></script>
+  <script src="../../assets/js/auth.js"></script>
+  <script src="../../assets/js/app_nav.js"></script>
+</head>
+<body>
+
+  <div class="app-container">
+    
+    <aside class="app-sidebar" id="app-sidebar-container"></aside>
+
+    <main class="app-main">
+      
+      <header class="app-header">
+        <div>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
+            Academic Identity & Preferences
+          </h1>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            SXUK Student Registry • Two-way Supabase Cloud Sync
+          </p>
+        </div>
+
+        <div class="header-actions">
+          <button id="btn-edit-profile-modal" class="btn btn-sm btn-primary">
+            <i data-lucide="edit-3" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            <span>Edit Academic Profile</span>
+          </button>
+        </div>
+      </header>
+
+      <div class="app-body-layout" style="grid-template-columns: 1fr;">
+        
+        <!-- Profile Banner -->
+        <div class="profile-hero">
+          <div class="profile-big-avatar" id="profile-big-avatar">SX</div>
+          <div style="flex: 1;">
+            <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px;">
+              <h2 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary);" id="profile-full-name">
+                SXUK Student
+              </h2>
+              <span style="font-size: 0.75rem; background: var(--primary-container); color: var(--primary-hover); padding: 3px 8px; border-radius: var(--radius-full); font-weight: 700;">
+                Verified SXUK
+              </span>
+            </div>
+            
+            <div style="font-size: 0.875rem; color: var(--text-secondary); margin-bottom: 12px;" id="profile-email-dept">
+              student@sxuk.edu.in • B.Tech in CSE
+            </div>
+
+            <div style="display: flex; gap: 8px; flex-wrap: wrap;" id="profile-pills-row">
+              <span class="event-mini-tag" id="pill-branch">B.Tech in CSE</span>
+              <span class="event-mini-tag" id="pill-semester">Semester 5</span>
+              <span class="event-mini-tag" id="pill-year">3rd Year</span>
+            </div>
+          </div>
+
+          <div style="display: flex; gap: 12px;">
+            <div class="stat-counter-card">
+              <div class="stat-val" id="stat-saved-count">2</div>
+              <div class="stat-lbl">Saved Drives</div>
+            </div>
+            <div class="stat-counter-card">
+              <div class="stat-val">6</div>
+              <div class="stat-lbl">Eligible Events</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Skills & Interests Display -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px;">
+          
+          <!-- Interests Box -->
+          <div class="rail-widget">
+            <div class="widget-title">
+              <i data-lucide="compass" style="width: 18px; height: 18px; color: var(--primary);"></i>
+              <span>Opportunity Interests</span>
+            </div>
+            <div id="profile-interests-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+          </div>
+
+          <!-- Skills Box -->
+          <div class="rail-widget">
+            <div class="widget-title">
+              <i data-lucide="code" style="width: 18px; height: 18px; color: var(--emerald);"></i>
+              <span>Technical & Professional Skills</span>
+            </div>
+            <div id="profile-skills-chips" style="display: flex; flex-wrap: wrap; gap: 8px;"></div>
+          </div>
+
+        </div>
+
+        <!-- Account Actions & Sign Out -->
+        <div class="rail-widget" style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div style="font-weight: 700; color: var(--text-primary); font-size: 0.9375rem;">Connected Session</div>
+            <div style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 2px;">Session stored securely in browser state & Supabase Auth</div>
+          </div>
+          <button id="btn-logout-main" class="btn btn-outline" style="color: var(--rose); border-color: rgba(244,63,94,0.3);">
+            <i data-lucide="log-out" style="width: 16px; height: 16px; margin-right: 6px;"></i>
+            <span>Sign Out Account</span>
+          </button>
+        </div>
+
+      </div>
+
+    </main>
+
+    <nav class="mobile-bottom-nav" id="mobile-bottom-nav-container"></nav>
+
+  </div>
+
+  <!-- Edit Academic Details Modal -->
+  <div class="cs-modal-backdrop" id="edit-profile-modal">
+    <div class="cs-modal" style="max-width: 560px;">
+      <button class="modal-close-btn" id="btn-close-edit-modal"><i data-lucide="x" style="width:20px;height:20px;"></i></button>
+      
+      <div style="padding: 28px;">
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-bottom: 4px;">Update Academic Details</h2>
+        <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-bottom: 20px;">Changes sync directly to your SXUK Supabase database record.</p>
+
+        <form id="edit-profile-form" style="display: flex; flex-direction: column; gap: 16px;">
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Full Name</label>
+            <input type="text" id="edit-fullname" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);">
+          </div>
+
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">SXUK Programme / Branch</label>
+            <select id="edit-branch" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);"></select>
+          </div>
+
+          <div>
+            <label style="font-size: 0.8125rem; font-weight: 600; color: var(--text-secondary); display: block; margin-bottom: 6px;">Current Semester (1 to 8)</label>
+            <select id="edit-semester" style="width: 100%; height: 42px; border-radius: var(--radius-md); background: var(--bg-tertiary); border: 1px solid var(--border-subtle); padding: 0 12px; color: var(--text-primary);">
+              <option value="1">Semester 1 (1st Year)</option>
+              <option value="2">Semester 2 (1st Year)</option>
+              <option value="3">Semester 3 (2nd Year)</option>
+              <option value="4">Semester 4 (2nd Year)</option>
+              <option value="5">Semester 5 (3rd Year)</option>
+              <option value="6">Semester 6 (3rd Year)</option>
+              <option value="7">Semester 7 (4th Year)</option>
+              <option value="8">Semester 8 (4th Year)</option>
+            </select>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button type="button" class="btn btn-outline" id="btn-cancel-edit">Cancel</button>
+            <button type="submit" class="btn btn-primary" id="btn-save-edit">Save Changes</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', async () => {
+      const user = await CS_AUTH.requireAuth();
+      if (!user) return;
+
+      CS_NAV.renderAppSidebar('profile');
+      let { profile } = await CS_NAV.populateUserInfo(user);
+      if (window.lucide) lucide.createIcons();
+
+      // Elements
+      const bigAvatar = document.getElementById('profile-big-avatar');
+      const fullNameEl = document.getElementById('profile-full-name');
+      const emailDeptEl = document.getElementById('profile-email-dept');
+      const pillBranch = document.getElementById('pill-branch');
+      const pillSemester = document.getElementById('pill-semester');
+      const pillYear = document.getElementById('pill-year');
+      const savedCount = document.getElementById('stat-saved-count');
+      const interestsBox = document.getElementById('profile-interests-chips');
+      const skillsBox = document.getElementById('profile-skills-chips');
+      const editModal = document.getElementById('edit-profile-modal');
+      const editBranchSelect = document.getElementById('edit-branch');
+
+      function refreshProfileUI() {
+        const name = profile?.full_name || user.email?.split('@')[0] || 'SXUK Student';
+        const email = profile?.college_email || user.email || 'student@sxuk.edu.in';
+        const branch = profile?.branch || 'B.Tech in CSE';
+        const sem = profile?.metadata?.semester || 5;
+        const year = Math.ceil(sem / 2);
+
+        bigAvatar.textContent = name.split(' ').map(n => n[0]).slice(0, 2).join('').toUpperCase();
+        fullNameEl.textContent = name;
+        emailDeptEl.textContent = `${email} • ${branch}`;
+
+        pillBranch.textContent = branch;
+        pillSemester.textContent = `Semester ${sem}`;
+        pillYear.textContent = `${year}${year===1?'st':year===2?'nd':year===3?'rd':'th'} Year`;
+
+        savedCount.textContent = CS_AUTH.getSavedEventIds().length;
+
+        // Render Interests
+        const interests = profile?.interests || ['Hackathons', 'AI/ML', 'Internships', 'Cloud/DevOps'];
+        interestsBox.innerHTML = interests.map(i => `
+          <span style="padding:6px 14px; background:var(--primary-container); color:var(--primary-hover); font-weight:600; font-size:0.8125rem; border-radius:var(--radius-full);">${i}</span>
+        `).join('');
+
+        // Render Skills
+        const skills = profile?.skills || ['Flutter', 'Python', 'React', 'FastAPI', 'UI/UX Design'];
+        skillsBox.innerHTML = skills.map(s => `
+          <span style="padding:6px 14px; background:var(--bg-tertiary); color:var(--text-primary); font-size:0.8125rem; border-radius:var(--radius-full); border:1px solid var(--border-subtle);">${s}</span>
+        `).join('');
+      }
+
+      // Populate Branch Select in Modal
+      SXUK_CATALOG.allBranches.forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b;
+        opt.textContent = b;
+        editBranchSelect.appendChild(opt);
+      });
+
+      // Edit Modal Actions
+      document.getElementById('btn-edit-profile-modal').addEventListener('click', () => {
+        document.getElementById('edit-fullname').value = profile?.full_name || '';
+        editBranchSelect.value = profile?.branch || SXUK_CATALOG.allBranches[0];
+        document.getElementById('edit-semester').value = profile?.metadata?.semester || 1;
+        editModal.classList.add('active');
+      });
+
+      function closeEditModal() {
+        editModal.classList.remove('active');
+      }
+
+      document.getElementById('btn-close-edit-modal').addEventListener('click', closeEditModal);
+      document.getElementById('btn-cancel-edit').addEventListener('click', closeEditModal);
+
+      // Save Modal Form
+      document.getElementById('edit-profile-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const newName = document.getElementById('edit-fullname').value.trim();
+        const newBranch = editBranchSelect.value;
+        const newSem = parseInt(document.getElementById('edit-semester').value);
+
+        const saveBtn = document.getElementById('btn-save-edit');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving...';
+
+        try {
+          const updated = await CS_AUTH.saveUserProfile({
+            full_name: newName,
+            branch: newBranch,
+            year: Math.ceil(newSem / 2),
+            metadata: { semester: newSem, onboarding_completed: true }
+          });
+          profile = updated;
+          refreshProfileUI();
+          CS_NAV.populateUserInfo(user);
+          closeEditModal();
+        } catch (err) {
+          alert(err.message || 'Error updating profile');
+        } finally {
+          saveBtn.disabled = false;
+          saveBtn.textContent = 'Save Changes';
+        }
+      });
+
+      // Sign Out
+      document.getElementById('btn-logout-main').addEventListener('click', () => {
+        if (confirm('Sign out of CampusSignal?')) {
+          CS_AUTH.signOutUser();
+        }
+      });
+
+      refreshProfileUI();
+    });
+  </script>
+</body>
+</html>

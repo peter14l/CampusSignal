@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — CampusSignal</title>
+  <meta name="description" content="CampusSignal Privacy Policy. DPDP Act 2023 compliance, student data sovereignty, zero third-party ads or trackers.">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="../assets/img/app_logo.png">
+
+  <!-- Stylesheet -->
+  <link rel="stylesheet" href="../assets/css/main.css">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar-wrapper">
+    <nav class="navbar">
+      <div class="nav-brand-group">
+        <a href="../index.html" class="nav-brand">
+          <img src="../assets/img/app_logo.png" alt="CampusSignal Logo" class="nav-logo">
+          <div class="nav-brand-text">
+            <span class="nav-title">CampusSignal</span>
+            <span class="nav-tagline">Legal & Privacy</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="nav-actions-group">
+        <button class="theme-toggle" aria-label="Toggle Dark/Light Mode" title="Toggle Theme">
+          <i data-lucide="sun" class="theme-icon-sun"></i>
+          <i data-lucide="moon" class="theme-icon-moon"></i>
+        </button>
+        <a href="../index.html" class="nav-auth-btn">
+          <span>Back to Home</span>
+        </a>
+        <a href="../app/index.html" class="nav-app-btn">
+          <span>Launch Web App</span>
+          <i data-lucide="arrow-up-right" style="width:15px;height:15px;"></i>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main class="section">
+    <div class="container">
+      <div class="legal-content-wrapper legal-content">
+        <h1>CampusSignal Privacy Policy</h1>
+        <div class="meta-date">Last Updated: September 5, 2026 • Effective Date: September 5, 2026</div>
+
+        <div class="legal-callout">
+          <strong>Summary for Xavierians:</strong> CampusSignal was built for students, not data brokers. We do not sell your personal data, we do not run third-party advertising SDKs, and we strictly enforce Digital Personal Data Protection (DPDP) Act 2023 standards.
+        </div>
+
+        <h2>1. Scope and Applicability</h2>
+        <p>
+          This Privacy Policy describes how CampusSignal collects, processes, and protects your information when you access or use our Android mobile application and web discovery interfaces. CampusSignal is an independent campus discovery and notification platform built for the student body and faculty of St. Xavier's University, Kolkata (SXUK).
+        </p>
+
+        <h2>2. Information We Collect</h2>
+        <p>To provide relevant and personalized event discovery, we process the following minimum necessary categories of information:</p>
+        <ul>
+          <li><strong>Institutional Identity:</strong> Your official university email address (<code>@sxuk.edu.in</code>) and full name provided during email OTP verification.</li>
+          <li><strong>Academic Profile:</strong> Your registered faculty, degree programme (from among the 28 SXUK programmes), graduation year, and current semester.</li>
+          <li><strong>Interests & Preferences:</strong> Self-selected category filters (e.g., Hackathons, Internships, Fests) and skill tags (e.g., AI/ML, Flutter, Finance).</li>
+          <li><strong>Local Device Signals:</strong> Exact reminder alarms and system calendar entries are created locally on your device storage via Drift SQLite and the Android Calendar Provider.</li>
+        </ul>
+
+        <h2>3. Zero Telemetry & Advertising Policy</h2>
+        <p>
+          CampusSignal adheres to strict data minimization principles:
+        </p>
+        <ul>
+          <li>We do <strong>NOT</strong> collect your Advertising ID (GAID), GPS location coordinates, contacts, or browsing history outside of CampusSignal.</li>
+          <li>We do <strong>NOT</strong> integrate third-party ad networks (e.g., Google AdMob, Meta Audience Network).</li>
+          <li>We do <strong>NOT</strong> sell, license, or monetize student demographic records.</li>
+        </ul>
+
+        <h2>4. Cloud Infrastructure & Security Standards</h2>
+        <p>
+          CampusSignal utilizes enterprise-grade backend infrastructure designed with zero-trust principles:
+        </p>
+        <ul>
+          <li><strong>Database Encryption:</strong> Stored on Supabase PostgreSQL with automated TLS 1.3 in-transit and AES-256 at-rest encryption.</li>
+          <li><strong>Row-Level Security (RLS):</strong> Database tables enforce granular access control policies. Only authenticated students can access their bookmarks, submissions, and reminders.</li>
+          <li><strong>Cloudflare R2 Object Storage:</strong> Document flyers and event banners are stored in zero-egress Cloudflare R2 object storage, served strictly through presigned upload URLs and cached global edge routes.</li>
+        </ul>
+
+        <h2>5. Compliance with DPDP Act 2023</h2>
+        <p>
+          Under India's Digital Personal Data Protection (DPDP) Act 2023, you have enforceable rights regarding your data:
+        </p>
+        <ul>
+          <li><strong>Right to Access:</strong> You may view all data linked to your account directly within your Profile screen.</li>
+          <li><strong>Right to Correction:</strong> You may update your academic degree, semester, or skill tags at any time.</li>
+          <li><strong>Right to Erasure:</strong> You can delete your account and all associated profile and bookmark records by contacting support or initiating deletion from the app settings.</li>
+        </ul>
+
+        <h2>6. Contact & Grievance Redressal</h2>
+        <p>
+          If you have questions, feedback, or grievance requests concerning this Privacy Policy, please reach out to the developer maintainers:
+        </p>
+        <p style="font-family:var(--font-mono); font-size:0.875rem; background:var(--bg-tertiary); padding:16px; border-radius:var(--radius-sm);">
+          CampusSignal Data Protection Support<br>
+          Email: privacy@campussignal.sxuk.edu.in<br>
+          GitHub: https://github.com/peter14l/CampusSignal
+        </p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        <div>
+          &copy; 2026 CampusSignal. Built for St. Xavier's University, Kolkata.
+        </div>
+        <div style="display:flex;gap:20px;">
+          <a href="../index.html">Home</a>
+          <a href="../download/index.html">Downloads</a>
+          <a href="../terms/index.html">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="../assets/js/main.js"></script>
+</body>
+</html>
