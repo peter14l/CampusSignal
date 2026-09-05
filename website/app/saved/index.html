@@ -153,10 +153,11 @@
 
         if (window.lucide) lucide.createIcons();
 
-        // Bind clicks
-        document.querySelectorAll('.btn-view-event, .event-card-title').forEach(el => {
-          el.addEventListener('click', () => {
-            const card = el.closest('.event-card');
+        // Bind whole card clicks
+        document.querySelectorAll('.event-card').forEach(card => {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', (e) => {
+            if (e.target.closest('.event-bookmark-btn') || e.target.closest('a')) return;
             CS_NAV.openEventModal(card.getAttribute('data-id'));
           });
         });

@@ -7,9 +7,20 @@ function renderAppSidebar(activeTab = 'feed') {
   const sidebar = document.getElementById('app-sidebar-container');
   if (!sidebar) return;
 
+  // Compute root prefix based on current pathname
+  const path = window.location.pathname.replace(/\\/g, '/');
+  const isSubRoute = path.includes('/app/calendar/') ||
+                     path.includes('/app/saved/') ||
+                     path.includes('/app/studio/') ||
+                     path.includes('/app/notifications/') ||
+                     path.includes('/app/profile/');
+
+  const appRoot = isSubRoute ? '../' : './';
+  const siteRoot = isSubRoute ? '../../' : '../';
+
   sidebar.innerHTML = `
     <div class="sidebar-header">
-      <img src="../../assets/img/app_logo.png" alt="CampusSignal" class="sidebar-logo" onerror="this.src='../assets/img/app_logo.png'">
+      <img src="${siteRoot}assets/img/app_logo.png" alt="CampusSignal" class="sidebar-logo">
       <div>
         <div class="sidebar-brand-name">CampusSignal</div>
         <div style="font-size:0.6875rem; font-weight:700; color:var(--primary); letter-spacing:0.04em;">SXUK OFFICIAL</div>
@@ -17,35 +28,35 @@ function renderAppSidebar(activeTab = 'feed') {
     </div>
 
     <nav class="sidebar-nav">
-      <a href="../index.html" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
+      <a href="${appRoot}index.html" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
         <i data-lucide="compass" style="width:18px;height:18px;"></i>
         <span>Discover Feed</span>
       </a>
-      <a href="../calendar/index.html" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
+      <a href="${appRoot}calendar/index.html" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
         <i data-lucide="calendar" style="width:18px;height:18px;"></i>
         <span>Calendar & Deadlines</span>
         <span class="sidebar-badge">4</span>
       </a>
-      <a href="../saved/index.html" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
+      <a href="${appRoot}saved/index.html" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
         <span>Saved Opportunities</span>
       </a>
-      <a href="../studio/index.html" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
+      <a href="${appRoot}studio/index.html" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
         <i data-lucide="scan-line" style="width:18px;height:18px;"></i>
         <span>AI Flyer Studio</span>
       </a>
-      <a href="../notifications/index.html" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
+      <a href="${appRoot}notifications/index.html" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span>Broadcast Signals</span>
         <span class="sidebar-badge" style="background:var(--accent-amber);color:#000;">2</span>
       </a>
-      <a href="../profile/index.html" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
+      <a href="${appRoot}profile/index.html" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
         <i data-lucide="user" style="width:18px;height:18px;"></i>
         <span>Academic Profile</span>
       </a>
       
       <div style="margin-top:auto; padding-top:16px; border-top:1px solid var(--border-subtle);">
-        <a href="../../index.html" class="sidebar-link" target="_blank">
+        <a href="${siteRoot}index.html" class="sidebar-link">
           <i data-lucide="globe" style="width:18px;height:18px;"></i>
           <span>Showcase Portal</span>
         </a>
@@ -65,7 +76,7 @@ function renderAppSidebar(activeTab = 'feed') {
   `;
 
   // Render Mobile Bottom Bar
-  renderMobileNav(activeTab);
+  renderMobileNav(activeTab, appRoot);
 
   // Hook Sign Out
   const signOutBtn = document.getElementById('btn-sidebar-signout');
@@ -78,28 +89,28 @@ function renderAppSidebar(activeTab = 'feed') {
   }
 }
 
-function renderMobileNav(activeTab = 'feed') {
+function renderMobileNav(activeTab = 'feed', appRoot = './') {
   const bottomNav = document.getElementById('mobile-bottom-nav-container');
   if (!bottomNav) return;
 
   bottomNav.innerHTML = `
-    <a href="../index.html" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
+    <a href="${appRoot}index.html" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
       <i data-lucide="compass" style="width:20px;height:20px;"></i>
       <span>Feed</span>
     </a>
-    <a href="../calendar/index.html" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
+    <a href="${appRoot}calendar/index.html" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
       <i data-lucide="calendar" style="width:20px;height:20px;"></i>
       <span>Calendar</span>
     </a>
-    <a href="../saved/index.html" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
+    <a href="${appRoot}saved/index.html" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
       <i data-lucide="bookmark" style="width:20px;height:20px;"></i>
       <span>Saved</span>
     </a>
-    <a href="../studio/index.html" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
+    <a href="${appRoot}studio/index.html" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
       <i data-lucide="scan-line" style="width:20px;height:20px;"></i>
       <span>Studio</span>
     </a>
-    <a href="../profile/index.html" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
+    <a href="${appRoot}profile/index.html" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
       <i data-lucide="user" style="width:20px;height:20px;"></i>
       <span>Profile</span>
     </a>
@@ -286,8 +297,43 @@ function generateIcsDownload(event) {
   document.body.removeChild(link);
 }
 
-// Global close listeners
+// Theme Management across Web App suite
+function initAppTheme() {
+  const savedTheme = localStorage.getItem('cs_theme') || 'dark';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateAppThemeIcons(savedTheme);
+
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      const activeTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+      const newTheme = activeTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('cs_theme', newTheme);
+      updateAppThemeIcons(newTheme);
+    });
+  });
+}
+
+function updateAppThemeIcons(theme) {
+  document.querySelectorAll('.theme-toggle').forEach(btn => {
+    if (theme === 'dark') {
+      btn.innerHTML = '<i data-lucide="sun" style="width:18px;height:18px;"></i>';
+      btn.setAttribute('aria-label', 'Switch to Light Mode');
+    } else {
+      btn.innerHTML = '<i data-lucide="moon" style="width:18px;height:18px;"></i>';
+      btn.setAttribute('aria-label', 'Switch to Dark Mode');
+    }
+  });
+  if (window.lucide) {
+    lucide.createIcons();
+  }
+}
+
+// Global close listeners and theme initializer
 document.addEventListener('DOMContentLoaded', () => {
+  initAppTheme();
+
   const modalBackdrop = document.getElementById('cs-event-modal-backdrop');
   const modalClose = document.getElementById('cs-modal-close-btn');
 
@@ -309,5 +355,6 @@ window.CS_NAV = {
   populateUserInfo,
   openEventModal,
   closeEventModal,
-  generateIcsDownload
+  generateIcsDownload,
+  initAppTheme
 };

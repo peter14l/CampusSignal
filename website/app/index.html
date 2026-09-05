@@ -300,11 +300,12 @@
       }
 
       function attachCardInteractions() {
-        // Details buttons & card clicks
-        document.querySelectorAll('.btn-view-event, .event-card-title').forEach(el => {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const card = el.closest('.event-card');
+        // Make the entire card clickable
+        document.querySelectorAll('.event-card').forEach(card => {
+          card.style.cursor = 'pointer';
+          card.addEventListener('click', (e) => {
+            // Ignore click if bookmark button or an anchor tag was clicked
+            if (e.target.closest('.event-bookmark-btn') || e.target.closest('a')) return;
             const eventId = card.getAttribute('data-id');
             CS_NAV.openEventModal(eventId);
           });
