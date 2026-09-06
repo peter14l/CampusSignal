@@ -2009,3 +2009,239 @@ h1, h2, h3, h4, h5, h6 {
 .footer-bottom a:hover {
   color: var(--primary);
 }
+
+/* ==========================================================================
+   Mobile & Phone Screen Responsiveness Overhaul (<= 768px and <= 480px)
+   ========================================================================== */
+@media (max-width: 768px) {
+  :root {
+    --nav-height: 60px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .section {
+    padding: 48px 0;
+  }
+
+  .section-header {
+    margin-bottom: 36px;
+  }
+
+  .section-title {
+    font-size: 1.75rem;
+    line-height: 1.25;
+  }
+
+  .section-desc {
+    font-size: 0.9375rem;
+  }
+
+  /* Hero Section */
+  .hero {
+    padding: 40px 0 60px;
+  }
+
+  .hero-glow-bg {
+    width: 100%;
+    height: 400px;
+    top: -100px;
+  }
+
+  .hero-title {
+    font-size: 2.1rem;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+  }
+
+  .hero-lead {
+    font-size: 0.95rem;
+    margin-bottom: 24px;
+    line-height: 1.55;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    width: 100%;
+    gap: 12px;
+  }
+
+  .hero-actions .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .hero-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    text-align: center;
+    padding-top: 20px;
+  }
+
+  .stat-num {
+    font-size: 1.25rem;
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
+  }
+
+  /* Device frame for phone */
+  .device-frame {
+    width: 100%;
+    max-width: 320px;
+    height: 540px;
+    border-width: 8px;
+    border-radius: 36px;
+  }
+
+  /* Features & Comparisons */
+  .features-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .feature-card {
+    padding: 22px;
+  }
+
+  .comparison-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+
+  .comparison-card {
+    padding: 24px 20px;
+  }
+
+  /* OCR Studio */
+  .ocr-studio {
+    padding: 20px 16px;
+  }
+
+  .ocr-controls {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .ocr-controls .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* Feed Simulator */
+  .feed-simulator-container {
+    padding: 18px 14px;
+  }
+
+  .feed-filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .search-input-box {
+    width: 100%;
+    min-width: 0;
+  }
+
+  .sim-events-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Version & Downloads */
+  .download-hub-card {
+    padding: 20px 16px;
+  }
+
+  .version-banner {
+    padding: 18px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .version-banner .btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .apk-matrix-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .apk-card {
+    padding: 20px 16px;
+  }
+
+  .sha-box {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .sha-box .copy-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .guide-steps-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Footer */
+  .footer {
+    padding: 48px 0 24px;
+  }
+
+  .footer-bottom {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero-title {
+    font-size: 1.8rem;
+  }
+
+  .hero-badge {
+    font-size: 0.75rem;
+    padding: 4px 10px;
+  }
+
+  .nav-app-btn span {
+    display: none;
+  }
+
+  .nav-app-btn {
+    padding: 8px 12px;
+  }
+
+  .nav-app-btn::after {
+    content: 'App';
+  }
+
+  .mobile-drawer {
+    width: 85vw;
+  }
+
+  .device-frame {
+    height: 480px;
+  }
+
+  .hero-stats {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .stat-item {
+    align-items: center;
+  }
+}
+

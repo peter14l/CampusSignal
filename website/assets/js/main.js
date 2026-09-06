@@ -97,14 +97,14 @@ function initMobileNav() {
    3. Dynamic Version & Release Notes Fetcher
    ========================================================================== */
 const DEFAULT_VERSION_DATA = {
-  version: "1.0.8",
-  versionCode: 9,
-  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk",
+  version: "1.0.9",
+  versionCode: 10,
+  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.9.apk",
   archApkUrls: {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.8.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.9-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.9-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.9-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.0.9.apk"
   },
   archSizes: {
     "arm64-v8a": "29.4 MB",
@@ -118,8 +118,8 @@ const DEFAULT_VERSION_DATA = {
     "x86_64": "7821c83c729120899a13f9032f519369291df09d3839cb51ed612a3389198017",
     "universal": "66706954f4c322317cf4a52ec47e240fb28df6b2f96544a52845b7d0766e525e"
   },
-  publishedAt: "2026-09-05",
-  releaseNotes: "• Strict demo state isolation for Calendar, Deadline Tracker & Broadcast Signals\n• Dynamic navigation and action badge counts reflecting real user states\n• Official high-resolution App Logo badge on About screen\n• Unified v1.0.8 (Build 9) release stability"
+  publishedAt: "2026-09-06",
+  releaseNotes: "• Integrated animated Lottie hero illustration on Login & Sign-up screen\n• Cleaned email input placeholders without OTP clutter\n• Fixed Saved & Bookmarks screen to reactively bind to user's real saved items and reminders\n• Public published campus signals fetching support without auth barriers\n• Premium Material 3 makeover modal sheets for Sign Out and Clear Local Cache\n• Unified v1.0.9 (Build 10) stability release"
 };
 
 async function initVersionData() {

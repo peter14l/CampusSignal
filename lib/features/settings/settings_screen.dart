@@ -6,6 +6,7 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
 import '../../core/theme/theme_controller.dart';
+import '../../core/widgets/action_confirmation_modal.dart';
 import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
 import '../profile/profile_controller.dart';
@@ -14,66 +15,32 @@ class SettingsScreen extends ConsumerWidget {
   const SettingsScreen({super.key});
 
   void _confirmSignOut(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final email = ref.read(authControllerProvider).email ??
+        ref.read(profileControllerProvider).profile?.collegeEmail;
 
-    showDialog(
-      context: context,
-      builder: (dialogCtx) => AlertDialog(
-        title: const Text('Sign Out'),
-        content: const Text(
-          'Are you sure you want to sign out from your St. Xavier\'s University student account?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(dialogCtx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              foregroundColor: colorScheme.onError,
-            ),
-            onPressed: () async {
-              Navigator.pop(dialogCtx);
-              await ref.read(authControllerProvider.notifier).signOut();
-              if (context.mounted) {
-                context.go('/auth');
-              }
-            },
-            child: const Text('Sign Out'),
-          ),
-        ],
-      ),
+    SignOutBottomSheet.show(
+      context,
+      userEmail: email,
+      onConfirm: () async {
+        await ref.read(authControllerProvider.notifier).signOut();
+        if (context.mounted) {
+          context.go('/auth');
+        }
+      },
     );
   }
 
   void _confirmClearCache(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Clear Local Cache'),
-        content: const Text(
-          'This will refresh temporary image cache and synchronize newest notices from the SXUK cloud signal feed.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
+    ClearCacheBottomSheet.show(
+      context,
+      onConfirm: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Local cache refreshed successfully.'),
+            behavior: SnackBarBehavior.floating,
           ),
-          FilledButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Local cache refreshed successfully.'),
-                  behavior: SnackBarBehavior.floating,
-                ),
-              );
-            },
-            child: const Text('Clear & Refresh'),
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 

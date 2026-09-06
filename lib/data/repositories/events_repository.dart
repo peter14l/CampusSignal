@@ -75,18 +75,18 @@ class EventsRepository {
     await _loadCustomEventsFromDisk();
 
     try {
-      // In production with Supabase configured:
-      if (_supabase.auth.currentUser != null) {
-        var query = _supabase.from('events').select().eq('status', 'published');
-        if (category != 'for_you' && category != 'deadlines_soon') {
-          query = query.ilike('category', '%$category%');
-        }
-        final response = await query.order('starts_at', ascending: true);
-        final List<dynamic> rows = (response as List<dynamic>?) ?? [];
-        final dbEvents = rows
-            .map((r) => EventModel.fromJson(r as Map<String, dynamic>))
-            .toList();
+      // In production with Supabase configured, query public published events
+      var query = _supabase.from('events').select().eq('status', 'published');
+      if (category != 'for_you' && category != 'deadlines_soon' && category != 'all' && category.isNotEmpty) {
+        query = query.ilike('category', '%$category%');
+      }
+      final response = await query.order('starts_at', ascending: true);
+      final List<dynamic> rows = (response as List<dynamic>?) ?? [];
+      final dbEvents = rows
+          .map((r) => EventModel.fromJson(r as Map<String, dynamic>))
+          .toList();
 
+      if (dbEvents.isNotEmpty || !isDemoMode) {
         // Merge custom user-created events with DB events
         for (final cached in _cachedEvents) {
           if (!dbEvents.any((e) => e.id == cached.id)) {
@@ -263,15 +263,13 @@ class EventsRepository {
             .eq('user_id', user.id)
             .order('saved_at', ascending: false);
 
-        if (response.isNotEmpty) {
-          final events = <EventModel>[];
-          for (final item in response as List<dynamic>) {
-            if (item['events'] != null && item['events'] is Map<String, dynamic>) {
-              events.add(EventModel.fromJson(item['events'] as Map<String, dynamic>));
-            }
+        final events = <EventModel>[];
+        for (final item in (response as List<dynamic>)) {
+          if (item['events'] != null && item['events'] is Map<String, dynamic>) {
+            events.add(EventModel.fromJson(item['events'] as Map<String, dynamic>));
           }
-          return events;
         }
+        return events;
       } catch (e) {
         debugPrint('Supabase getSavedEvents fallback: $e');
       }
@@ -290,23 +288,21 @@ class EventsRepository {
             .eq('user_id', user.id)
             .order('remind_at', ascending: true);
 
-        if (response.isNotEmpty) {
-          return (response as List<dynamic>).map((json) {
-            final map = json as Map<String, dynamic>;
-            EventModel? eventModel;
-            if (map['events'] is Map<String, dynamic>) {
-              eventModel = EventModel.fromJson(map['events']);
-            }
-            return ReminderModel(
-              id: map['id']?.toString() ?? '',
-              userId: map['user_id']?.toString() ?? user.id,
-              eventId: map['event_id']?.toString() ?? '',
-              remindAt: DateTime.tryParse(map['remind_at']?.toString() ?? '') ?? DateTime.now(),
-              fired: map['fired'] == true,
-              event: eventModel,
-            );
-          }).toList();
-        }
+        return (response as List<dynamic>).map((json) {
+          final map = json as Map<String, dynamic>;
+          EventModel? eventModel;
+          if (map['events'] is Map<String, dynamic>) {
+            eventModel = EventModel.fromJson(map['events']);
+          }
+          return ReminderModel(
+            id: map['id']?.toString() ?? '',
+            userId: map['user_id']?.toString() ?? user.id,
+            eventId: map['event_id']?.toString() ?? '',
+            remindAt: DateTime.tryParse(map['remind_at']?.toString() ?? '') ?? DateTime.now(),
+            fired: map['fired'] == true,
+            event: eventModel,
+          );
+        }).toList();
       } catch (e) {
         debugPrint('Supabase getReminders fallback: $e');
       }

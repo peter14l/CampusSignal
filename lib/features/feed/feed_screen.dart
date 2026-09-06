@@ -222,7 +222,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                                     color: colorScheme.onPrimary, size: 14),
                                 const SizedBox(width: 4),
                                 Text(
-                                  '${profile?.departmentLabel ?? "Computer Science"} • ${profile?.semesterLabel ?? "Semester 3"}',
+                                  '${profile?.departmentLabel ?? (profile?.branch ?? "SXUK Campus")} • ${profile?.semesterLabel ?? "Student Hub"}',
                                   style: TextStyle(
                                     color: colorScheme.onPrimary,
                                     fontSize: 11,
@@ -236,7 +236,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Welcome back, ${profile?.fullName.split(" ").first ?? "Student"}! 👋',
+                        profile?.fullName != null && profile!.fullName.trim().isNotEmpty
+                            ? 'Welcome back, ${profile.fullName.trim().split(" ").first}! 👋'
+                            : 'Welcome to CampusSignal! 👋',
                         style: textTheme.headlineSmall?.copyWith(
                           color: colorScheme.onPrimary,
                           fontWeight: FontWeight.bold,

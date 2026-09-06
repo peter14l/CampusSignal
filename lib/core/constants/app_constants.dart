@@ -7,9 +7,9 @@ class AppConstants {
 
   static const String appName = 'CampusSignal';
   static const String appTagline = 'Signal, not noise. Campus discovery simplified.';
-  static const String appVersion = '1.0.8';
-  static const String appBuildNumber = '9';
-  static const String appVersionDisplay = 'v1.0.8 (Build 9)';
+  static const String appVersion = '1.0.9';
+  static const String appBuildNumber = '10';
+  static const String appVersionDisplay = 'v1.0.9 (Build 10)';
 
   /// SXUK College Email Domain
   static const String collegeEmailDomain = '@sxuk.edu.in';

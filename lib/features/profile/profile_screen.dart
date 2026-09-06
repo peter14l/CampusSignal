@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
+import '../../core/widgets/action_confirmation_modal.dart';
 import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
 import 'profile_controller.dart';
@@ -15,36 +16,18 @@ class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   void _confirmSignOut(BuildContext context, WidgetRef ref) {
-    final colorScheme = Theme.of(context).colorScheme;
+    final email = ref.read(authControllerProvider).email ??
+        ref.read(profileControllerProvider).profile?.collegeEmail;
 
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: const Text('Log Out'),
-        content: const Text(
-          'Are you sure you want to sign out of CampusSignal? Your offline saved events and preferences will remain cached.',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: const Text('Cancel'),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: colorScheme.error,
-              foregroundColor: colorScheme.onError,
-            ),
-            onPressed: () async {
-              Navigator.pop(ctx);
-              await ref.read(authControllerProvider.notifier).signOut();
-              if (context.mounted) {
-                context.go('/auth');
-              }
-            },
-            child: const Text('Log Out'),
-          ),
-        ],
-      ),
+    SignOutBottomSheet.show(
+      context,
+      userEmail: email,
+      onConfirm: () async {
+        await ref.read(authControllerProvider.notifier).signOut();
+        if (context.mounted) {
+          context.go('/auth');
+        }
+      },
     );
   }
 

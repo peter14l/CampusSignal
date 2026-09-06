@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:lottie/lottie.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/motion.dart';
 import '../../core/widgets/interactive_spring.dart';
@@ -202,77 +203,89 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                         mainAxisAlignment: MainAxisAlignment.center,
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          // Brand Hero Icon with dynamic elevation & badge
+                          // Brand Hero Illustration with Login Lottie animation
                           Center(
-                            child: Stack(
-                              clipBehavior: Clip.none,
-                              children: [
-                                Container(
-                                  width: 88,
-                                  height: 88,
-                                  decoration: BoxDecoration(
-                                    gradient: LinearGradient(
-                                      begin: Alignment.topLeft,
-                                      end: Alignment.bottomRight,
-                                      colors: [
-                                        colorScheme.primaryContainer,
-                                        colorScheme.surfaceContainerHigh,
-                                      ],
-                                    ),
-                                    borderRadius: BorderRadius.circular(26),
-                                    border: Border.all(
-                                      color: colorScheme.primary.withValues(alpha: 0.25),
-                                      width: 1.5,
-                                    ),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: colorScheme.primary.withValues(alpha: 0.16),
-                                        blurRadius: 24,
-                                        offset: const Offset(0, 10),
+                            child: SizedBox(
+                              height: 160,
+                              child: Lottie.asset(
+                                'assets/animations/login.json',
+                                height: 160,
+                                fit: BoxFit.contain,
+                                repeat: true,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Stack(
+                                    clipBehavior: Clip.none,
+                                    alignment: Alignment.center,
+                                    children: [
+                                      Container(
+                                        width: 88,
+                                        height: 88,
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                            colors: [
+                                              colorScheme.primaryContainer,
+                                              colorScheme.surfaceContainerHigh,
+                                            ],
+                                          ),
+                                          borderRadius: BorderRadius.circular(26),
+                                          border: Border.all(
+                                            color: colorScheme.primary.withValues(alpha: 0.25),
+                                            width: 1.5,
+                                          ),
+                                          boxShadow: [
+                                            BoxShadow(
+                                              color: colorScheme.primary.withValues(alpha: 0.16),
+                                              blurRadius: 24,
+                                              offset: const Offset(0, 10),
+                                            ),
+                                          ],
+                                        ),
+                                        child: Center(
+                                          child: Icon(
+                                            LucideIcons.radio,
+                                            size: 42,
+                                            color: colorScheme.primary,
+                                          ),
+                                        ),
+                                      ),
+                                      Positioned(
+                                        top: -6,
+                                        right: -6,
+                                        child: Container(
+                                          width: 30,
+                                          height: 30,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                colorScheme.secondary,
+                                                colorScheme.secondaryContainer,
+                                              ],
+                                            ),
+                                            shape: BoxShape.circle,
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: colorScheme.secondary.withValues(alpha: 0.3),
+                                                blurRadius: 8,
+                                                offset: const Offset(0, 2),
+                                              ),
+                                            ],
+                                          ),
+                                          child: Icon(
+                                            LucideIcons.sparkles,
+                                            size: 15,
+                                            color: colorScheme.onSecondary,
+                                          ),
+                                        ),
                                       ),
                                     ],
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      LucideIcons.radio,
-                                      size: 42,
-                                      color: colorScheme.primary,
-                                    ),
-                                  ),
-                                ),
-                                Positioned(
-                                  top: -6,
-                                  right: -6,
-                                  child: Container(
-                                    width: 30,
-                                    height: 30,
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        colors: [
-                                          colorScheme.secondary,
-                                          colorScheme.secondaryContainer,
-                                        ],
-                                      ),
-                                      shape: BoxShape.circle,
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: colorScheme.secondary.withValues(alpha: 0.3),
-                                          blurRadius: 8,
-                                          offset: const Offset(0, 2),
-                                        ),
-                                      ],
-                                    ),
-                                    child: Icon(
-                                      LucideIcons.sparkles,
-                                      size: 15,
-                                      color: colorScheme.onSecondary,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                                  );
+                                },
+                              ),
                             ),
                           ),
-                          const SizedBox(height: 24),
+                          const SizedBox(height: 16),
 
                           // University Brand Header & Subtitle
                           Text(
@@ -559,8 +572,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           decoration: InputDecoration(
             prefixIcon: Icon(LucideIcons.mail,
                 color: colorScheme.onSurfaceVariant, size: 18),
-            hintText: 'e.g. name@sxuk.edu.in',
-            labelText: 'College Email OTP',
+            hintText: 'name@sxuk.edu.in',
+            labelText: 'College Email',
             helperText: 'Must end with @sxuk.edu.in',
             suffixIcon: _emailController.text.isNotEmpty
                 ? IconButton(
