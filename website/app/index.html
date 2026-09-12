@@ -97,14 +97,19 @@
               <!-- Event Cards Rendered Here -->
             </div>
 
-            <!-- Empty State (Hidden) -->
-            <div id="events-empty-state" style="display: none; text-align: center; padding: 60px 20px; background: var(--bg-secondary); border-radius: var(--radius-lg); border: 1px dashed var(--border-medium);">
-              <i data-lucide="compass" style="width: 48px; height: 48px; color: var(--text-muted); margin-bottom: 12px;"></i>
-              <h3 style="font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">No matching opportunities found</h3>
-              <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">Try clearing search keywords or switching category filters.</p>
-              <button id="btn-reset-filters" class="btn btn-outline btn-sm" style="margin-top: 16px;">
-                <span>Reset All Filters</span>
-              </button>
+            <!-- Elevated Empty State -->
+            <div id="events-empty-state" class="empty-state-card" style="display: none;">
+              <div class="empty-state-icon-wrap">
+                <i data-lucide="compass"></i>
+              </div>
+              <h3 class="empty-state-title" id="events-empty-title">No matching opportunities found</h3>
+              <p class="empty-state-desc" id="events-empty-desc">Try clearing your search keywords or switching category filters to discover all campus signals.</p>
+              <div class="empty-state-actions">
+                <button id="btn-reset-filters" class="btn btn-outline btn-sm">
+                  <i data-lucide="rotate-ccw" style="width: 14px; height: 14px;"></i>
+                  <span>Reset All Filters</span>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -206,16 +211,20 @@
         <div class="app-body-layout" style="grid-template-columns: 1fr;">
           <div class="events-grid" id="saved-events-grid"></div>
 
-          <div id="saved-empty-state" style="display:none; text-align:center; padding:80px 20px; background:var(--bg-secondary); border-radius:var(--radius-xl); border:1px dashed var(--border-medium);">
-            <i data-lucide="bookmark" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:12px;"></i>
-            <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">No bookmarks saved yet</h3>
-            <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:6px; max-width:400px; margin-left:auto; margin-right:auto;">
-              Bookmark hackathons, career drives, and workshops from the Discovery Feed for one-click access.
+          <div id="saved-empty-state" class="empty-state-card" style="display: none;">
+            <div class="empty-state-icon-wrap">
+              <i data-lucide="bookmark"></i>
+            </div>
+            <h3 class="empty-state-title">No bookmarks saved yet</h3>
+            <p class="empty-state-desc">
+              Bookmark hackathons, career drives, seminars, and workshops from the Discovery Feed for quick reference.
             </p>
-            <button class="btn btn-primary" style="margin-top:20px; display:inline-flex; align-items:center; gap:8px;" onclick="switchAppTab('feed')">
-              <i data-lucide="compass" style="width:16px;height:16px;"></i>
-              <span>Browse Discovery Feed</span>
-            </button>
+            <div class="empty-state-actions">
+              <button class="btn btn-primary" onclick="switchAppTab('feed')">
+                <i data-lucide="compass" style="width: 15px; height: 15px;"></i>
+                <span>Browse Discovery Feed</span>
+              </button>
+            </div>
           </div>
         </div>
       </section>
@@ -364,11 +373,11 @@
               </div>
               <div style="flex: 1;">
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.9 (Build 10)</h4>
-                  <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 6, 2026</span>
+                  <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.1.0 (Build 11)</h4>
+                  <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 13, 2026</span>
                 </div>
                 <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
-                  Material 3 Expressive theming synchronization, multi-format calendar export, and 28 official SXUK programme filtering enabled.
+                  Modernized minimalistic signal cards, unified empty states across mobile and web, streamlined inline metadata, and enhanced calendar agenda styling.
                 </p>
               </div>
             </div>
@@ -691,7 +700,25 @@
 
         if (filtered.length === 0) {
           gridContainer.innerHTML = '';
-          emptyState.style.display = 'block';
+          emptyState.style.display = 'flex';
+          const titleEl = document.getElementById('events-empty-title');
+          const descEl = document.getElementById('events-empty-desc');
+          if (titleEl && descEl) {
+            if (searchQuery) {
+              titleEl.textContent = `No signals matching "${searchQuery}"`;
+              descEl.textContent = 'Try checking for typos or searching for broader keywords like hackathon or seminar.';
+            } else if (filterByDept && globalUserProfile?.branch) {
+              titleEl.textContent = `No signals for ${globalUserProfile.branch}`;
+              descEl.textContent = 'There are no active events tagged specifically for your department right now. Try switching to all campus opportunities.';
+            } else if (activeCategory !== 'all') {
+              titleEl.textContent = `No ${activeCategory} events found`;
+              descEl.textContent = `No active opportunities currently listed under the ${activeCategory} category. Reset filters to see everything.`;
+            } else {
+              titleEl.textContent = 'No matching opportunities found';
+              descEl.textContent = 'Try clearing your search keywords or switching category filters to discover all campus signals.';
+            }
+          }
+          if (window.lucide) lucide.createIcons();
           return;
         }
 
@@ -928,7 +955,7 @@
 
         if (savedEvents.length === 0) {
           grid.innerHTML = '';
-          empty.style.display = 'block';
+          empty.style.display = 'flex';
           if (window.lucide) lucide.createIcons();
           return;
         }
@@ -1145,11 +1172,11 @@
             </div>
             <div style="flex: 1;">
               <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.0.9 (Build 10)</h4>
-                <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 6, 2026</span>
+                <h4 style="font-size: 0.9375rem; font-weight: 700; color: var(--text-primary);">CampusSignal System Update v1.1.0 (Build 11)</h4>
+                <span style="font-size: 0.75rem; color: var(--text-muted);">Sept 13, 2026</span>
               </div>
               <p style="font-size: 0.8125rem; color: var(--text-secondary); line-height: 1.5;">
-                Material 3 Expressive theming synchronization, multi-format calendar export, and 28 official SXUK programme filtering enabled.
+                Modernized minimalistic signal cards, unified empty states across mobile and web, streamlined inline metadata, and enhanced calendar agenda styling.
               </p>
             </div>
           </div>

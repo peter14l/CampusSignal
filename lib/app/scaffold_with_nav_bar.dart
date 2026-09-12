@@ -46,7 +46,8 @@ class ScaffoldWithNavBar extends StatelessWidget {
               if (states.contains(WidgetState.selected)) {
                 return TextStyle(
                   fontSize: 12,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: -0.1,
                   color: colorScheme.primary,
                 );
               }

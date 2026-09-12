@@ -8,6 +8,7 @@ import '../../core/widgets/category_chip.dart';
 import '../../core/widgets/department_picker_modal.dart';
 import '../../core/widgets/m3e_event_card.dart';
 import '../../core/widgets/m3e_speed_dial_fab.dart';
+import '../../core/widgets/m3e_states.dart';
 import '../../core/widgets/micro_animated_icon.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
@@ -188,19 +189,19 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
                 child: Container(
-                  padding: const EdgeInsets.all(18),
+                  padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [colorScheme.primary, colorScheme.primaryContainer],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                    color: colorScheme.surfaceContainerLow,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+                      width: 1,
                     ),
-                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.25),
-                        blurRadius: 16,
-                        offset: const Offset(0, 6),
+                        color: Colors.black.withValues(alpha: 0.025),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
@@ -211,21 +212,27 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                         children: [
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 10, vertical: 4),
+                              horizontal: 9,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
-                              color: colorScheme.onPrimary.withValues(alpha: 0.2),
+                              color: colorScheme.primary.withValues(alpha: 0.08),
                               borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(LucideIcons.sparkles,
-                                    color: colorScheme.onPrimary, size: 14),
-                                const SizedBox(width: 4),
+                                Icon(
+                                  LucideIcons.sparkles,
+                                  color: colorScheme.primary,
+                                  size: 13,
+                                ),
+                                const SizedBox(width: 5),
                                 Text(
                                   '${profile?.departmentLabel ?? (profile?.branch ?? "SXUK Campus")} • ${profile?.semesterLabel ?? "Student Hub"}',
                                   style: TextStyle(
-                                    color: colorScheme.onPrimary,
-                                    fontSize: 11,
+                                    color: colorScheme.primary,
+                                    fontSize: 11.5,
                                     fontWeight: FontWeight.w600,
                                   ),
                                 ),
@@ -234,21 +241,25 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       Text(
                         profile?.fullName != null && profile!.fullName.trim().isNotEmpty
                             ? 'Welcome back, ${profile.fullName.trim().split(" ").first}! 👋'
                             : 'Welcome to CampusSignal! 👋',
-                        style: textTheme.headlineSmall?.copyWith(
-                          color: colorScheme.onPrimary,
-                          fontWeight: FontWeight.bold,
+                        style: textTheme.titleLarge?.copyWith(
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                          letterSpacing: -0.3,
                         ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         'Here are high-priority campus opportunities tailored to your interests.',
-                        style: textTheme.bodyMedium?.copyWith(
-                          color: colorScheme.onPrimary.withValues(alpha: 0.85),
+                        style: textTheme.bodySmall?.copyWith(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                          height: 1.35,
                         ),
                       ),
                     ],
@@ -406,18 +417,26 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               ),
             ),
 
-            // Virtualized Event Cards
+            // Virtualized Event Cards or Elevated Empty State
             if (filteredEvents.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 40),
-                  child: Center(
-                    child: Text(
-                      'No events found in this category.',
-                      style: textTheme.bodyMedium?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
+                  padding: const EdgeInsets.only(top: 20, bottom: 80),
+                  child: M3EEmptyState(
+                    icon: LucideIcons.compass,
+                    title: 'No signals found',
+                    message: _selectedCategory == 'all' && _selectedDepartment == 'all'
+                        ? 'There are no active campus signals available right now. Check back soon!'
+                        : 'No active opportunities match the current category or department filters. Reset filters to explore all campus signals.',
+                    actionLabel: 'Reset All Filters',
+                    actionIcon: LucideIcons.rotateCcw,
+                    onAction: () {
+                      HapticFeedback.selectionClick();
+                      setState(() {
+                        _selectedCategory = 'all';
+                        _selectedDepartment = 'all';
+                      });
+                    },
                   ),
                 ),
               )
@@ -431,7 +450,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     final isSaved = savedState.savedEvents.any((s) => s.id == event.id);
 
                     return Padding(
-                      padding: const EdgeInsets.only(bottom: 12),
+                      padding: const EdgeInsets.only(bottom: 14),
                       child: M3EEventCard(
                         event: event,
                         isSaved: isSaved,

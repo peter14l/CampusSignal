@@ -48,16 +48,20 @@
         
         <div class="events-grid" id="saved-events-grid"></div>
 
-        <div id="saved-empty-state" style="display:none; text-align:center; padding:80px 20px; background:var(--bg-secondary); border-radius:var(--radius-xl); border:1px dashed var(--border-medium);">
-          <i data-lucide="bookmark" style="width:48px; height:48px; color:var(--text-muted); margin-bottom:12px;"></i>
-          <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-primary);">No bookmarks saved yet</h3>
-          <p style="font-size:0.875rem; color:var(--text-secondary); margin-top:6px; max-width:400px; margin-left:auto; margin-right:auto;">
-            Bookmark hackathons, career drives, and workshops from the Discovery Feed for one-click access.
+        <div id="saved-empty-state" class="empty-state-card" style="display: none;">
+          <div class="empty-state-icon-wrap">
+            <i data-lucide="bookmark"></i>
+          </div>
+          <h3 class="empty-state-title">No bookmarks saved yet</h3>
+          <p class="empty-state-desc">
+            Bookmark hackathons, career drives, seminars, and workshops from the Discovery Feed for quick offline access.
           </p>
-          <a href="../index.html" class="btn btn-primary" style="margin-top:20px; display:inline-flex; align-items:center; gap:8px;">
-            <i data-lucide="compass" style="width:16px;height:16px;"></i>
-            <span>Browse Discovery Feed</span>
-          </a>
+          <div class="empty-state-actions">
+            <a href="../index.html" class="btn btn-primary">
+              <i data-lucide="compass" style="width: 15px; height: 15px;"></i>
+              <span>Browse Discovery Feed</span>
+            </a>
+          </div>
         </div>
 
       </div>
@@ -97,7 +101,7 @@
 
         if (savedEvents.length === 0) {
           grid.innerHTML = '';
-          empty.style.display = 'block';
+          empty.style.display = 'flex';
           if (window.lucide) lucide.createIcons();
           return;
         }

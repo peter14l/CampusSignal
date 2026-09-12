@@ -45,16 +45,16 @@ class M3EEventCard extends StatelessWidget {
           child: Container(
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                color: colorScheme.outlineVariant.withValues(alpha: 0.25),
                 width: 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.03),
-                  blurRadius: 8,
-                  offset: const Offset(0, 2),
+                  color: Colors.black.withValues(alpha: 0.025),
+                  blurRadius: 10,
+                  offset: const Offset(0, 3),
                 ),
               ],
             ),
@@ -62,7 +62,7 @@ class M3EEventCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Header Row: Category Badge + Deadline Chip
+                // Header Row: Category Badge + Approaching Deadline Pill
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -74,29 +74,31 @@ class M3EEventCard extends StatelessWidget {
                     if (event.deadlineAt != null)
                       Container(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
+                          horizontal: 10,
+                          vertical: 4.5,
+                        ),
                         decoration: BoxDecoration(
                           color: event.isDeadlineSoon
-                              ? colorScheme.errorContainer
-                              : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(4),
+                              ? colorScheme.errorContainer.withValues(alpha: 0.85)
+                              : colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               LucideIcons.clock,
-                              size: 13,
+                              size: 12.5,
                               color: event.isDeadlineSoon
                                   ? colorScheme.onErrorContainer
                                   : colorScheme.onSurfaceVariant,
                             ),
-                            const SizedBox(width: 4),
+                            const SizedBox(width: 4.5),
                             Text(
                               event.deadlineLabel,
                               style: textTheme.labelSmall?.copyWith(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w700,
+                                fontWeight: FontWeight.w600,
                                 color: event.isDeadlineSoon
                                     ? colorScheme.onErrorContainer
                                     : colorScheme.onSurfaceVariant,
@@ -108,107 +110,107 @@ class M3EEventCard extends StatelessWidget {
                   ],
                 ),
 
-                const SizedBox(height: 10),
+                const SizedBox(height: 12),
 
-                // Title
+                // Title: Refined font weight and modern line height
                 Text(
                   event.title,
                   style: textTheme.titleMedium?.copyWith(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w600,
                     color: colorScheme.onSurface,
-                    height: 1.25,
+                    height: 1.3,
+                    letterSpacing: -0.2,
                   ),
                   maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                 ),
 
-                const SizedBox(height: 8),
+                const SizedBox(height: 10),
 
-                // Info Lines: Date & Location
-                Row(
+                // Streamlined Metadata: Unified, clean tags
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 6,
+                  crossAxisAlignment: WrapCrossAlignment.center,
                   children: [
-                    Icon(
-                      LucideIcons.calendar,
-                      size: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        event.formattedDateRange,
-                        style: textTheme.bodySmall?.copyWith(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w400,
-                          color: colorScheme.onSurfaceVariant,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          LucideIcons.calendar,
+                          size: 13.5,
+                          color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
+                        const SizedBox(width: 5),
+                        Text(
+                          event.formattedDateRange,
+                          style: textTheme.bodySmall?.copyWith(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                      ],
                     ),
+                    if (event.venue != null && event.venue!.isNotEmpty)
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            LucideIcons.mapPin,
+                            size: 13.5,
+                            color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            '${event.venue!} • ${event.formattedFormat}',
+                            style: textTheme.bodySmall?.copyWith(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                          ),
+                        ],
+                      ),
                   ],
                 ),
 
-                const SizedBox(height: 4),
+                const SizedBox(height: 14),
 
-                if (event.venue != null && event.venue!.isNotEmpty)
-                  Row(
-                    children: [
-                      Icon(
-                        LucideIcons.mapPin,
-                        size: 15,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          '${event.venue} • ${event.formattedFormat}',
-                          style: textTheme.bodySmall?.copyWith(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w400,
-                            color: colorScheme.onSurfaceVariant,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
+                // Footer: Clean whitespace separation, subtle match pill & bookmark toggle
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    // Match / Organizer Tag Pill
+                    Flexible(
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 4,
                         ),
-                      ),
-                    ],
-                  ),
-
-                const SizedBox(height: 12),
-
-                // Footer: Matched Tags & Save/Bookmark Button
-                Container(
-                  padding: const EdgeInsets.only(top: 8),
-                  decoration: BoxDecoration(
-                    border: Border(
-                      top: BorderSide(
-                        color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-                        width: 1,
-                      ),
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      // Matched tags
-                      Expanded(
+                        decoration: BoxDecoration(
+                          color: colorScheme.primary.withValues(alpha: 0.08),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                         child: Row(
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Icon(
                               LucideIcons.sparkles,
-                              size: 14,
+                              size: 13,
                               color: colorScheme.primary,
                             ),
                             const SizedBox(width: 5),
-                            Expanded(
+                            Flexible(
                               child: Text(
                                 event.matchedTags.isNotEmpty
                                     ? 'Matches: ${event.matchedTags.take(2).join(', ')}'
-                                    : 'Organizer: ${event.organizerName}',
-                                style: textTheme.bodySmall?.copyWith(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w500,
+                                    : event.organizerName,
+                                style: textTheme.labelSmall?.copyWith(
+                                  fontSize: 11.5,
+                                  fontWeight: FontWeight.w600,
                                   color: colorScheme.primary,
                                 ),
                                 maxLines: 1,
@@ -218,23 +220,24 @@ class M3EEventCard extends StatelessWidget {
                           ],
                         ),
                       ),
+                    ),
+                    const SizedBox(width: 8),
 
-                      // M3 Expressive Shape-Morphing Bookmark Button (Circle <-> Squircle)
-                      M3EMorphIconButton.cardToggle(
-                        size: 34,
-                        iconSize: 18,
-                        icon: LucideIcons.bookmark,
-                        selectedIcon: LucideIcons.bookmarkCheck,
-                        isSelected: isSaved,
-                        color: colorScheme.onSurfaceVariant,
-                        selectedColor: colorScheme.primary,
-                        backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-                        selectedBackgroundColor: colorScheme.primaryContainer,
-                        onPressed: onBookmarkTap,
-                        tooltip: isSaved ? 'Remove from Saved' : 'Save Event',
-                      ),
-                    ],
-                  ),
+                    // M3 Expressive Shape-Morphing Bookmark Button (Circle <-> Squircle)
+                    M3EMorphIconButton.cardToggle(
+                      size: 34,
+                      iconSize: 18,
+                      icon: LucideIcons.bookmark,
+                      selectedIcon: LucideIcons.bookmarkCheck,
+                      isSelected: isSaved,
+                      color: colorScheme.onSurfaceVariant,
+                      selectedColor: colorScheme.primary,
+                      backgroundColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+                      selectedBackgroundColor: colorScheme.primaryContainer,
+                      onPressed: onBookmarkTap,
+                      tooltip: isSaved ? 'Remove from Saved' : 'Save Event',
+                    ),
+                  ],
                 ),
               ],
             ),

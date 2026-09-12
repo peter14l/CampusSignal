@@ -122,6 +122,7 @@ class M3EEmptyState extends StatelessWidget {
   final String? description;
   final String? message;
   final String? actionLabel;
+  final IconData? actionIcon;
   final VoidCallback? onAction;
 
   const M3EEmptyState({
@@ -131,6 +132,7 @@ class M3EEmptyState extends StatelessWidget {
     this.description,
     this.message,
     this.actionLabel,
+    this.actionIcon,
     this.onAction,
   });
 
@@ -147,37 +149,57 @@ class M3EEmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
+            // Ambient halo icon container
             Container(
-              width: 64,
-              height: 64,
+              width: 76,
+              height: 76,
               decoration: BoxDecoration(
-                color: colorScheme.surfaceContainer,
                 shape: BoxShape.circle,
+                color: colorScheme.primary.withValues(alpha: 0.08),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.15),
+                  width: 1.5,
+                ),
               ),
-              child: Icon(
-                icon,
-                size: 30,
-                color: colorScheme.onSurfaceVariant,
+              child: Center(
+                child: Container(
+                  width: 52,
+                  height: 52,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: colorScheme.primary.withValues(alpha: 0.12),
+                  ),
+                  child: Icon(
+                    icon,
+                    size: 26,
+                    color: colorScheme.primary,
+                  ),
+                ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 20),
             Text(
               title,
               textAlign: TextAlign.center,
               style: textTheme.titleMedium?.copyWith(
                 fontSize: 18,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w600,
                 color: colorScheme.onSurface,
+                letterSpacing: -0.2,
               ),
             ),
             if (effectiveText.isNotEmpty) ...[
               const SizedBox(height: 8),
-              Text(
-                effectiveText,
-                textAlign: TextAlign.center,
-                style: textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                  height: 1.4,
+              ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 320),
+                child: Text(
+                  effectiveText,
+                  textAlign: TextAlign.center,
+                  style: textTheme.bodyMedium?.copyWith(
+                    fontSize: 14,
+                    color: colorScheme.onSurfaceVariant,
+                    height: 1.5,
+                  ),
                 ),
               ),
             ],
@@ -186,8 +208,26 @@ class M3EEmptyState extends StatelessWidget {
               InteractiveSpring(
                 onTap: onAction,
                 child: FilledButton.tonal(
+                  style: FilledButton.styleFrom(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
                   onPressed: onAction,
-                  child: Text(actionLabel!),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      if (actionIcon != null) ...[
+                        Icon(actionIcon, size: 16),
+                        const SizedBox(width: 8),
+                      ],
+                      Text(
+                        actionLabel!,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

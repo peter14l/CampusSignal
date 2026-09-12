@@ -512,16 +512,16 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           color: isShiftedOverlapping
               ? colorScheme.surfaceContainerHighest
               : colorScheme.surfaceContainerLow,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: isShiftedOverlapping
-                ? colorScheme.tertiary.withValues(alpha: 0.6)
-                : colorScheme.outlineVariant.withValues(alpha: 0.35),
+                ? colorScheme.tertiary.withValues(alpha: 0.5)
+                : colorScheme.outlineVariant.withValues(alpha: 0.22),
           ),
           boxShadow: isShiftedOverlapping
               ? [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.08),
+                    color: Colors.black.withValues(alpha: 0.06),
                     blurRadius: 10,
                     offset: const Offset(0, 3),
                   ),
@@ -529,8 +529,8 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
               : [
                   BoxShadow(
                     color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 4,
-                    offset: const Offset(0, 1),
+                    blurRadius: 6,
+                    offset: const Offset(0, 2),
                   ),
                 ],
         ),
@@ -541,14 +541,14 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
             children: [
               // Left Accent Color Bar
               Container(
-                width: 5,
+                width: 4.5,
                 color: accentColor,
               ),
 
               // Content
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -556,7 +556,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
                         event.title,
                         style: textTheme.titleMedium?.copyWith(
                           fontSize: 15,
-                          fontWeight: FontWeight.w700,
+                          fontWeight: FontWeight.w600,
                           color: colorScheme.onSurface,
                         ),
                         maxLines: 1,

@@ -3,7 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/motion.dart';
+import '../../core/widgets/m3e_event_card.dart';
+import '../../core/widgets/m3e_states.dart';
 import '../../models/event_model.dart';
+import '../saved/saved_controller.dart';
 import 'search_controller.dart';
 
 class SearchScreen extends ConsumerStatefulWidget {
@@ -258,57 +261,24 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
 
   Widget _buildSearchResults(
       List<EventModel> results, String query, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-
     if (results.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(32),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHigh,
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  LucideIcons.searchX,
-                  size: 32,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'No matching events found',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Try adjusting your search terms or clearing active filters.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: colorScheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 20),
-              FilledButton.tonal(
-                onPressed: () {
-                  _searchController.clear();
-                  ref.read(searchControllerProvider.notifier).clearQuery();
-                  ref.read(searchControllerProvider.notifier).clearAllFilters();
-                },
-                child: const Text('Reset Search'),
-              ),
-            ],
-          ),
-        ),
+      return M3EEmptyState(
+        icon: LucideIcons.searchX,
+        title: 'No matching events found',
+        message: query.isNotEmpty
+            ? 'No signals match "$query". Try searching for different keywords, categories, or clearing active filters.'
+            : 'No events match the selected filters. Try clearing filters to expand your search.',
+        actionLabel: 'Reset Search',
+        actionIcon: LucideIcons.rotateCcw,
+        onAction: () {
+          _searchController.clear();
+          ref.read(searchControllerProvider.notifier).clearQuery();
+          ref.read(searchControllerProvider.notifier).clearAllFilters();
+        },
       );
     }
+
+    final savedState = ref.watch(savedControllerProvider);
 
     return ListView.builder(
       physics: const BouncingScrollPhysics(),
@@ -316,190 +286,26 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
       itemCount: results.length,
       itemBuilder: (context, index) {
         final event = results[index];
-        return _buildEventResultCard(event, query, theme);
+        final isSaved = savedState.savedEvents.any((s) => s.id == event.id);
+
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 14),
+          child: M3EEventCard(
+            event: event,
+            isSaved: isSaved,
+            heroTagSuffix: '_search',
+            onTap: () {
+              ref
+                  .read(searchControllerProvider.notifier)
+                  .addRecentSearch(event.title);
+              context.push('/event/${event.id}');
+            },
+            onBookmarkTap: () {
+              ref.read(savedControllerProvider.notifier).toggleSave(event.id);
+            },
+          ),
+        );
       },
-    );
-  }
-
-  Widget _buildEventResultCard(
-      EventModel event, String query, ThemeData theme) {
-    final colorScheme = theme.colorScheme;
-
-    return Container(
-      margin: const EdgeInsets.only(bottom: 14),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLowest,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        borderRadius: BorderRadius.circular(16),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(16),
-          onTap: () {
-            ref
-                .read(searchControllerProvider.notifier)
-                .addRecentSearch(event.title);
-            context.push('/event/${event.id}');
-          },
-          child: Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Category & Deadline / Format badges row
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer
-                            .withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        event.category.toUpperCase(),
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 0.5,
-                        ),
-                      ),
-                    ),
-                    if (event.deadlineAt != null) ...[
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: event.isDeadlineSoon
-                              ? colorScheme.errorContainer
-                              : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              LucideIcons.clock,
-                              size: 13,
-                              color: event.isDeadlineSoon
-                                  ? colorScheme.onErrorContainer
-                                  : colorScheme.onSurfaceVariant,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              event.deadlineLabel,
-                              style: TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: event.isDeadlineSoon
-                                    ? colorScheme.onErrorContainer
-                                    : colorScheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 10),
-
-                // Title with highlight
-                _buildHighlightedText(
-                  text: event.title,
-                  query: query,
-                  style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ) ??
-                      const TextStyle(
-                          fontSize: 16, fontWeight: FontWeight.bold),
-                  highlightStyle: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    backgroundColor: colorScheme.primaryContainer,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-                const SizedBox(height: 6),
-
-                // Organizer & Venue Info
-                Row(
-                  children: [
-                    Icon(
-                      LucideIcons.users,
-                      size: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Expanded(
-                      child: Text(
-                        event.organizerName,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                          fontWeight: FontWeight.w500,
-                        ),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  children: [
-                    Icon(
-                      LucideIcons.mapPin,
-                      size: 15,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                    const SizedBox(width: 6),
-                    Text(
-                      event.venue != null && event.venue!.isNotEmpty
-                          ? event.venue!
-                          : event.formattedFormat,
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const Spacer(),
-                    if (event.matchScore != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 2),
-                        decoration: BoxDecoration(
-                          color: colorScheme.primaryContainer
-                              .withValues(alpha: 0.4),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Text(
-                          '${(event.matchScore! * 100).toInt()}% Match',
-                          style: TextStyle(
-                            color: colorScheme.primary,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 
@@ -507,13 +313,10 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     final colorScheme = theme.colorScheme;
 
     if (searchState.recentSearches.isEmpty) {
-      return Center(
-        child: Text(
-          'Type in the search bar above to find events',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
+      return const M3EEmptyState(
+        icon: LucideIcons.sparkles,
+        title: 'Discover Campus Signals',
+        message: 'Search by keyword, club, or topic (e.g. "hackathon", "workshop", "placement") to find campus opportunities.',
       );
     }
 
@@ -577,39 +380,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
     );
   }
 
-  Widget _buildHighlightedText({
-    required String text,
-    required String query,
-    required TextStyle style,
-    required TextStyle highlightStyle,
-  }) {
-    if (query.trim().isEmpty) {
-      return Text(text, style: style);
-    }
 
-    final queryLower = query.toLowerCase().trim();
-    final textLower = text.toLowerCase();
-    final spans = <TextSpan>[];
-    int start = 0;
-
-    while (start < text.length) {
-      final index = textLower.indexOf(queryLower, start);
-      if (index == -1) {
-        spans.add(TextSpan(text: text.substring(start), style: style));
-        break;
-      }
-      if (index > start) {
-        spans.add(TextSpan(text: text.substring(start, index), style: style));
-      }
-      spans.add(TextSpan(
-        text: text.substring(index, index + queryLower.length),
-        style: highlightStyle,
-      ));
-      start = index + queryLower.length;
-    }
-
-    return RichText(text: TextSpan(children: spans));
-  }
 }
 
 class _SearchFilterModal extends ConsumerWidget {

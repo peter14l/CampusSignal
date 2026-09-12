@@ -326,9 +326,12 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -338,13 +341,13 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(LucideIcons.sparkles, size: 18, color: colorScheme.primary),
+                            Icon(LucideIcons.sparkles, size: 17, color: colorScheme.primary),
                             const SizedBox(width: 8),
                             Text(
                               'Interests & Activities',
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
                             ),
@@ -360,11 +363,41 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     if (profile.interests.isEmpty)
-                      Text(
-                        'No interests added yet. Add chips to personalize your feed.',
-                        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => TagSelectionSheet.show(
+                          context,
+                          isSkill: false,
+                          currentTags: profile.interests,
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colorScheme.primary.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.plus, size: 14, color: colorScheme.primary),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Add interests to personalize your feed',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.primary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       )
                     else
                       Wrap(
@@ -377,7 +410,7 @@ class ProfileScreen extends ConsumerWidget {
                             labelStyle: TextStyle(
                               color: colorScheme.onPrimaryContainer,
                               fontSize: 12,
-                              fontWeight: FontWeight.w700,
+                              fontWeight: FontWeight.w600,
                             ),
                             deleteIcon: const Icon(LucideIcons.x, size: 13),
                             onDeleted: () {
@@ -391,7 +424,7 @@ class ProfileScreen extends ConsumerWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 14),
 
             // Skills & Tech Domains Section
             Padding(
@@ -399,9 +432,12 @@ class ProfileScreen extends ConsumerWidget {
               child: Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHigh,
-                  borderRadius: BorderRadius.circular(22),
-                  border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+                  color: colorScheme.surfaceContainerLow,
+                  borderRadius: BorderRadius.circular(18),
+                  border: Border.all(
+                    color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+                    width: 1,
+                  ),
                 ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -411,13 +447,13 @@ class ProfileScreen extends ConsumerWidget {
                       children: [
                         Row(
                           children: [
-                            Icon(LucideIcons.wrench, size: 18, color: colorScheme.tertiary),
+                            Icon(LucideIcons.wrench, size: 17, color: colorScheme.tertiary),
                             const SizedBox(width: 8),
                             Text(
                               'Skills & Tech Domains',
                               style: TextStyle(
                                 fontSize: 14,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w600,
                                 color: colorScheme.onSurface,
                               ),
                             ),
@@ -433,11 +469,41 @@ class ProfileScreen extends ConsumerWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: 8),
                     if (profile.skills.isEmpty)
-                      Text(
-                        'No skills added yet. Add skills to match with hackathons & projects.',
-                        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                      InkWell(
+                        borderRadius: BorderRadius.circular(12),
+                        onTap: () => TagSelectionSheet.show(
+                          context,
+                          isSkill: true,
+                          currentTags: profile.skills,
+                        ),
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.35),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colorScheme.tertiary.withValues(alpha: 0.2),
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(LucideIcons.plus, size: 14, color: colorScheme.tertiary),
+                              const SizedBox(width: 6),
+                              Text(
+                                'Add skills to match with hackathons & drives',
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: FontWeight.w500,
+                                  color: colorScheme.tertiary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       )
                     else
                       Wrap(

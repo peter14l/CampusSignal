@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/widgets/m3e_states.dart';
 import '../../models/notification_model.dart';
 import 'notifications_controller.dart';
 
@@ -24,14 +25,8 @@ class NotificationsScreen extends ConsumerWidget {
         title: const Text('Notifications'),
         actions: [
           if (notifState.unreadCount > 0)
-            TextButton.icon(
-              onPressed: () => notifCtrl.markAllAsRead(),
-              icon: const Icon(LucideIcons.checkCheck, size: 16),
-              label: const Text('Mark all read'),
-            )
-          else
             IconButton(
-              icon: const Icon(LucideIcons.checkCheck, size: 20),
+              icon: const Icon(LucideIcons.checkCheck),
               tooltip: 'Mark all as read',
               onPressed: () => notifCtrl.markAllAsRead(),
             ),
@@ -39,40 +34,10 @@ class NotificationsScreen extends ConsumerWidget {
         ],
       ),
       body: notifState.notifications.isEmpty
-          ? Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: colorScheme.surfaceContainerHigh,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      LucideIcons.bellOff,
-                      size: 32,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No notifications yet',
-                    style: theme.textTheme.titleMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: 6),
-                  Text(
-                    'We will notify you about deadlines, events, and campus updates.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
+          ? const M3EEmptyState(
+              icon: LucideIcons.bellOff,
+              title: 'No notifications yet',
+              message: 'You are all caught up! We will notify you about deadlines, opportunities, and campus announcements.',
             )
           : ListView(
               physics: const BouncingScrollPhysics(),

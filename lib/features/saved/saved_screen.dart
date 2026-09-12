@@ -130,12 +130,15 @@ class SavedScreen extends ConsumerWidget {
     if (savedEvents.isEmpty) {
       return ListView(
         physics: const AlwaysScrollableScrollPhysics(parent: BouncingScrollPhysics()),
-        children: const [
-          SizedBox(height: 80),
+        children: [
+          const SizedBox(height: 80),
           M3EEmptyState(
             icon: LucideIcons.bookmark,
             title: 'No saved items yet',
             message: 'Tap the bookmark icon on any campus signal or notice to save it for quick reference.',
+            actionLabel: 'Explore Feed',
+            actionIcon: LucideIcons.compass,
+            onAction: () => context.go('/feed'),
           ),
         ],
       );
@@ -253,11 +256,12 @@ class _ReminderCard extends StatelessWidget {
           color: colorScheme.surfaceContainerLow,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+            color: colorScheme.outlineVariant.withValues(alpha: 0.25),
+            width: 1,
           ),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
+              color: Colors.black.withValues(alpha: 0.025),
               blurRadius: 10,
               offset: const Offset(0, 3),
             ),
@@ -267,15 +271,15 @@ class _ReminderCard extends StatelessWidget {
           children: [
             // Calendar Clock Icon Badge
             Container(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(11),
               decoration: BoxDecoration(
-                color: colorScheme.primaryContainer,
+                color: colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Icon(
                 LucideIcons.bellRing,
-                color: colorScheme.onPrimaryContainer,
-                size: 22,
+                color: colorScheme.primary,
+                size: 20,
               ),
             ),
             const SizedBox(width: 14),
@@ -290,7 +294,9 @@ class _ReminderCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.titleSmall?.copyWith(
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 14.5,
+                      letterSpacing: -0.1,
                     ),
                   ),
                   const SizedBox(height: 3),
