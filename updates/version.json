@@ -3,12 +3,24 @@
   "versionCode": 11,
   "minSupportedVersionCode": 1,
   "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.1.0.apk",
-  "fileSizeBytes": 70644768,
+  "fileSizeBytes": 72381238,
   "archApkUrls": {
     "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.1.0-arm64-v8a.apk",
     "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.1.0-armeabi-v7a.apk",
     "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.1.0-x86_64.apk",
     "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.1.0.apk"
+  },
+  "archSizes": {
+    "arm64-v8a": "29.9 MB",
+    "armeabi-v7a": "27.8 MB",
+    "x86_64": "31.4 MB",
+    "universal": "69.0 MB"
+  },
+  "sha256": {
+    "arm64-v8a": "c3aa7de16b23b42fd7bfd5a8f4937a587d3b2e7522b80844a319ecdf0c805306",
+    "armeabi-v7a": "01963896f58440153547efdc1a9d8e00930c6c874ead2ac68864369177fdd7fe",
+    "x86_64": "f6471eb4bc90abc54070668111231d4179e1835112a422e7502d5bd4c23a0e69",
+    "universal": "adc3684dec893106a7d8063004d297cdf8a93619c661771f31c0e03ec4e5646f"
   },
   "releaseNotes": "• Minimalist & modern redesign of Home Feed signal cards with unified inline metadata\n• Elevated empty states across Flutter mobile app (Feed, Search, Bookmarks, Notifications)\n• Modernized feed greeting banner, calendar agenda cards, reminder cards, and profile tags\n• Unified search results with M3EEventCard and removed legacy card code\n• Website empty states overhaul with reusable .empty-state-card design system\n• Performance & stability enhancements for v1.1.0 (Build 11)",
   "publishedAt": "2026-09-13T00:05:00.000Z",
