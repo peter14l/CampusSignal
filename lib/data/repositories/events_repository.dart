@@ -197,11 +197,9 @@ class EventsRepository {
   /// Get single event details by ID.
   Future<EventModel?> getEventById(String id) async {
     try {
-      if (_supabase.auth.currentUser != null) {
-        final res = await _supabase.from('events').select().eq('id', id).maybeSingle();
-        if (res != null) {
-          return EventModel.fromJson(res);
-        }
+      final res = await _supabase.from('events').select().eq('id', id).maybeSingle();
+      if (res != null) {
+        return EventModel.fromJson(res);
       }
     } catch (e) {
       debugPrint('Supabase getEventById error: $e');

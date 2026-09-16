@@ -64,6 +64,13 @@ class NotificationsController extends Notifier<NotificationsState> {
     final updated = state.notifications.where((n) => n.id != id).toList();
     state = state.copyWith(notifications: updated);
   }
+
+  void restoreNotification(NotificationItem item) {
+    if (!state.notifications.any((n) => n.id == item.id)) {
+      final updated = [item, ...state.notifications];
+      state = state.copyWith(notifications: updated);
+    }
+  }
 }
 
 final notificationsControllerProvider =

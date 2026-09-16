@@ -47,13 +47,17 @@ class M3EEventCard extends StatelessWidget {
               color: colorScheme.surfaceContainerLow,
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.25),
-                width: 1,
+                color: event.isDeadlineSoon
+                    ? colorScheme.error.withValues(alpha: 0.5)
+                    : colorScheme.outlineVariant.withValues(alpha: 0.25),
+                width: event.isDeadlineSoon ? 1.5 : 1,
               ),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.025),
-                  blurRadius: 10,
+                  color: event.isDeadlineSoon
+                      ? colorScheme.error.withValues(alpha: 0.08)
+                      : Colors.black.withValues(alpha: 0.025),
+                  blurRadius: event.isDeadlineSoon ? 14 : 10,
                   offset: const Offset(0, 3),
                 ),
               ],
@@ -128,51 +132,57 @@ class M3EEventCard extends StatelessWidget {
 
                 const SizedBox(height: 10),
 
-                // Streamlined Metadata: Unified, clean tags
-                Wrap(
-                  spacing: 12,
-                  runSpacing: 6,
-                  crossAxisAlignment: WrapCrossAlignment.center,
+                // Streamlined Metadata: Organized by Law of Proximity
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Icon(
                           LucideIcons.calendar,
                           size: 13.5,
                           color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                         ),
-                        const SizedBox(width: 5),
-                        Text(
-                          event.formattedDateRange,
-                          style: textTheme.bodySmall?.copyWith(
-                            fontSize: 12.5,
-                            fontWeight: FontWeight.w500,
-                            color: colorScheme.onSurfaceVariant,
+                        const SizedBox(width: 6),
+                        Expanded(
+                          child: Text(
+                            event.formattedDateRange,
+                            style: textTheme.bodySmall?.copyWith(
+                              fontSize: 12.5,
+                              fontWeight: FontWeight.w500,
+                              color: colorScheme.onSurfaceVariant,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ],
                     ),
-                    if (event.venue != null && event.venue!.isNotEmpty)
+                    if (event.venue != null && event.venue!.isNotEmpty) ...[
+                      const SizedBox(height: 5),
                       Row(
-                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
                             LucideIcons.mapPin,
                             size: 13.5,
                             color: colorScheme.onSurfaceVariant.withValues(alpha: 0.75),
                           ),
-                          const SizedBox(width: 5),
-                          Text(
-                            '${event.venue!} • ${event.formattedFormat}',
-                            style: textTheme.bodySmall?.copyWith(
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w500,
-                              color: colorScheme.onSurfaceVariant,
+                          const SizedBox(width: 6),
+                          Expanded(
+                            child: Text(
+                              '${event.venue!} • ${event.formattedFormat}',
+                              style: textTheme.bodySmall?.copyWith(
+                                fontSize: 12.5,
+                                fontWeight: FontWeight.w500,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                         ],
                       ),
+                    ],
                   ],
                 ),
 

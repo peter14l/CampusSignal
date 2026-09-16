@@ -5,13 +5,18 @@ import '../theme/motion.dart';
 import 'interactive_spring.dart';
 
 class M3ESpeedDialFab extends StatefulWidget {
-  const M3ESpeedDialFab({super.key});
+  final ValueChanged<bool>? onOpenChanged;
+
+  const M3ESpeedDialFab({
+    super.key,
+    this.onOpenChanged,
+  });
 
   @override
-  State<M3ESpeedDialFab> createState() => _M3ESpeedDialFabState();
+  State<M3ESpeedDialFab> createState() => M3ESpeedDialFabState();
 }
 
-class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
+class M3ESpeedDialFabState extends State<M3ESpeedDialFab>
     with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _expandAnimation;
@@ -74,6 +79,12 @@ class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
     super.dispose();
   }
 
+  void close() {
+    if (_isOpen) {
+      _toggle();
+    }
+  }
+
   void _toggle() {
     setState(() {
       _isOpen = !_isOpen;
@@ -83,6 +94,7 @@ class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
         _controller.reverse();
       }
     });
+    widget.onOpenChanged?.call(_isOpen);
   }
 
   void _openAnnouncement(String category) {
@@ -124,6 +136,7 @@ class _M3ESpeedDialFabState extends State<M3ESpeedDialFab>
                           child: InteractiveSpring(
                             onTap: () => _openAnnouncement(action['id'] as String),
                             child: Container(
+                              constraints: const BoxConstraints(minHeight: 48),
                               padding: const EdgeInsets.symmetric(
                                   horizontal: 14, vertical: 8),
                               decoration: BoxDecoration(

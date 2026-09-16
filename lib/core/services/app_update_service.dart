@@ -107,7 +107,7 @@ class AppUpdateService {
   /// Detects current device CPU architecture for downloading optimized split APKs
   String getDeviceArchitecture() {
     try {
-      if (!kIsWeb && Platform.isAndroid) {
+      if (!kIsWeb && defaultTargetPlatform == TargetPlatform.android) {
         final abi = Abi.current();
         if (abi == Abi.androidArm64) return 'arm64-v8a';
         if (abi == Abi.androidArm) return 'armeabi-v7a';
@@ -171,7 +171,7 @@ class AppUpdateService {
   /// Installs downloaded APK file using system PackageInstaller and terminates app
   Future<bool> installApkAndExit(String apkFilePath) async {
     try {
-      if (!Platform.isAndroid) {
+      if (kIsWeb || defaultTargetPlatform != TargetPlatform.android) {
         debugPrint('APK installation is only supported on Android.');
         return false;
       }

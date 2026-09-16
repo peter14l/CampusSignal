@@ -119,7 +119,22 @@ class NotificationsScreen extends ConsumerWidget {
     return Dismissible(
       key: Key(item.id),
       direction: DismissDirection.endToStart,
-      onDismissed: (_) => notifCtrl.deleteNotification(item.id),
+      onDismissed: (_) {
+        notifCtrl.deleteNotification(item.id);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Notification removed'),
+            duration: const Duration(seconds: 3),
+            behavior: SnackBarBehavior.floating,
+            action: SnackBarAction(
+              label: 'UNDO',
+              onPressed: () {
+                notifCtrl.restoreNotification(item);
+              },
+            ),
+          ),
+        );
+      },
       background: Container(
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 20),
@@ -136,12 +151,13 @@ class NotificationsScreen extends ConsumerWidget {
         decoration: BoxDecoration(
           color: item.isRead
               ? colorScheme.surfaceContainerLow
-              : colorScheme.surfaceContainer,
+              : colorScheme.primaryContainer.withValues(alpha: 0.18),
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
             color: item.isRead
                 ? Colors.transparent
-                : colorScheme.primary.withValues(alpha: 0.2),
+                : colorScheme.primary.withValues(alpha: 0.45),
+            width: item.isRead ? 1 : 1.5,
           ),
         ),
         child: Material(
@@ -181,16 +197,33 @@ class NotificationsScreen extends ConsumerWidget {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Expanded(
-                              child: Text(
-                                item.title,
-                                style: theme.textTheme.titleSmall?.copyWith(
-                                  fontWeight: item.isRead
-                                      ? FontWeight.w600
-                                      : FontWeight.w700,
-                                  color: colorScheme.onSurface,
-                                ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
+                              child: Row(
+                                children: [
+                                  if (!item.isRead) ...[
+                                    Container(
+                                      width: 7,
+                                      height: 7,
+                                      margin: const EdgeInsets.only(right: 6),
+                                      decoration: BoxDecoration(
+                                        shape: BoxShape.circle,
+                                        color: colorScheme.primary,
+                                      ),
+                                    ),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      item.title,
+                                      style: theme.textTheme.titleSmall?.copyWith(
+                                        fontWeight: item.isRead
+                                            ? FontWeight.w600
+                                            : FontWeight.w700,
+                                        color: colorScheme.onSurface,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             const SizedBox(width: 8),

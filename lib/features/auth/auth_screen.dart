@@ -1,3 +1,5 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -447,90 +449,107 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
                           const SizedBox(height: 24),
 
-                          // Quick Preview Triggers
-                          Container(
-                            padding: const EdgeInsets.all(12),
-                            decoration: BoxDecoration(
-                              color: colorScheme.surfaceContainerLow,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                          if (kDebugMode) ...[
+                            // Quick Preview Triggers (Debug Mode Only)
+                            Container(
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: colorScheme.surfaceContainerLow,
+                                borderRadius: BorderRadius.circular(16),
+                                border: Border.all(
+                                  color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                                ),
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(LucideIcons.sparkles, size: 14, color: colorScheme.primary),
+                                      const SizedBox(width: 6),
+                                      Text(
+                                        'GOOGLE AUTH PREVIEW / TEST',
+                                        style: TextStyle(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w800,
+                                          letterSpacing: 0.7,
+                                          color: colorScheme.primary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: authState.isLoading
+                                              ? null
+                                              : () => _handleGoogleSignIn(forceMockExisting: true),
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                                            visualDensity: VisualDensity.compact,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'Existing User (Feed)',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: OutlinedButton(
+                                          onPressed: authState.isLoading
+                                              ? null
+                                              : () => _handleGoogleSignIn(forceMockNew: true),
+                                          style: OutlinedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
+                                            visualDensity: VisualDensity.compact,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius: BorderRadius.circular(10),
+                                            ),
+                                          ),
+                                          child: const Text(
+                                            'New User (Setup)',
+                                            textAlign: TextAlign.center,
+                                            style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
                             ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
+                            const SizedBox(height: 24),
+                          ],
+
+                          // Footer Terms Note with Clickable Navigation Link
+                          Text.rich(
+                            TextSpan(
+                              text: 'By continuing you agree to SXUK CampusSignal ',
+                              style: theme.textTheme.bodySmall?.copyWith(
+                                fontSize: 11,
+                                color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
+                              ),
                               children: [
-                                Row(
-                                  children: [
-                                    Icon(LucideIcons.sparkles, size: 14, color: colorScheme.primary),
-                                    const SizedBox(width: 6),
-                                    Text(
-                                      'GOOGLE AUTH PREVIEW / TEST',
-                                      style: TextStyle(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        letterSpacing: 0.7,
-                                        color: colorScheme.primary,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: authState.isLoading
-                                            ? null
-                                            : () => _handleGoogleSignIn(forceMockExisting: true),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                                          visualDensity: VisualDensity.compact,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'Existing User (Feed)',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed: authState.isLoading
-                                            ? null
-                                            : () => _handleGoogleSignIn(forceMockNew: true),
-                                        style: OutlinedButton.styleFrom(
-                                          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 6),
-                                          visualDensity: VisualDensity.compact,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(10),
-                                          ),
-                                        ),
-                                        child: const Text(
-                                          'New User (Setup)',
-                                          textAlign: TextAlign.center,
-                                          style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                TextSpan(
+                                  text: 'Terms & Privacy Policy',
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.w600,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  recognizer: TapGestureRecognizer()
+                                    ..onTap = () {
+                                      context.push('/privacy-policy');
+                                    },
                                 ),
                               ],
-                            ),
-                          ),
-
-                          const SizedBox(height: 24),
-
-                          // Footer Terms Note
-                          Text(
-                            'By continuing you agree to SXUK CampusSignal Terms & Privacy Policy',
-                            style: theme.textTheme.bodySmall?.copyWith(
-                              fontSize: 11,
-                              color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
                             ),
                             textAlign: TextAlign.center,
                           ),

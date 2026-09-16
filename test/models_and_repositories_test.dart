@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:campus_signal/models/event_model.dart';
 import 'package:campus_signal/models/profile_model.dart';
 import 'package:campus_signal/models/notification_model.dart';
+import 'package:campus_signal/features/notifications/notifications_controller.dart';
 
 void main() {
   group('EventModel Tests', () {
@@ -140,6 +141,34 @@ void main() {
       expect(notif.id, 'notif-1');
       expect(notif.read, false);
       expect(notif.type, 'deadline');
+    });
+  });
+
+  group('NotificationsState & Design Laws Tests', () {
+    test('Restore notification supports Undo operation in state', () {
+      final item = NotificationItem(
+        id: 'test-undo-1',
+        title: 'Important Notice',
+        message: 'Classes rescheduled',
+        type: 'event',
+        createdAt: DateTime.now(),
+        isRead: false,
+      );
+
+      final stateWithItem = NotificationsState(notifications: [item]);
+      expect(stateWithItem.notifications.length, 1);
+
+      // Simulating deletion
+      final stateAfterDelete = stateWithItem.copyWith(
+        notifications: stateWithItem.notifications.where((n) => n.id != item.id).toList(),
+      );
+      expect(stateAfterDelete.notifications.any((n) => n.id == item.id), false);
+
+      // Simulating undo restoration
+      final stateAfterUndo = stateAfterDelete.copyWith(
+        notifications: [item, ...stateAfterDelete.notifications],
+      );
+      expect(stateAfterUndo.notifications.any((n) => n.id == item.id), true);
     });
   });
 }

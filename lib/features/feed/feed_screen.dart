@@ -26,6 +26,8 @@ class FeedScreen extends ConsumerStatefulWidget {
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
   String _selectedCategory = 'all';
+  bool _isFabOpen = false;
+  final GlobalKey<M3ESpeedDialFabState> _fabKey = GlobalKey<M3ESpeedDialFabState>();
 
   static const List<String> _categories = [
     'all',
@@ -173,7 +175,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           const SizedBox(width: 8),
         ],
       ),
-      body: RefreshIndicator(
+      body: Stack(
+        children: [
+          RefreshIndicator(
         color: colorScheme.primary,
         backgroundColor: colorScheme.surfaceContainerLowest,
         onRefresh: () async {
@@ -271,7 +275,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
             // Horizontal Categories Filter Row
             SliverToBoxAdapter(
               child: SizedBox(
-                height: 38,
+                height: 44,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -417,8 +421,28 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               ),
             ),
 
-            // Virtualized Event Cards or Elevated Empty State
-            if (filteredEvents.isEmpty)
+            // Virtualized Event Cards, Skeletons, Error, or Elevated Empty State
+            if (feedState.isLoading && feedState.events.isEmpty)
+              const SliverToBoxAdapter(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: M3ELoadingState(
+                    itemCount: 4,
+                    asSkeleton: true,
+                  ),
+                ),
+              )
+            else if (feedState.errorMessage != null && feedState.events.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.only(top: 20, bottom: 80),
+                  child: M3EErrorState(
+                    error: feedState.errorMessage,
+                    onRetry: () => ref.read(feedControllerProvider.notifier).loadFeed(),
+                  ),
+                ),
+              )
+            else if (filteredEvents.isEmpty)
               SliverToBoxAdapter(
                 child: Padding(
                   padding: const EdgeInsets.only(top: 20, bottom: 80),
@@ -466,8 +490,25 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           ],
         ),
       ),
-      floatingActionButton: const M3ESpeedDialFab(),
-    );
+      if (_isFabOpen)
+        Positioned.fill(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () => _fabKey.currentState?.close(),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.3),
+            ),
+          ),
+        ),
+    ],
+  ),
+  floatingActionButton: M3ESpeedDialFab(
+    key: _fabKey,
+    onOpenChanged: (isOpen) {
+      setState(() => _isFabOpen = isOpen);
+    },
+  ),
+);
   }
 
   void _showDepartmentFilterSheet(BuildContext context) {

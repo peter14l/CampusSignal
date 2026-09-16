@@ -49,6 +49,49 @@ class _EditAcademicProfileScreenState
     super.dispose();
   }
 
+  bool get _hasUnsavedChanges {
+    final current = ref.read(profileControllerProvider).profile;
+    if (current == null) return false;
+    if (_nameController.text.trim() != current.fullName.trim()) return true;
+    if (_selectedBranch != current.branch) return true;
+    if (_selectedSemester != (current.semester ?? (current.year != null ? current.year! * 2 - 1 : 3))) return true;
+    if (_skills.length != current.skills.length) return true;
+    for (final s in _skills) {
+      if (!current.skills.contains(s)) return true;
+    }
+    if (_interests.length != current.interests.length) return true;
+    for (final i in _interests) {
+      if (!current.interests.contains(i)) return true;
+    }
+    return false;
+  }
+
+  Future<bool> _handlePopScope() async {
+    if (!_hasUnsavedChanges) return true;
+
+    final shouldDiscard = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Discard changes?'),
+        content: const Text(
+          'You have unsaved edits in your academic profile. Are you sure you want to discard them?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(ctx).pop(false),
+            child: const Text('Keep Editing'),
+          ),
+          FilledButton.tonal(
+            onPressed: () => Navigator.of(ctx).pop(true),
+            child: const Text('Discard'),
+          ),
+        ],
+      ),
+    );
+
+    return shouldDiscard ?? false;
+  }
+
   void _saveProfile() {
     if (!_formKey.currentState!.validate()) return;
 
@@ -95,24 +138,40 @@ class _EditAcademicProfileScreenState
     final currentProfile = ref.watch(profileControllerProvider).profile;
     final int calculatedYear = (_selectedSemester + 1) ~/ 2;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        title: Text(
-          'Edit Academic Profile',
-          style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        final allowPop = await _handlePopScope();
+        if (allowPop && context.mounted) {
+          if (context.canPop()) {
+            context.pop();
+          } else {
+            context.go('/profile');
+          }
+        }
+      },
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          title: Text(
+            'Edit Academic Profile',
+            style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
+          ),
+          leading: IconButton(
+            icon: const Icon(LucideIcons.arrowLeft, size: 20),
+            onPressed: () async {
+              final allowPop = await _handlePopScope();
+              if (allowPop && context.mounted) {
+                if (context.canPop()) {
+                  context.pop();
+                } else {
+                  context.go('/profile');
+                }
+              }
+            },
+          ),
         ),
-        leading: IconButton(
-          icon: const Icon(LucideIcons.arrowLeft, size: 20),
-          onPressed: () {
-            if (context.canPop()) {
-              context.pop();
-            } else {
-              context.go('/profile');
-            }
-          },
-        ),
-      ),
       body: Form(
         key: _formKey,
         child: ListView(

@@ -9,6 +9,7 @@ import '../../core/mock/mock_data.dart';
 import '../../core/widgets/action_confirmation_modal.dart';
 import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
+import '../saved/saved_controller.dart';
 import 'profile_controller.dart';
 import 'tag_selection_sheet.dart';
 
@@ -142,18 +143,28 @@ class ProfileScreen extends ConsumerWidget {
                       Positioned(
                         bottom: 0,
                         right: 0,
-                        child: Container(
-                          width: 28,
-                          height: 28,
-                          decoration: BoxDecoration(
-                            color: colorScheme.primary,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: Colors.white, width: 1.5),
-                          ),
-                          child: const Icon(
-                            LucideIcons.camera,
-                            size: 14,
-                            color: Colors.white,
+                        child: InteractiveSpring(
+                          onTap: () => context.push('/edit-profile'),
+                          child: Container(
+                            width: 30,
+                            height: 30,
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: Colors.white, width: 2),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.15),
+                                  blurRadius: 4,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              LucideIcons.camera,
+                              size: 15,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
                       ),
@@ -292,7 +303,10 @@ class ProfileScreen extends ConsumerWidget {
                       count: '${stats.savedEventsCount}',
                       icon: LucideIcons.bookmark,
                       colorScheme: colorScheme,
-                      onTap: () => context.push('/saved'),
+                      onTap: () {
+                        ref.read(savedControllerProvider.notifier).setSegment(SavedSegment.saved);
+                        context.push('/saved');
+                      },
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -312,7 +326,10 @@ class ProfileScreen extends ConsumerWidget {
                       count: '${stats.remindersCount}',
                       icon: LucideIcons.alarmClock,
                       colorScheme: colorScheme,
-                      onTap: () => context.push('/calendar'),
+                      onTap: () {
+                        ref.read(savedControllerProvider.notifier).setSegment(SavedSegment.reminders);
+                        context.push('/saved');
+                      },
                     ),
                   ),
                 ],

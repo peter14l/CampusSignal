@@ -753,20 +753,6 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         ),
         child: Row(
           children: [
-            // Add to Calendar Quick Action
-            M3EMorphIconButton(
-              size: 46,
-              iconSize: 20,
-              icon: LucideIcons.calendarPlus,
-              color: colorScheme.primary,
-              backgroundColor: colorScheme.surfaceContainerLow,
-              onPressed: () => _handleAddToCalendar(context, ref, event),
-              tooltip: 'Sync with Calendar',
-              morphShape: M3EMorphShape.circleToSquircle,
-            ),
-
-            const SizedBox(width: 8),
-
             // Remind Notification Morph Action (Circle <-> Squircle)
             M3EMorphIconButton(
               size: 46,

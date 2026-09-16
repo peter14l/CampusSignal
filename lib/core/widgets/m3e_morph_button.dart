@@ -328,7 +328,15 @@ class _M3EMorphIconButtonState extends State<M3EMorphIconButton>
       onTapDown: _handleTapDown,
       onTapUp: _handleTapUp,
       onTapCancel: _handleTapCancel,
-      child: buttonContent,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(
+          minWidth: kMinInteractiveDimension,
+          minHeight: kMinInteractiveDimension,
+        ),
+        child: Center(
+          child: buttonContent,
+        ),
+      ),
     );
 
     if (widget.tooltip != null && widget.tooltip!.isNotEmpty) {
