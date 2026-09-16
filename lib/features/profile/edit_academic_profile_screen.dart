@@ -701,8 +701,9 @@ class _EditAcademicProfileScreenState
           ),
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 
   String _getYearName(int year) {
     switch (year) {
