@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:campus_signal/core/services/app_update_service.dart';
 import 'package:campus_signal/data/repositories/events_repository.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -42,6 +43,12 @@ void main() {
       final repo = EventsRepository(mockClient, isDemoMode: false);
       final event = await repo.getEventById('non-existent-random-id-999');
       expect(event, isNull);
+    });
+
+    test('AppUpdateService getDeviceArchitecture compiles and returns valid arch string', () {
+      final service = AppUpdateService();
+      final arch = service.getDeviceArchitecture();
+      expect(arch, isNotEmpty);
     });
   });
 }
