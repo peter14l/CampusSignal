@@ -97,14 +97,14 @@ function initMobileNav() {
    3. Dynamic Version & Release Notes Fetcher
    ========================================================================== */
 const DEFAULT_VERSION_DATA = {
-  version: "1.2.0",
-  versionCode: 12,
-  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0.apk",
+  version: "1.3.0",
+  versionCode: 13,
+  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0.apk",
   archApkUrls: {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0.apk"
   },
   archSizes: {
     "arm64-v8a": "29.9 MB",

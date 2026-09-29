@@ -155,7 +155,7 @@ class SavedScreen extends ConsumerWidget {
           event: event,
           isSaved: true,
           heroTagSuffix: '_saved_${event.id}',
-          onTap: () => context.push('/event/${event.id}'),
+          onTap: () => context.push('/event/${event.id}', extra: event),
           onBookmarkTap: () {
             ref.read(savedControllerProvider.notifier).removeSavedEvent(event.id);
             ScaffoldMessenger.of(context).showSnackBar(
@@ -209,7 +209,7 @@ class SavedScreen extends ConsumerWidget {
           reminder: reminder,
           onTap: () {
             if (reminder.eventId.isNotEmpty) {
-              context.push('/event/${reminder.eventId}');
+              context.push('/event/${reminder.eventId}', extra: reminder.event);
             }
           },
           onDelete: () {

@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import '../../models/event_model.dart';
@@ -179,10 +180,15 @@ class ExtractedAnnouncement {
 }
 
 class GeminiOcrService {
-  static const String _defaultApiKey = String.fromEnvironment(
-    'GEMINI_API_KEY',
-    defaultValue: 'AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8',
-  );
+  static String get _resolvedApiKey {
+    const envKey = String.fromEnvironment('GEMINI_API_KEY');
+    if (envKey.isNotEmpty) return envKey;
+    if (dotenv.isInitialized) {
+      return dotenv.env['GEMINI_API_KEY'] ?? '';
+    }
+    return '';
+  }
+
   final String _apiKey;
 
   // Cached pool of discovered vision/generateContent models
@@ -201,13 +207,16 @@ class GeminiOcrService {
     'gemini-1.0-pro-vision',
   ];
 
-  GeminiOcrService({String? apiKey}) : _apiKey = apiKey ?? _defaultApiKey {
-    // Initiate background model discovery immediately
-    _fetchAndRefreshModelsInBackground();
+  GeminiOcrService({String? apiKey}) : _apiKey = apiKey ?? _resolvedApiKey {
+    // Initiate background model discovery immediately if key is configured
+    if (_apiKey.isNotEmpty) {
+      _fetchAndRefreshModelsInBackground();
+    }
   }
 
   /// Fetches all active Gemini models from Google AI API in background and prioritizes them
   Future<void> _fetchAndRefreshModelsInBackground() async {
+    if (_apiKey.isEmpty) return;
     if (_isFetchingModels) return;
     if (_lastModelFetchTime != null &&
         DateTime.now().difference(_lastModelFetchTime!).inMinutes < 30 &&
@@ -283,6 +292,11 @@ class GeminiOcrService {
     required Uint8List imageBytes,
     String mimeType = 'image/jpeg',
   }) async {
+    if (_apiKey.isEmpty) {
+      debugPrint('Gemini OCR: No GEMINI_API_KEY provided in .env or environment. Using heuristic fallback.');
+      return _buildHeuristicFallback(imageBytes);
+    }
+
     // Ensure model list is loaded or fallback to baseline
     if (_availableModels.isEmpty) {
       await _fetchAndRefreshModelsInBackground();

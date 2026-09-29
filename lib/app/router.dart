@@ -7,6 +7,7 @@ import '../features/announcements/ai_announcement_creator_screen.dart';
 import '../features/auth/auth_screen.dart';
 import '../features/calendar/calendar_screen.dart';
 import '../features/event_details/event_details_screen.dart';
+import '../models/event_model.dart';
 import '../features/feed/feed_screen.dart';
 import '../features/notifications/notifications_screen.dart';
 import '../features/onboarding/onboarding_screen.dart';
@@ -169,9 +170,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         parentNavigatorKey: rootNavigatorKey,
         pageBuilder: (context, state) {
           final eventId = state.pathParameters['id'] ?? '';
+          final event = state.extra is EventModel ? state.extra as EventModel : null;
           return MaterialPage<void>(
             key: state.pageKey,
-            child: EventDetailsScreen(eventId: eventId),
+            child: EventDetailsScreen(eventId: eventId, event: event),
           );
         },
       ),

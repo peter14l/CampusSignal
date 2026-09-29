@@ -93,18 +93,29 @@ class EventsRepository {
             dbEvents.insert(0, cached);
           }
         }
-        return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
+        // Cache all active events into _cachedEvents for instantaneous synchronous retrieval
+        for (final ev in dbEvents) {
+          if (!_cachedEvents.any((e) => e.id == ev.id)) {
+            _cachedEvents.add(ev);
+          }
+        }
+        if (dbEvents.isNotEmpty) {
+          return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
+        }
       }
     } catch (e) {
       debugPrint('Supabase getFeedEvents fallback: $e');
     }
 
-    if (!isDemoMode) {
-      // Real mode with offline or empty DB: Only show custom events created by the user
+    if (!isDemoMode && _cachedEvents.isNotEmpty) {
+      // Real mode with offline or custom events
       return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
     }
 
-    // Demo mode fallback to rich in-memory dataset
+    // Rich fallback dataset ensuring student always has events to explore
+    if (_cachedEvents.isEmpty) {
+      _cachedEvents.addAll(generateMockEvents());
+    }
     return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
   }
 
@@ -194,19 +205,31 @@ class EventsRepository {
     return rankedEvent;
   }
 
-  /// Get single event details by ID.
+  /// Get single event details by ID with resilient multi-tier fallback.
   Future<EventModel?> getEventById(String id) async {
+    // 1. Fast in-memory cache check (instantaneous UI rendering)
+    try {
+      final cached = _cachedEvents.firstWhere((e) => e.id == id);
+      return cached;
+    } catch (_) {}
+
+    // 2. Query Supabase remote store
     try {
       final res = await _supabase.from('events').select().eq('id', id).maybeSingle();
       if (res != null) {
-        return EventModel.fromJson(res);
+        final event = EventModel.fromJson(res);
+        if (!_cachedEvents.any((e) => e.id == event.id)) {
+          _cachedEvents.add(event);
+        }
+        return event;
       }
     } catch (e) {
       debugPrint('Supabase getEventById error: $e');
     }
 
+    // 3. Fallback to mock catalog by ID
     try {
-      return _cachedEvents.firstWhere((e) => e.id == id);
+      return kMockEvents.firstWhere((e) => e.id == id);
     } catch (_) {
       return null;
     }

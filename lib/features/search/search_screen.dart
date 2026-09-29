@@ -298,7 +298,7 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
               ref
                   .read(searchControllerProvider.notifier)
                   .addRecentSearch(event.title);
-              context.push('/event/${event.id}');
+              context.push('/event/${event.id}', extra: event);
             },
             onBookmarkTap: () {
               ref.read(savedControllerProvider.notifier).toggleSave(event.id);

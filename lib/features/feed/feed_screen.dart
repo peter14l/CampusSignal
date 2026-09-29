@@ -478,7 +478,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                       child: M3EEventCard(
                         event: event,
                         isSaved: isSaved,
-                        onTap: () => context.push('/event/${event.id}'),
+                        onTap: () => context.push('/event/${event.id}', extra: event),
                         onBookmarkTap: () {
                           ref.read(feedControllerProvider.notifier).toggleSave(event.id);
                         },

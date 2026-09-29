@@ -1,14 +1,14 @@
 {
-  "version": "1.2.0",
-  "versionCode": 12,
+  "version": "1.3.0",
+  "versionCode": 13,
   "minSupportedVersionCode": 1,
-  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0.apk",
+  "apkUrl": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0.apk",
   "fileSizeBytes": 72381238,
   "archApkUrls": {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.2.0.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.0.apk"
   },
   "archSizes": {
     "arm64-v8a": "29.9 MB",
@@ -16,13 +16,7 @@
     "x86_64": "31.4 MB",
     "universal": "69.0 MB"
   },
-  "sha256": {
-    "arm64-v8a": "c3aa7de16b23b42fd7bfd5a8f4937a587d3b2e7522b80844a319ecdf0c805306",
-    "armeabi-v7a": "01963896f58440153547efdc1a9d8e00930c6c874ead2ac68864369177fdd7fe",
-    "x86_64": "f6471eb4bc90abc54070668111231d4179e1835112a422e7502d5bd4c23a0e69",
-    "universal": "adc3684dec893106a7d8063004d297cdf8a93619c661771f31c0e03ec4e5646f"
-  },
-  "releaseNotes": "• UX Design Laws compliance: Fitts's Law 48dp touch targets, Hick's Law streamlined action bars, Jakob's Law standard interactions, Law of Proximity structured metadata, and Von Restorff Effect urgent deadline accents\n• Feed stability: Skeleton loading states, error boundaries with retry, and backdrop dismissal for Speed Dial\n• Deep-link resolution: Fixed unauthenticated public event link handling\n• Profile & form safety: PopScope unsaved change guard and clickable Terms/Privacy links\n• Platform resilience: Web crash protection in app updater and notifications undo restoration",
-  "publishedAt": "2026-09-16T19:20:00.000Z",
+  "releaseNotes": "• Apple-style fluid bottom navigation: Fluid sliding pill capsule with velocity stretch & snap physics, subtle icon spring bounces, and tactile haptics\n• Critical Event Details fix: Resolved routing deadlock and blank screen on event details with in-memory caching and 3-tier catalog fallback\n• Security Hardening: Removed hardcoded secrets, secured dotenv initialization, and guarded dev bypasses in release mode\n• Multi-cloud storage: Supabase Storage integration with Cloudflare R2 CDN resilience\n• Modular architecture: Decomposed Event Details and AI Announcement Studio into clean, decoupled components\n• Visual polish: Animated Material 3 Expressive pulsing shimmer skeletons",
+  "publishedAt": "2026-09-29T21:00:00.000Z",
   "mandatory": false
 }

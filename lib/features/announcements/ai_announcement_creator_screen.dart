@@ -15,6 +15,10 @@ import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
 import '../feed/feed_controller.dart';
 import '../search/search_controller.dart';
+import 'widgets/announcement_analyzing_step.dart';
+import 'widgets/announcement_branch_selector.dart';
+import 'widgets/announcement_coordinators_editor.dart';
+import 'widgets/announcement_upload_step.dart';
 
 enum AiCreationStep {
   uploadImage,
@@ -448,194 +452,20 @@ class _AiAnnouncementCreatorScreenState
 
   // Step 1: Upload Flyer / Poster
   Widget _buildUploadStep(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // AI Flyer Scanner Icon Card
-            Container(
-              width: 90,
-              height: 90,
-              decoration: BoxDecoration(
-                color: colorScheme.primaryContainer.withValues(alpha: 0.6),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(
-                  color: colorScheme.primary.withValues(alpha: 0.3),
-                  width: 1.5,
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: colorScheme.primary.withValues(alpha: 0.15),
-                    blurRadius: 24,
-                    offset: const Offset(0, 8),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: Icon(
-                  LucideIcons.scanLine,
-                  size: 42,
-                  color: colorScheme.primary,
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-
-            Text(
-              'Upload Poster & Auto-Extract',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.titleLarge?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: colorScheme.onSurface,
-              ),
-            ),
-            const SizedBox(height: 8),
-
-            Text(
-              'Select an event flyer or poster from your gallery. Gemini Multimodal AI extracts all deadlines, rules, venues, and targets automatically.',
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodyMedium?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-                height: 1.4,
-              ),
-            ),
-            const SizedBox(height: 32),
-
-            // Big Upload Touch Card
-            InteractiveSpring(
-              onTap: _pickImageAndAnalyze,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 36, horizontal: 20),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerLow,
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(
-                    color: colorScheme.primary.withValues(alpha: 0.4),
-                    width: 1.5,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        LucideIcons.imagePlus,
-                        size: 32,
-                        color: colorScheme.onPrimary,
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    Text(
-                      'Choose from Gallery',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      'PNG, JPG, JPEG flyers supported',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: colorScheme.outline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            // Manual option
-            TextButton.icon(
-              onPressed: () {
-                setState(() => _currentStep = AiCreationStep.reviewAndConfirm);
-              },
-              icon: const Icon(LucideIcons.filePenLine, size: 16),
-              label: const Text('Or create manually without image'),
-            ),
-          ],
-        ),
-      ),
+    return AnnouncementUploadStep(
+      onPickImage: _pickImageAndAnalyze,
+      onManualCreate: () {
+        setState(() => _currentStep = AiCreationStep.reviewAndConfirm);
+      },
     );
   }
 
   // Step 2: AI Analyzing Loading Screen
   Widget _buildAnalyzingStep(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 32),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            // Poster thumbnail with scanning beam
-            if (_selectedImageBytes != null)
-              Container(
-                width: 160,
-                height: 200,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: colorScheme.primary, width: 2),
-                  boxShadow: [
-                    BoxShadow(
-                      color: colorScheme.primary.withValues(alpha: 0.2),
-                      blurRadius: 20,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(14),
-                  child: Image.memory(
-                    _selectedImageBytes!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ),
-            const SizedBox(height: 28),
-
-            SizedBox(
-              width: 180,
-              child: LinearProgressIndicator(
-                value: _analysisProgress,
-                backgroundColor: colorScheme.surfaceContainerHighest,
-                color: colorScheme.primary,
-                minHeight: 6,
-                borderRadius: BorderRadius.circular(3),
-              ),
-            ),
-            const SizedBox(height: 20),
-
-            Text(
-              'Gemini AI Multimodal Vision',
-              style: theme.textTheme.titleMedium?.copyWith(
-                fontWeight: FontWeight.w800,
-                color: colorScheme.primary,
-              ),
-            ),
-            const SizedBox(height: 6),
-
-            Text(
-              _analysisStatus,
-              textAlign: TextAlign.center,
-              style: theme.textTheme.bodySmall?.copyWith(
-                color: colorScheme.onSurfaceVariant,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return AnnouncementAnalyzingStep(
+      selectedImageBytes: _selectedImageBytes,
+      analysisProgress: _analysisProgress,
+      analysisStatus: _analysisStatus,
     );
   }
 
@@ -1150,97 +980,25 @@ class _AiAnnouncementCreatorScreenState
           const SizedBox(height: 24),
 
           // TARGET AUDIENCE & DEPARTMENT VISIBILITY BENTO
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(LucideIcons.school,
-                            size: 18, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          'DEPARTMENT VISIBILITY',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Switch(
-                      value: _isCampusWide,
-                      onChanged: (val) {
-                        HapticFeedback.selectionClick();
-                        setState(() {
-                          _isCampusWide = val;
-                          if (val) _selectedBranches.clear();
-                        });
-                      },
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  _isCampusWide
-                      ? 'Broadcast to ALL branches across SXUK'
-                      : 'Target specific departments only (Exclusive access)',
-                  style: theme.textTheme.bodySmall?.copyWith(
-                    color: _isCampusWide
-                        ? colorScheme.onSurfaceVariant
-                        : colorScheme.primary,
-                    fontWeight: _isCampusWide ? FontWeight.w400 : FontWeight.w600,
-                  ),
-                ),
-                if (!_isCampusWide) ...[
-                  const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 6,
-                    runSpacing: 6,
-                    children: _availableBranches.map((branch) {
-                      final isSelected = _selectedBranches.contains(branch);
-                      return FilterChip(
-                        label: Text(branch),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          HapticFeedback.selectionClick();
-                          setState(() {
-                            if (selected) {
-                              _selectedBranches.add(branch);
-                            } else {
-                              _selectedBranches.remove(branch);
-                            }
-                          });
-                        },
-                        selectedColor: colorScheme.primaryContainer,
-                        checkmarkColor: colorScheme.onPrimaryContainer,
-                        labelStyle: TextStyle(
-                          fontSize: 11,
-                          fontWeight:
-                              isSelected ? FontWeight.w700 : FontWeight.w500,
-                          color: isSelected
-                              ? colorScheme.onPrimaryContainer
-                              : colorScheme.onSurface,
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ],
-              ],
-            ),
+          AnnouncementBranchSelector(
+            isCampusWide: _isCampusWide,
+            selectedBranches: _selectedBranches,
+            availableBranches: _availableBranches,
+            onCampusWideChanged: (val) {
+              setState(() {
+                _isCampusWide = val;
+                if (val) _selectedBranches.clear();
+              });
+            },
+            onBranchToggle: (branch, selected) {
+              setState(() {
+                if (selected) {
+                  _selectedBranches.add(branch);
+                } else {
+                  _selectedBranches.remove(branch);
+                }
+              });
+            },
           ),
           const SizedBox(height: 16),
 
@@ -1260,111 +1018,14 @@ class _AiAnnouncementCreatorScreenState
           const SizedBox(height: 20),
 
           // EVENT COORDINATORS & CONTACTS BENTO
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerLow,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-              ),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(LucideIcons.phoneCall,
-                            size: 18, color: colorScheme.primary),
-                        const SizedBox(width: 8),
-                        Text(
-                          'STUDENT COORDINATORS / CONTACTS',
-                          style: theme.textTheme.labelSmall?.copyWith(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: 0.8,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    TextButton.icon(
-                      onPressed: () => _showAddContactDialog(context),
-                      icon: const Icon(LucideIcons.plus, size: 14),
-                      label: const Text('Add Contact', style: TextStyle(fontSize: 12)),
-                      style: TextButton.styleFrom(
-                        visualDensity: VisualDensity.compact,
-                        padding: const EdgeInsets.symmetric(horizontal: 8),
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (_contacts.isEmpty)
-                  Text(
-                    'No contact numbers added yet. Tap "+ Add Contact" to add coordinators.',
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                    ),
-                  )
-                else
-                  Column(
-                    children: _contacts.asMap().entries.map((entry) {
-                      final idx = entry.key;
-                      final contact = entry.value;
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 8),
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainer,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Row(
-                          children: [
-                            Icon(LucideIcons.user, size: 16, color: colorScheme.primary),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    contact.name.isNotEmpty ? contact.name : 'Coordinator',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.w700,
-                                      fontSize: 13,
-                                    ),
-                                  ),
-                                  Text(
-                                    '${contact.role != null && contact.role!.isNotEmpty ? "${contact.role!} • " : ""}${contact.phone}',
-                                    style: TextStyle(
-                                      color: colorScheme.onSurfaceVariant,
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            IconButton(
-                              icon: const Icon(LucideIcons.trash2, size: 16, color: Colors.redAccent),
-                              onPressed: () {
-                                setState(() {
-                                  _contacts.removeAt(idx);
-                                });
-                              },
-                              tooltip: 'Remove contact',
-                              visualDensity: VisualDensity.compact,
-                            ),
-                          ],
-                        ),
-                      );
-                    }).toList(),
-                  ),
-              ],
-            ),
+          AnnouncementCoordinatorsEditor(
+            contacts: _contacts,
+            onAddContact: () => _showAddContactDialog(context),
+            onRemoveContact: (idx) {
+              setState(() {
+                _contacts.removeAt(idx);
+              });
+            },
           ),
           const SizedBox(height: 16),
 

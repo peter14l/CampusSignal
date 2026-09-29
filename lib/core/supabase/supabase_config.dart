@@ -10,7 +10,10 @@ class SupabaseConfig {
   static String get url {
     const envUrl = String.fromEnvironment('SUPABASE_URL');
     if (envUrl.isNotEmpty) return envUrl;
-    return dotenv.env['SUPABASE_URL'] ?? 'https://ksyvklijnkxfpiasncyr.supabase.co';
+    if (dotenv.isInitialized) {
+      return dotenv.env['SUPABASE_URL'] ?? '';
+    }
+    return '';
   }
 
   static String get supabaseUrl => url;
@@ -19,7 +22,10 @@ class SupabaseConfig {
   static String get anonKey {
     const envKey = String.fromEnvironment('SUPABASE_ANON_KEY');
     if (envKey.isNotEmpty) return envKey;
-    return dotenv.env['SUPABASE_ANON_KEY'] ?? 'sb_publishable_VR_FIPoe9sLE4qGVLwF1tg_XW3Xuv9S';
+    if (dotenv.isInitialized) {
+      return dotenv.env['SUPABASE_ANON_KEY'] ?? '';
+    }
+    return '';
   }
 
   static String get supabaseAnonKey => anonKey;

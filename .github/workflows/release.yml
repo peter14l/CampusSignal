@@ -56,11 +56,15 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          GOOGLE_SERVER_CLIENT_ID: ${{ secrets.GOOGLE_SERVER_CLIENT_ID }}
+          R2_PUBLIC_BASE_URL: ${{ secrets.R2_PUBLIC_BASE_URL }}
         run: |
           cat <<EOF > .env
           SUPABASE_URL=${SUPABASE_URL:-https://ksyvklijnkxfpiasncyr.supabase.co}
           SUPABASE_ANON_KEY=${SUPABASE_ANON_KEY:-sb_publishable_VR_FIPoe9sLE4qGVLwF1tg_XW3Xuv9S}
           GEMINI_API_KEY=${GEMINI_API_KEY:-AIzaSyD-SVYpVeKTolCNjpnWW7xrjU6k3JgKWu8}
+          GOOGLE_SERVER_CLIENT_ID=${GOOGLE_SERVER_CLIENT_ID:-476399687886-2cg5sss23bq258a6o9afn4g78ltndnha.apps.googleusercontent.com}
+          R2_PUBLIC_BASE_URL=${R2_PUBLIC_BASE_URL:-https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/posters}
           EOF
           echo "Generated .env file from repository secrets for --dart-define-from-file."
 
@@ -121,6 +125,7 @@ jobs:
 
           # Universal APK
           cp build/app/outputs/flutter-apk/app-release.apk "release_artifacts/CampusSignal-v${VERSION}-universal.apk"
+          cp build/app/outputs/flutter-apk/app-release.apk "release_artifacts/CampusSignal-v${VERSION}.apk"
 
           # Generate SHA256 Checksums for integrity
           cd release_artifacts

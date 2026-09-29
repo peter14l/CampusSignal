@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter/foundation.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -74,9 +75,19 @@ class AuthController extends Notifier<AuthState> {
   static const String _keyIsDemoMode = 'campussignal_is_demo_mode';
 
   Timer? _countdownTimer;
-  final GoogleSignIn _googleSignIn = GoogleSignIn(
+  static String get _googleServerClientId {
+    const envClientId = String.fromEnvironment('GOOGLE_SERVER_CLIENT_ID');
+    if (envClientId.isNotEmpty) return envClientId;
+    if (dotenv.isInitialized) {
+      final envVal = dotenv.env['GOOGLE_SERVER_CLIENT_ID'];
+      if (envVal != null && envVal.isNotEmpty) return envVal;
+    }
+    return '';
+  }
+
+  late final GoogleSignIn _googleSignIn = GoogleSignIn(
     scopes: ['email', 'profile'],
-    serverClientId: '476399687886-2cg5sss23bq258a6o9afn4g78ltndnha.apps.googleusercontent.com',
+    serverClientId: _googleServerClientId.isNotEmpty ? _googleServerClientId : null,
   );
 
   @override
@@ -483,6 +494,13 @@ class AuthController extends Notifier<AuthState> {
 
   /// Demo / Mock Google Sign In (for testing both existing user and new user paths)
   Future<GoogleAuthStatus> demoGoogleSignIn({required bool isExistingUser}) async {
+    if (kReleaseMode) {
+      state = state.copyWith(
+        isLoading: false,
+        errorMessage: 'Demo sign-in is disabled in production builds.',
+      );
+      return GoogleAuthStatus.failed;
+    }
     state = state.copyWith(isLoading: true, clearError: true);
     await Future.delayed(const Duration(milliseconds: 600));
 
@@ -625,6 +643,14 @@ class AuthController extends Notifier<AuthState> {
           return true;
         }
       } else {
+        if (kReleaseMode) {
+          state = state.copyWith(
+            isLoading: false,
+            errorMessage: 'Authentication service is unavailable.',
+          );
+          return false;
+        }
+
         // Mock Verification
         await Future.delayed(const Duration(milliseconds: 700));
         final mockProfile = kDefaultProfile.copyWith(
@@ -657,6 +683,11 @@ class AuthController extends Notifier<AuthState> {
 
   /// Instant Development / Preview Bypass Mode
   void bypassSignIn({String email = 'aarav.sharma@sxuk.edu.in'}) async {
+    if (kReleaseMode) {
+      debugPrint('bypassSignIn is disabled in release builds.');
+      return;
+    }
+
     final profile = kDefaultProfile.copyWith(
       collegeEmail: email,
     );

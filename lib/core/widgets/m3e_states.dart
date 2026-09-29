@@ -102,15 +102,65 @@ class M3ELoadingState extends StatelessWidget {
     required double radius,
     required BuildContext context,
   }) {
-    final colorScheme = Theme.of(context).colorScheme;
+    return M3EShimmerBox(width: width, height: height, radius: radius);
+  }
+}
 
-    return Container(
-      width: width,
-      height: height,
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(radius),
-      ),
+/// Smooth shimmering placeholder box with Material 3 Expressive pulsing animation
+class M3EShimmerBox extends StatefulWidget {
+  final double width;
+  final double height;
+  final double radius;
+
+  const M3EShimmerBox({
+    super.key,
+    required this.width,
+    required this.height,
+    required this.radius,
+  });
+
+  @override
+  State<M3EShimmerBox> createState() => _M3EShimmerBoxState();
+}
+
+class _M3EShimmerBoxState extends State<M3EShimmerBox>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1200),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final baseColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.4);
+    final highlightColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.85);
+
+    return AnimatedBuilder(
+      animation: _controller,
+      builder: (context, child) {
+        final color = Color.lerp(baseColor, highlightColor, _controller.value);
+        return Container(
+          width: widget.width,
+          height: widget.height,
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.circular(widget.radius),
+          ),
+        );
+      },
     );
   }
 }

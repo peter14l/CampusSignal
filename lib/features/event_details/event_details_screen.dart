@@ -7,12 +7,14 @@ import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../core/services/calendar_sync_service.dart';
 import '../../core/widgets/category_chip.dart';
-import '../../core/widgets/interactive_spring.dart';
-import '../../core/widgets/m3e_morph_button.dart';
 import '../../core/widgets/m3e_states.dart';
-import '../../core/widgets/micro_animated_icon.dart';
 import '../../models/event_model.dart';
 import 'event_details_controller.dart';
+import 'widgets/event_bento_logistics.dart';
+import 'widgets/event_coordinators_list.dart';
+import 'widgets/event_details_bottom_bar.dart';
+import 'widgets/event_details_sliver_header.dart';
+import 'widgets/event_tags_bar.dart';
 
 class EventDetailsScreen extends ConsumerStatefulWidget {
   final EventModel? event;
@@ -65,9 +67,10 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
 
     final event = state.event ?? widget.event;
 
-    if (state.isLoading) {
+    if (state.isLoading || (event == null && state.errorMessage == null)) {
       return Scaffold(
         backgroundColor: colorScheme.surface,
+        appBar: AppBar(backgroundColor: colorScheme.surface),
         body: const Center(child: CircularProgressIndicator()),
       );
     }
@@ -93,131 +96,12 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           // Collapsing Hero App Bar with Poster & Vignette
-          SliverAppBar(
-            expandedHeight: 250,
-            pinned: true,
-            backgroundColor: colorScheme.surface,
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 8),
-              child: Center(
-                child: MicroAnimatedIconButton.circle(
-                  size: 38,
-                  iconSize: 18,
-                  iconData: LucideIcons.arrowLeft,
-                  color: colorScheme.onSurface,
-                  backgroundColor: colorScheme.surface.withValues(alpha: 0.85),
-                  onPressed: () => Navigator.of(context).pop(),
-                  tooltip: 'Back',
-                ),
-              ),
-            ),
-            actions: [
-              MicroAnimatedIconButton.circle(
-                size: 38,
-                iconSize: 18,
-                iconData: LucideIcons.calendarPlus,
-                color: colorScheme.onSurface,
-                backgroundColor: colorScheme.surface.withValues(alpha: 0.85),
-                onPressed: () => _handleAddToCalendar(context, ref, event),
-                tooltip: 'Add to Calendar',
-              ),
-              const SizedBox(width: 8),
-              MicroAnimatedIconButton.circle(
-                size: 38,
-                iconSize: 18,
-                iconData: LucideIcons.share2,
-                color: colorScheme.onSurface,
-                backgroundColor: colorScheme.surface.withValues(alpha: 0.85),
-                onPressed: () => controller.shareEvent(),
-                tooltip: 'Share Event',
-              ),
-              const SizedBox(width: 12),
-            ],
-            flexibleSpace: FlexibleSpaceBar(
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (event.posterR2Key != null &&
-                      event.posterR2Key!.startsWith('http'))
-                    GestureDetector(
-                      onTap: () => _showFullscreenImage(context, event.posterR2Key!),
-                      child: CachedNetworkImage(
-                        imageUrl: event.posterR2Key!,
-                        memCacheWidth: 800,
-                        memCacheHeight: 600,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          color: colorScheme.surfaceContainerHigh,
-                          child: const Center(
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          color: colorScheme.primaryContainer,
-                          child: const Center(
-                            child: Icon(LucideIcons.imageOff,
-                                color: Colors.white, size: 48),
-                          ),
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            colorScheme.primaryContainer,
-                            colorScheme.secondaryContainer,
-                          ],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                      ),
-                      child: const Center(
-                        child: Icon(LucideIcons.calendar, color: Colors.white, size: 64),
-                      ),
-                    ),
-                  // Bottom vignette gradient
-                  Positioned.fill(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            Colors.black.withValues(alpha: 0.5),
-                            Colors.transparent,
-                            colorScheme.surface.withValues(alpha: 0.8),
-                            colorScheme.surface,
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                          stops: const [0.0, 0.4, 0.85, 1.0],
-                        ),
-                      ),
-                    ),
-                  ),
-                  if (event.posterR2Key != null && event.posterR2Key!.startsWith('http'))
-                    Positioned(
-                      bottom: 12,
-                      right: 16,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(LucideIcons.maximize2, size: 12, color: Colors.white),
-                            SizedBox(width: 4),
-                            Text('Tap to expand', style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.w600)),
-                          ],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
+          EventDetailsSliverHeader(
+            event: event,
+            onBackPressed: () => Navigator.of(context).pop(),
+            onAddToCalendar: () => _handleAddToCalendar(context, ref, event),
+            onShare: () => controller.shareEvent(),
+            onFullscreenImage: (url) => _showFullscreenImage(context, url),
           ),
 
           // Main Event Details Body
@@ -346,12 +230,12 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                         if (event.instagramHandle != null && event.instagramHandle!.isNotEmpty) ...[
                           const SizedBox(width: 6),
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
                               final raw = event.instagramHandle!.replaceAll('@', '').trim();
-                              launchUrl(
-                                Uri.parse('https://instagram.com/$raw'),
-                                mode: LaunchMode.externalApplication,
-                              );
+                              final igUrl = Uri.parse('https://instagram.com/$raw');
+                              if (await canLaunchUrl(igUrl)) {
+                                await launchUrl(igUrl, mode: LaunchMode.externalApplication);
+                              }
                             },
                             borderRadius: BorderRadius.circular(10),
                             child: Container(
@@ -390,12 +274,15 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                   const SizedBox(height: 20),
 
                   // 2x2 Bento Logistics Grid
-                  _buildBentoLogistics(context, ref, event),
+                  EventBentoLogistics(
+                    event: event,
+                    onAddToCalendar: () => _handleAddToCalendar(context, ref, event),
+                  ),
 
                   const SizedBox(height: 20),
 
                   // Personalized Fit Tags Section
-                  _buildMatchedTagsBar(context, event),
+                  EventTagsBar(event: event),
 
                   const SizedBox(height: 24),
 
@@ -433,61 +320,56 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                           color: colorScheme.primary.withValues(alpha: 0.3),
                         ),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      child: Row(
                         children: [
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: colorScheme.primary.withValues(alpha: 0.12),
-                                  borderRadius: BorderRadius.circular(8),
+                          Container(
+                            padding: const EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              color: colorScheme.primary.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(LucideIcons.qrCode, size: 18, color: colorScheme.primary),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Official Registration Link (Decoded)',
+                                  style: textTheme.titleSmall?.copyWith(
+                                    fontSize: 13,
+                                    fontWeight: FontWeight.w700,
+                                    color: colorScheme.onSurface,
+                                  ),
                                 ),
-                                child: Icon(LucideIcons.qrCode, size: 16, color: colorScheme.primary),
-                              ),
-                              const SizedBox(width: 10),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Official Registration Link (Decoded)',
-                                      style: textTheme.titleSmall?.copyWith(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                    ),
-                                    Text(
-                                      event.applyUrl!,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        fontSize: 11,
-                                        color: colorScheme.primary,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                  ],
+                                Text(
+                                  event.applyUrl!,
+                                  style: textTheme.bodySmall?.copyWith(
+                                    fontSize: 11,
+                                    color: colorScheme.primary,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
-                              ),
-                              IconButton(
-                                icon: const Icon(LucideIcons.copy, size: 16),
-                                tooltip: 'Copy Link',
-                                visualDensity: VisualDensity.compact,
-                                onPressed: () {
-                                  Clipboard.setData(ClipboardData(text: event.applyUrl!));
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Registration link copied to clipboard!'),
-                                      duration: Duration(seconds: 2),
-                                      behavior: SnackBarBehavior.floating,
-                                    ),
-                                  );
-                                },
-                              ),
-                            ],
+                              ],
+                            ),
+                          ),
+                          IconButton(
+                            icon: const Icon(LucideIcons.copy, size: 16),
+                            tooltip: 'Copy Link',
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () {
+                              Clipboard.setData(ClipboardData(text: event.applyUrl!));
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text('Registration link copied to clipboard!'),
+                                  duration: Duration(seconds: 2),
+                                  behavior: SnackBarBehavior.floating,
+                                ),
+                              );
+                            },
                           ),
                         ],
                       ),
@@ -547,97 +429,10 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
                   ],
 
                   // Student Coordinators / For Queries Section
-                  if (event.contacts.isNotEmpty) ...[
-                    const SizedBox(height: 24),
-                    Text(
-                      'For Queries & Contact',
-                      style: textTheme.titleMedium?.copyWith(
-                        fontSize: 17,
-                        fontWeight: FontWeight.w700,
-                        color: colorScheme.onSurface,
-                      ),
-                    ),
-                    const SizedBox(height: 10),
-                    Column(
-                      children: event.contacts.map((contact) {
-                        final rawPhone = contact.phone.replaceAll(RegExp(r'[^0-9]'), '');
-                        return Container(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerLow,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                              color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-                            ),
-                          ),
-                          child: Row(
-                            children: [
-                              CircleAvatar(
-                                radius: 15,
-                                backgroundColor: colorScheme.primaryContainer,
-                                child: Icon(LucideIcons.user, size: 16, color: colorScheme.onPrimaryContainer),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      contact.name.isNotEmpty ? contact.name : 'Student Coordinator',
-                                      style: textTheme.titleSmall?.copyWith(
-                                        fontSize: 13,
-                                        fontWeight: FontWeight.w700,
-                                        color: colorScheme.onSurface,
-                                      ),
-                                    ),
-                                    Text(
-                                      contact.role != null && contact.role!.isNotEmpty
-                                          ? '${contact.role!} • ${contact.phone}'
-                                          : contact.phone,
-                                      style: textTheme.bodySmall?.copyWith(
-                                        fontSize: 12,
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              if (contact.phone.isNotEmpty) ...[
-                                // WhatsApp Action
-                                IconButton(
-                                  icon: const Icon(LucideIcons.messageCircle, size: 18, color: Color(0xFF25D366)),
-                                  tooltip: 'WhatsApp',
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: () {
-                                    final waNumber = rawPhone.startsWith('91') || rawPhone.length > 10
-                                        ? rawPhone
-                                        : '91$rawPhone';
-                                    launchUrl(
-                                      Uri.parse('https://wa.me/$waNumber?text=Hi%20${Uri.encodeComponent(contact.name)},%20reaching%20out%20regarding%20${Uri.encodeComponent(event.title)}'),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                ),
-                                // Direct Phone Call Action
-                                IconButton(
-                                  icon: Icon(LucideIcons.phone, size: 18, color: colorScheme.primary),
-                                  tooltip: 'Call Coordinator',
-                                  visualDensity: VisualDensity.compact,
-                                  onPressed: () {
-                                    launchUrl(
-                                      Uri.parse('tel:${contact.phone.replaceAll(' ', '')}'),
-                                      mode: LaunchMode.externalApplication,
-                                    );
-                                  },
-                                ),
-                              ],
-                            ],
-                          ),
-                        );
-                      }).toList(),
-                    ),
-                  ],
+                  EventCoordinatorsList(
+                    contacts: event.contacts,
+                    eventTitle: event.title,
+                  ),
 
                   // Attached Images & Materials Gallery
                   if (event.attachments.isNotEmpty) ...[
@@ -729,376 +524,13 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       ),
 
       // Glassmorphic Floating Bottom Action Bar
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: colorScheme.surfaceContainerLowest.withValues(alpha: 0.96),
-          border: Border(
-            top: BorderSide(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-            ),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 16,
-              offset: const Offset(0, -4),
-            ),
-          ],
-        ),
-        padding: EdgeInsets.fromLTRB(
-          16,
-          10,
-          16,
-          MediaQuery.of(context).padding.bottom + 10,
-        ),
-        child: Row(
-          children: [
-            // Remind Notification Morph Action (Circle <-> Squircle)
-            M3EMorphIconButton(
-              size: 46,
-              iconSize: 20,
-              icon: LucideIcons.bell,
-              selectedIcon: LucideIcons.bellRing,
-              isSelected: state.isReminded,
-              color: colorScheme.onSurfaceVariant,
-              selectedColor: colorScheme.onPrimaryContainer,
-              backgroundColor: colorScheme.surfaceContainerLow,
-              selectedBackgroundColor: colorScheme.primaryContainer,
-              onPressed: () => _showReminderDialog(context, controller, state),
-              tooltip: state.isReminded ? 'Reminder set' : 'Set reminder',
-              morphShape: M3EMorphShape.circleToSquircle,
-            ),
-
-            const SizedBox(width: 8),
-
-            // Bookmark Morph Action (Circle <-> Squircle)
-            M3EMorphIconButton(
-              size: 46,
-              iconSize: 20,
-              icon: LucideIcons.bookmark,
-              selectedIcon: LucideIcons.bookmarkCheck,
-              isSelected: state.isSaved,
-              color: colorScheme.onSurfaceVariant,
-              selectedColor: colorScheme.primary,
-              backgroundColor: colorScheme.surfaceContainerLow,
-              selectedBackgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.2),
-              onPressed: () => controller.toggleSave(),
-              tooltip: state.isSaved ? 'Saved' : 'Save event',
-              morphShape: M3EMorphShape.circleToSquircle,
-            ),
-
-            const SizedBox(width: 12),
-
-            // Primary Apply Now CTA Button
-            Expanded(
-              child: InteractiveSpring(
-                onTap: state.isApplying ? null : () => controller.launchApply(),
-                child: Container(
-                  height: 46,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        colorScheme.primary,
-                        colorScheme.primaryContainer,
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
-                    borderRadius: BorderRadius.circular(14),
-                    boxShadow: [
-                      BoxShadow(
-                        color: colorScheme.primary.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      ),
-                    ],
-                  ),
-                  child: Center(
-                    child: state.isApplying
-                        ? SizedBox(
-                            width: 20,
-                            height: 20,
-                            child: CircularProgressIndicator(
-                              color: colorScheme.onPrimary,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'Apply Now',
-                                style: textTheme.labelLarge?.copyWith(
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w700,
-                                  color: colorScheme.onPrimary,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                              Icon(
-                                LucideIcons.arrowUpRight,
-                                color: colorScheme.onPrimary,
-                                size: 18,
-                              ),
-                            ],
-                          ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildBentoLogistics(
-    BuildContext context,
-    WidgetRef ref,
-    EventModel event,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    return Column(
-      children: [
-        // Row 1: Date & Time + Location & Mode
-        Row(
-          children: [
-            Expanded(
-              child: _buildBentoTile(
-                context: context,
-                icon: LucideIcons.calendar,
-                iconColor: colorScheme.primary,
-                label: 'WHEN',
-                mainText: event.formattedDateRange,
-                subText: event.startsAt != null
-                    ? '${DateFormat('h:mm a').format(event.startsAt!)} onwards'
-                    : 'Schedule',
-                actionWidget: InkWell(
-                  onTap: () => _handleAddToCalendar(context, ref, event),
-                  borderRadius: BorderRadius.circular(6),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(LucideIcons.calendarPlus, size: 11, color: colorScheme.primary),
-                        const SizedBox(width: 3),
-                        Text(
-                          'Add to Cal',
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildBentoTile(
-                context: context,
-                icon: LucideIcons.mapPin,
-                iconColor: const Color(0xFFEF5350),
-                label: 'WHERE',
-                mainText: (event.venue != null && event.venue!.isNotEmpty)
-                    ? event.venue!
-                    : 'SXUK Campus',
-                subText: 'Mode: ${event.formattedFormat}',
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 10),
-
-        // Row 2: Team Size + Eligibility
-        Row(
-          children: [
-            Expanded(
-              child: _buildBentoTile(
-                context: context,
-                icon: LucideIcons.usersRound,
-                iconColor: const Color(0xFF26C6DA),
-                label: 'TEAM FORMAT',
-                mainText: (event.teamSizeText != null && event.teamSizeText!.isNotEmpty)
-                    ? event.teamSizeText!
-                    : 'Individual / Teams',
-                subText: 'Participation',
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              child: _buildBentoTile(
-                context: context,
-                icon: LucideIcons.shieldCheck,
-                iconColor: const Color(0xFF66BB6A),
-                label: 'ELIGIBILITY',
-                mainText: (event.eligibilityText != null && event.eligibilityText!.isNotEmpty)
-                    ? event.eligibilityText!
-                    : 'All Branches',
-                subText: 'SXUK Students',
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-
-  Widget _buildBentoTile({
-    required BuildContext context,
-    required IconData icon,
-    required Color iconColor,
-    required String label,
-    required String mainText,
-    required String subText,
-    Widget? actionWidget,
-  }) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  Icon(icon, size: 14, color: iconColor),
-                  const SizedBox(width: 5),
-                  Text(
-                    label,
-                    style: textTheme.labelSmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                      color: colorScheme.onSurfaceVariant,
-                    ),
-                  ),
-                ],
-              ),
-              ?actionWidget,
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(
-            mainText,
-            style: textTheme.titleSmall?.copyWith(
-              fontSize: 13,
-              fontWeight: FontWeight.w700,
-              color: colorScheme.onSurface,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subText,
-            style: textTheme.bodySmall?.copyWith(
-              fontSize: 11,
-              color: colorScheme.outline,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMatchedTagsBar(BuildContext context, EventModel event) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
-    final tags = event.matchedTags.isNotEmpty
-        ? event.matchedTags
-        : ['Tech', 'Coding', 'Innovation'];
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-      decoration: BoxDecoration(
-        color: colorScheme.surfaceContainerLow,
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-        ),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Icon(LucideIcons.sparkles, size: 14, color: colorScheme.primary),
-              const SizedBox(width: 6),
-              Text(
-                'PERSONALIZED FIT',
-                style: textTheme.labelSmall?.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.6,
-                  color: colorScheme.primary,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                decoration: BoxDecoration(
-                  color: colorScheme.primaryContainer,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Text(
-                  '${((event.matchScore ?? 0.95) * 100).toInt()}% Match',
-                  style: TextStyle(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700,
-                    color: colorScheme.onPrimaryContainer,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Wrap(
-            spacing: 6,
-            runSpacing: 6,
-            children: tags.map(
-              (tag) => Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainer,
-                  borderRadius: BorderRadius.circular(6),
-                ),
-                child: Text(
-                  '#$tag',
-                  style: textTheme.labelSmall?.copyWith(
-                    fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ).toList(),
-          ),
-        ],
+      bottomNavigationBar: EventDetailsBottomBar(
+        isReminded: state.isReminded,
+        isSaved: state.isSaved,
+        isApplying: state.isApplying,
+        onReminderPressed: () => _showReminderDialog(context, controller, state),
+        onSavePressed: () => controller.toggleSave(),
+        onApplyPressed: () => controller.launchApply(),
       ),
     );
   }
