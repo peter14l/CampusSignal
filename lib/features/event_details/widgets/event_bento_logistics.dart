@@ -140,20 +140,27 @@ class EventBentoLogistics extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  Icon(icon, size: 14, color: iconColor),
-                  const SizedBox(width: 5),
-                  Text(
-                    label,
-                    style: textTheme.labelSmall?.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.6,
-                      color: colorScheme.onSurfaceVariant,
+              Flexible(
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(icon, size: 14, color: iconColor),
+                    const SizedBox(width: 5),
+                    Flexible(
+                      child: Text(
+                        label,
+                        style: textTheme.labelSmall?.copyWith(
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
               if (actionWidget != null) actionWidget,
             ],

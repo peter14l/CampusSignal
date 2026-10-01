@@ -74,8 +74,6 @@ class EventDetailsSliverHeader extends StatelessWidget {
                 onTap: () => onFullscreenImage(event.posterR2Key!),
                 child: CachedNetworkImage(
                   imageUrl: event.posterR2Key!,
-                  memCacheWidth: 800,
-                  memCacheHeight: 600,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
                     color: colorScheme.surfaceContainerHigh,

@@ -192,6 +192,6 @@ Discover more campus opportunities on CampusSignal!
 }
 
 final eventDetailsControllerProvider =
-    NotifierProvider<EventDetailsController, EventDetailsState>(
+    NotifierProvider.autoDispose<EventDetailsController, EventDetailsState>(
   EventDetailsController.new,
 );

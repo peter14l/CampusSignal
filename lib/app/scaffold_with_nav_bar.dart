@@ -191,15 +191,15 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar>
             ],
           ),
           padding: EdgeInsets.only(
-            bottom: math.max(bottomPadding, 8),
-            top: 6,
+            top: 12,
+            bottom: math.max(bottomPadding, 12),
           ),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final totalWidth = constraints.maxWidth;
               final tabWidth = totalWidth / _items.length;
-              const capsuleWidth = 64.0;
-              const capsuleHeight = 32.0;
+              const capsuleWidth = 68.0;
+              const capsuleHeight = 36.0;
 
               return AnimatedBuilder(
                 animation: _slideAnimation,
@@ -224,18 +224,18 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar>
                       // Continuous Fluid Sliding Capsule Indicator
                       Positioned(
                         left: currentCenterX - (dynamicCapsuleWidth / 2),
-                        top: 2,
+                        top: 4,
                         child: Container(
                           width: dynamicCapsuleWidth,
                           height: capsuleHeight,
                           decoration: BoxDecoration(
                             color: colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(22),
                             boxShadow: [
                               BoxShadow(
-                                color: colorScheme.primary.withValues(alpha: 0.12),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
+                                color: colorScheme.primary.withValues(alpha: 0.14),
+                                blurRadius: 10,
+                                offset: const Offset(0, 3),
                               ),
                             ],
                           ),
@@ -268,25 +268,25 @@ class _ScaffoldWithNavBarState extends State<ScaffoldWithNavBar>
                                               : const AlwaysStoppedAnimation(0.95),
                                           child: Icon(
                                             isSelected ? item.selectedIcon : item.icon,
-                                            size: 21,
+                                            size: 23,
                                             color: isSelected
-                                              ? colorScheme.onPrimaryContainer
-                                              : colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
+                                                ? colorScheme.onPrimaryContainer
+                                                : colorScheme.onSurfaceVariant.withValues(alpha: 0.8),
                                           ),
                                         ),
                                       ),
                                     ),
-                                    const SizedBox(height: 3),
+                                    const SizedBox(height: 5),
                                     // Animated Label
                                     AnimatedDefaultTextStyle(
                                       duration: const Duration(milliseconds: 200),
                                       curve: Curves.easeOut,
                                       style: TextStyle(
-                                        fontSize: 11,
+                                        fontSize: 12,
                                         fontWeight: isSelected
                                             ? FontWeight.w700
                                             : FontWeight.w500,
-                                        letterSpacing: -0.1,
+                                        letterSpacing: -0.2,
                                         color: isSelected
                                             ? colorScheme.primary
                                             : colorScheme.onSurfaceVariant.withValues(alpha: 0.75),

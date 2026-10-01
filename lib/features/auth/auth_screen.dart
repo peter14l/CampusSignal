@@ -386,15 +386,19 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                                       ),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
                                           _buildGoogleGLogo(),
                                           const SizedBox(width: 12),
-                                          Text(
-                                            'Continue with Google',
-                                            style: TextStyle(
-                                              fontSize: 15.5,
-                                              fontWeight: FontWeight.w700,
-                                              color: colorScheme.onSurface,
+                                          Flexible(
+                                            child: Text(
+                                              'Continue with Google',
+                                              style: TextStyle(
+                                                fontSize: 15.5,
+                                                fontWeight: FontWeight.w700,
+                                                color: colorScheme.onSurface,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
                                             ),
                                           ),
                                         ],

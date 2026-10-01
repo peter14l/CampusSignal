@@ -53,7 +53,7 @@ class EventTagsBar extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(
-                  '${((event.matchScore ?? 0.95) * 100).toInt()}% Match',
+                  '${((event.matchScore ?? 0.95).clamp(0.0, 1.0) * 100).toInt()}% Match',
                   style: TextStyle(
                     fontSize: 10,
                     fontWeight: FontWeight.w700,

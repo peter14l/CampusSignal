@@ -34,7 +34,8 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    Future.microtask(() {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
       final controller = ref.read(eventDetailsControllerProvider.notifier);
       if (widget.event != null) {
         controller.setEvent(widget.event!);
@@ -65,28 +66,27 @@ class _EventDetailsScreenState extends ConsumerState<EventDetailsScreen> {
       }
     });
 
-    final event = state.event ?? widget.event;
+    final event = widget.event ?? state.event;
 
-    if (state.isLoading || (event == null && state.errorMessage == null)) {
+    if (event == null) {
+      if (state.errorMessage != null) {
+        return Scaffold(
+          backgroundColor: colorScheme.surface,
+          appBar: AppBar(backgroundColor: colorScheme.surface),
+          body: M3EErrorState(
+            message: state.errorMessage ?? 'Event details could not be found.',
+            onRetry: () {
+              if (widget.eventId != null) {
+                controller.loadEventById(widget.eventId!);
+              }
+            },
+          ),
+        );
+      }
       return Scaffold(
         backgroundColor: colorScheme.surface,
         appBar: AppBar(backgroundColor: colorScheme.surface),
         body: const Center(child: CircularProgressIndicator()),
-      );
-    }
-
-    if (event == null) {
-      return Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(backgroundColor: colorScheme.surface),
-        body: M3EErrorState(
-          message: state.errorMessage ?? 'Event details could not be found.',
-          onRetry: () {
-            if (widget.eventId != null) {
-              controller.loadEventById(widget.eventId!);
-            }
-          },
-        ),
       );
     }
 
