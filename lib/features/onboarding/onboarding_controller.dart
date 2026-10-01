@@ -1,10 +1,15 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/services/fcm_notification_service.dart';
+import '../../models/college_model.dart';
 import '../../models/profile_model.dart';
 import '../auth/auth_controller.dart';
 
 class OnboardingState {
-  final int currentStep; // 0 for Academics (Department & Semester), 1 for Personalize (Interests & Skills)
+  /// 0: College Selection, 1: Academic Details, 2: Interests & Skills, 3: Student Verification
+  final int currentStep;
+  final String selectedCollegeId;
+  final String selectedCollegeName;
+  final String selectedCollegeShortCode;
   final String fullName;
   final String? collegeEmail;
   final String? avatarUrl;
@@ -16,8 +21,17 @@ class OnboardingState {
   final bool isSaving;
   final String? errorMessage;
 
+  // Student ID Verification
+  final bool isVerifyingIdCard;
+  final bool verificationSuccess;
+  final String? verifiedRollNumber;
+  final String? idCardPath;
+
   const OnboardingState({
     this.currentStep = 0,
+    this.selectedCollegeId = 'sxuk',
+    this.selectedCollegeName = "St. Xavier's University, Kolkata",
+    this.selectedCollegeShortCode = 'SXUK',
     this.fullName = '',
     this.collegeEmail,
     this.avatarUrl,
@@ -38,6 +52,10 @@ class OnboardingState {
     ],
     this.isSaving = false,
     this.errorMessage,
+    this.isVerifyingIdCard = false,
+    this.verificationSuccess = false,
+    this.verifiedRollNumber,
+    this.idCardPath,
   });
 
   bool get isAcademicValid =>
@@ -51,6 +69,9 @@ class OnboardingState {
 
   OnboardingState copyWith({
     int? currentStep,
+    String? selectedCollegeId,
+    String? selectedCollegeName,
+    String? selectedCollegeShortCode,
     String? fullName,
     String? collegeEmail,
     String? avatarUrl,
@@ -62,9 +83,16 @@ class OnboardingState {
     bool? isSaving,
     String? errorMessage,
     bool clearError = false,
+    bool? isVerifyingIdCard,
+    bool? verificationSuccess,
+    String? verifiedRollNumber,
+    String? idCardPath,
   }) {
     return OnboardingState(
       currentStep: currentStep ?? this.currentStep,
+      selectedCollegeId: selectedCollegeId ?? this.selectedCollegeId,
+      selectedCollegeName: selectedCollegeName ?? this.selectedCollegeName,
+      selectedCollegeShortCode: selectedCollegeShortCode ?? this.selectedCollegeShortCode,
       fullName: fullName ?? this.fullName,
       collegeEmail: collegeEmail ?? this.collegeEmail,
       avatarUrl: avatarUrl ?? this.avatarUrl,
@@ -75,6 +103,10 @@ class OnboardingState {
       selectedSkills: selectedSkills ?? this.selectedSkills,
       isSaving: isSaving ?? this.isSaving,
       errorMessage: clearError ? null : (errorMessage ?? this.errorMessage),
+      isVerifyingIdCard: isVerifyingIdCard ?? this.isVerifyingIdCard,
+      verificationSuccess: verificationSuccess ?? this.verificationSuccess,
+      verifiedRollNumber: verifiedRollNumber ?? this.verifiedRollNumber,
+      idCardPath: idCardPath ?? this.idCardPath,
     );
   }
 }
@@ -88,7 +120,10 @@ class OnboardingController extends Notifier<OnboardingState> {
       final computedYear = (initialSemester + 1) ~/ 2;
 
       return OnboardingState(
-        fullName: profile.fullName.isNotEmpty ? profile.fullName : 'SXUK Student',
+        selectedCollegeId: profile.collegeId ?? 'sxuk',
+        selectedCollegeName: profile.collegeName ?? "St. Xavier's University, Kolkata",
+        selectedCollegeShortCode: profile.collegeShortCode ?? 'SXUK',
+        fullName: profile.fullName.isNotEmpty ? profile.fullName : '',
         collegeEmail: profile.collegeEmail,
         avatarUrl: profile.avatarUrl,
         branch: profile.branch ?? 'B.Tech in CSE',
@@ -106,9 +141,27 @@ class OnboardingController extends Notifier<OnboardingState> {
         selectedSkills: profile.skills.isNotEmpty
             ? profile.skills
             : const ['Python', 'UI/UX Design', 'Public Speaking'],
+        isVerifyingIdCard: false,
+        verificationSuccess: profile.isVerifiedStudent,
+        verifiedRollNumber: profile.rollNumber,
       );
     }
     return const OnboardingState();
+  }
+
+  void selectCollege(CollegeModel college) {
+    // If college has default branches, select first popular branch
+    final defaultBranch = college.popularBranches.isNotEmpty
+        ? college.popularBranches.first
+        : state.branch;
+
+    state = state.copyWith(
+      selectedCollegeId: college.id,
+      selectedCollegeName: college.name,
+      selectedCollegeShortCode: college.shortCode,
+      branch: defaultBranch,
+      clearError: true,
+    );
   }
 
   void setStep(int step) {
@@ -117,6 +170,14 @@ class OnboardingController extends Notifier<OnboardingState> {
 
   void nextStep() {
     if (state.currentStep == 0) {
+      // Validated campus selection
+      if (state.selectedCollegeId.isEmpty) {
+        state = state.copyWith(errorMessage: 'Please select your university/college');
+        return;
+      }
+      state = state.copyWith(currentStep: 1, clearError: true);
+    } else if (state.currentStep == 1) {
+      // Validate Academic Details
       if (state.fullName.trim().isEmpty) {
         state = state.copyWith(errorMessage: 'Please enter your full name');
         return;
@@ -129,7 +190,14 @@ class OnboardingController extends Notifier<OnboardingState> {
         state = state.copyWith(errorMessage: 'Please select your current semester');
         return;
       }
-      state = state.copyWith(currentStep: 1, clearError: true);
+      state = state.copyWith(currentStep: 2, clearError: true);
+    } else if (state.currentStep == 2) {
+      // Validate Interests & Skills
+      if (state.selectedInterests.isEmpty && state.selectedSkills.isEmpty) {
+        state = state.copyWith(errorMessage: 'Please select at least one interest or skill');
+        return;
+      }
+      state = state.copyWith(currentStep: 3, clearError: true);
     }
   }
 
@@ -189,40 +257,65 @@ class OnboardingController extends Notifier<OnboardingState> {
     state = state.copyWith(selectedSkills: list);
   }
 
-  Future<bool> completeOnboarding() async {
-    if (state.selectedInterests.isEmpty && state.selectedSkills.isEmpty) {
-      state = state.copyWith(
-        errorMessage: 'Please select at least one interest or skill to personalize your feed',
-      );
-      return false;
-    }
+  /// Simulate instant OCR detection or process uploaded student ID card
+  Future<void> verifyIdCard({String? customRollNumber, String? imagePath}) async {
+    state = state.copyWith(isVerifyingIdCard: true, clearError: true);
+    await Future.delayed(const Duration(milliseconds: 900));
 
+    final generatedRoll = customRollNumber ??
+        '${state.selectedCollegeShortCode}/${(state.branch ?? "ENG").split(" ").first.replaceAll(".", "")}/${DateTime.now().year % 100}/${(100 + (DateTime.now().millisecond % 899))}';
+
+    state = state.copyWith(
+      isVerifyingIdCard: false,
+      verificationSuccess: true,
+      verifiedRollNumber: generatedRoll,
+      idCardPath: imagePath,
+    );
+  }
+
+  void skipVerification() {
+    state = state.copyWith(
+      verificationSuccess: false,
+      verifiedRollNumber: null,
+      idCardPath: null,
+    );
+  }
+
+  Future<bool> completeOnboarding() async {
     state = state.copyWith(isSaving: true, clearError: true);
 
     try {
       final existingProfile = ref.read(authControllerProvider).profile;
-      final userId = existingProfile?.id ?? 'user-sxuk-${DateTime.now().millisecondsSinceEpoch}';
-      final email = existingProfile?.collegeEmail ?? state.collegeEmail ?? 'student@sxuk.edu.in';
+      final userId = existingProfile?.id ??
+          'user-${state.selectedCollegeId}-${DateTime.now().millisecondsSinceEpoch}';
+      final email = existingProfile?.collegeEmail ??
+          state.collegeEmail ??
+          'student@${state.selectedCollegeShortCode.toLowerCase()}.edu.in';
       final avatar = existingProfile?.avatarUrl ?? state.avatarUrl;
 
       final updatedProfile = ProfileModel(
         id: userId,
         fullName: state.fullName.trim().isNotEmpty
             ? state.fullName.trim()
-            : 'SXUK Student',
+            : '${state.selectedCollegeShortCode} Student',
         collegeEmail: email,
         avatarUrl: avatar,
+        collegeId: state.selectedCollegeId,
+        collegeName: state.selectedCollegeName,
+        collegeShortCode: state.selectedCollegeShortCode,
         branch: state.branch,
         semester: state.semester,
         year: state.year,
         interests: state.selectedInterests,
         skills: state.selectedSkills,
+        isVerifiedStudent: state.verificationSuccess,
+        rollNumber: state.verifiedRollNumber,
         updatedAt: DateTime.now(),
       );
 
       await ref.read(authControllerProvider.notifier).updateProfile(updatedProfile);
-      
-      // Request system notification permissions for campus alerts & reminders
+
+      // Request notification permissions
       try {
         await ref.read(fcmNotificationServiceProvider).requestPermissions();
       } catch (_) {}

@@ -97,14 +97,14 @@ function initMobileNav() {
    3. Dynamic Version & Release Notes Fetcher
    ========================================================================== */
 const DEFAULT_VERSION_DATA = {
-  version: "1.3.1",
-  versionCode: 14,
-  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.1.apk",
+  version: "1.4.0",
+  versionCode: 15,
+  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0.apk",
   archApkUrls: {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.1-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.1-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.1-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.3.1.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0.apk"
   },
   archSizes: {
     "arm64-v8a": "29.9 MB",
@@ -118,8 +118,8 @@ const DEFAULT_VERSION_DATA = {
     "x86_64": "f6471eb4bc90abc54070668111231d4179e1835112a422e7502d5bd4c23a0e69",
     "universal": "adc3684dec893106a7d8063004d297cdf8a93619c661771f31c0e03ec4e5646f"
   },
-  publishedAt: "2026-09-16",
-  releaseNotes: "• UX Design Laws compliance: Fitts's Law 48dp touch targets, Hick's Law streamlined action bars, Jakob's Law standard interactions, Law of Proximity structured metadata, and Von Restorff Effect urgent deadline accents\n• Feed stability: Skeleton loading states, error boundaries with retry, and backdrop dismissal for Speed Dial\n• Deep-link resolution: Fixed unauthenticated public event link handling\n• Profile & form safety: PopScope unsaved change guard and clickable Terms/Privacy links\n• Platform resilience: Web crash protection in app updater and notifications undo restoration"
+  publishedAt: "2026-10-01",
+  releaseNotes: "• Pan-India Multi-College Expansion: Multi-campus discovery across IITs, NITs, BITS, SXUK, JU, DU with customized campus-filtered feeds\n• Private Internship Wall: Internships and placement drives strictly restricted to host university students\n• 4-Step Onboarding Wizard: Campus selector, academic profile, Signal Radar interest/skill matching, and ID verification fast-track\n• Admin Moderation Hub & Passkeys: Multi-tier event review queue and instant passkey activation for fest convenors\n• Interactive In-App Tutorial: Detailed guides for students, organizers, and college administrators"
 };
 
 async function initVersionData() {

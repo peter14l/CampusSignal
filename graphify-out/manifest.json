@@ -1,0 +1,987 @@
+{
+  "D:\\CampusSignal\\Login.json": {
+    "mtime": 1788676566.900918,
+    "ast_hash": "2b606600fee0731a48df538a5b7caf9a",
+    "semantic_hash": "2b606600fee0731a48df538a5b7caf9a"
+  },
+  "D:\\CampusSignal\\android\\app\\build.gradle.kts": {
+    "mtime": 1788281599.2805274,
+    "ast_hash": "f2115532e4cf582a205e6233e472ca9f",
+    "semantic_hash": "f2115532e4cf582a205e6233e472ca9f"
+  },
+  "D:\\CampusSignal\\android\\app\\google-services.json": {
+    "mtime": 1788282614.367069,
+    "ast_hash": "32065526075187e15f22a90fbe47db7a",
+    "semantic_hash": "32065526075187e15f22a90fbe47db7a"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\java\\io\\flutter\\plugins\\GeneratedPluginRegistrant.java": {
+    "mtime": 1788624350.3315575,
+    "ast_hash": "8d52743a12e4ec62b3f3c302ab0c673f",
+    "semantic_hash": "8d52743a12e4ec62b3f3c302ab0c673f"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\kotlin\\com\\sxuk\\campussignal\\campus_signal\\MainActivity.kt": {
+    "mtime": 1788277312.1188931,
+    "ast_hash": "bd4cfd565a145442c1e8a49339bb11d6",
+    "semantic_hash": "bd4cfd565a145442c1e8a49339bb11d6"
+  },
+  "D:\\CampusSignal\\android\\build.gradle.kts": {
+    "mtime": 1788281599.2775202,
+    "ast_hash": "803fe22651fbe96ed401eb0b66a492d1",
+    "semantic_hash": "803fe22651fbe96ed401eb0b66a492d1"
+  },
+  "D:\\CampusSignal\\android\\gradlew": {
+    "mtime": 1788277313.9041164,
+    "ast_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2",
+    "semantic_hash": "7f1cd7eb3f75a1dc85cd37753972a6e2"
+  },
+  "D:\\CampusSignal\\android\\settings.gradle.kts": {
+    "mtime": 1788281599.274403,
+    "ast_hash": "79071eda3c8a88c1f084a41050934ee3",
+    "semantic_hash": "79071eda3c8a88c1f084a41050934ee3"
+  },
+  "D:\\CampusSignal\\assets\\animations\\login.json": {
+    "mtime": 1788676566.900918,
+    "ast_hash": "2b606600fee0731a48df538a5b7caf9a",
+    "semantic_hash": "2b606600fee0731a48df538a5b7caf9a"
+  },
+  "D:\\CampusSignal\\firebase.json": {
+    "mtime": 1788281599.3105154,
+    "ast_hash": "73a83f47dc6f5f1b69195041da0141df",
+    "semantic_hash": "73a83f47dc6f5f1b69195041da0141df"
+  },
+  "D:\\CampusSignal\\ios\\Flutter\\ephemeral\\flutter_lldb_helper.py": {
+    "mtime": 1790692812.860972,
+    "ast_hash": "98fc75412162af387e2e3461e4e58094",
+    "semantic_hash": "98fc75412162af387e2e3461e4e58094"
+  },
+  "D:\\CampusSignal\\ios\\Flutter\\flutter_export_environment.sh": {
+    "mtime": 1790692812.8927188,
+    "ast_hash": "8369da717e9154b6527bbf6ea2684505",
+    "semantic_hash": "8369da717e9154b6527bbf6ea2684505"
+  },
+  "D:\\CampusSignal\\ios\\RunnerTests\\RunnerTests.swift": {
+    "mtime": 1788277313.631428,
+    "ast_hash": "24e5d095048eb86c30423f4e04b6e57b",
+    "semantic_hash": "24e5d095048eb86c30423f4e04b6e57b"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\AppDelegate.swift": {
+    "mtime": 1777568251.4659455,
+    "ast_hash": "9e1de9c329a3fe4931876063de95132b",
+    "semantic_hash": "9e1de9c329a3fe4931876063de95132b"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Contents.json": {
+    "mtime": 1788500112.2263467,
+    "ast_hash": "c870f277d0c83d1af12f8dc2d368879a",
+    "semantic_hash": "c870f277d0c83d1af12f8dc2d368879a"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\Contents.json": {
+    "mtime": 1777568251.4659455,
+    "ast_hash": "b9e927ac17345f2d5f052fe68a3487f9",
+    "semantic_hash": "b9e927ac17345f2d5f052fe68a3487f9"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\GeneratedPluginRegistrant.h": {
+    "mtime": 1788277315.9492216,
+    "ast_hash": "decb9041b5e91a07e66f4664e5dac408",
+    "semantic_hash": "decb9041b5e91a07e66f4664e5dac408"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\GeneratedPluginRegistrant.m": {
+    "mtime": 1788544491.4771495,
+    "ast_hash": "7ea92a56e51209fa0fe248bab29b7aa8",
+    "semantic_hash": "7ea92a56e51209fa0fe248bab29b7aa8"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Runner-Bridging-Header.h": {
+    "mtime": 1777568251.4659455,
+    "ast_hash": "7ad7b5cea096132de13ba526b2b9efbe",
+    "semantic_hash": "7ad7b5cea096132de13ba526b2b9efbe"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\SceneDelegate.swift": {
+    "mtime": 1777568251.4659455,
+    "ast_hash": "0c3e86af131f6a9e547c80b5ed058914",
+    "semantic_hash": "0c3e86af131f6a9e547c80b5ed058914"
+  },
+  "D:\\CampusSignal\\lib\\app\\app.dart": {
+    "mtime": 1788278165.4188576,
+    "ast_hash": "a7fb6871aa15f9d38db00e8337eb0eea",
+    "semantic_hash": "a7fb6871aa15f9d38db00e8337eb0eea"
+  },
+  "D:\\CampusSignal\\lib\\app\\router.dart": {
+    "mtime": 1790694737.329177,
+    "ast_hash": "ba9750d9a5cca4307a4f90edfd1a57ca",
+    "semantic_hash": "ba9750d9a5cca4307a4f90edfd1a57ca"
+  },
+  "D:\\CampusSignal\\lib\\app\\scaffold_with_nav_bar.dart": {
+    "mtime": 1790698634.7749624,
+    "ast_hash": "a0aea66fb0dcb3fddccf678c06622531",
+    "semantic_hash": "a0aea66fb0dcb3fddccf678c06622531"
+  },
+  "D:\\CampusSignal\\lib\\core\\constants\\app_constants.dart": {
+    "mtime": 1790866317.7495291,
+    "ast_hash": "17a5778d49a519a4ab72e8abd7111257",
+    "semantic_hash": "17a5778d49a519a4ab72e8abd7111257"
+  },
+  "D:\\CampusSignal\\lib\\core\\core.dart": {
+    "mtime": 1788624332.9883351,
+    "ast_hash": "b16048163503607e95178ad00de86f0c",
+    "semantic_hash": "b16048163503607e95178ad00de86f0c"
+  },
+  "D:\\CampusSignal\\lib\\core\\mock\\mock_data.dart": {
+    "mtime": 1788579731.6628683,
+    "ast_hash": "e4c4f4baab6dcd9456f4d3322c3ed48e",
+    "semantic_hash": "e4c4f4baab6dcd9456f4d3322c3ed48e"
+  },
+  "D:\\CampusSignal\\lib\\core\\services\\app_update_service.dart": {
+    "mtime": 1790696584.9128406,
+    "ast_hash": "f3975a4c815bd0508e77c0f0e30055c0",
+    "semantic_hash": "f3975a4c815bd0508e77c0f0e30055c0"
+  },
+  "D:\\CampusSignal\\lib\\core\\services\\calendar_sync_service.dart": {
+    "mtime": 1788362872.7576838,
+    "ast_hash": "6b191905e74a548679aea34d4b1b867c",
+    "semantic_hash": "6b191905e74a548679aea34d4b1b867c"
+  },
+  "D:\\CampusSignal\\lib\\core\\services\\fcm_notification_service.dart": {
+    "mtime": 1788545663.7768614,
+    "ast_hash": "7afe38475de1374d5fc695cfbf73a4d6",
+    "semantic_hash": "7afe38475de1374d5fc695cfbf73a4d6"
+  },
+  "D:\\CampusSignal\\lib\\core\\services\\gemini_ocr_service.dart": {
+    "mtime": 1790695016.08805,
+    "ast_hash": "30fa80adc941875899f1475bc2af3418",
+    "semantic_hash": "30fa80adc941875899f1475bc2af3418"
+  },
+  "D:\\CampusSignal\\lib\\core\\services\\r2_storage_service.dart": {
+    "mtime": 1790695083.1482918,
+    "ast_hash": "4d5b8c008c2b73ab535f2adc548aa452",
+    "semantic_hash": "4d5b8c008c2b73ab535f2adc548aa452"
+  },
+  "D:\\CampusSignal\\lib\\core\\storage\\shared_preferences_provider.dart": {
+    "mtime": 1788284002.7476838,
+    "ast_hash": "eec480a26eb8b0205b15432e004e17ca",
+    "semantic_hash": "eec480a26eb8b0205b15432e004e17ca"
+  },
+  "D:\\CampusSignal\\lib\\core\\supabase\\supabase_config.dart": {
+    "mtime": 1790694984.927754,
+    "ast_hash": "3c19dc6fb00ef249e5ac0e6140dba17f",
+    "semantic_hash": "3c19dc6fb00ef249e5ac0e6140dba17f"
+  },
+  "D:\\CampusSignal\\lib\\core\\theme\\app_colors.dart": {
+    "mtime": 1788361363.287828,
+    "ast_hash": "6e653dba780e4bc2d881f018101023a4",
+    "semantic_hash": "6e653dba780e4bc2d881f018101023a4"
+  },
+  "D:\\CampusSignal\\lib\\core\\theme\\app_theme.dart": {
+    "mtime": 1788581305.1659021,
+    "ast_hash": "ff67e4eca6548732e2e73da7154f4bf3",
+    "semantic_hash": "ff67e4eca6548732e2e73da7154f4bf3"
+  },
+  "D:\\CampusSignal\\lib\\core\\theme\\motion.dart": {
+    "mtime": 1788277547.7199266,
+    "ast_hash": "a0c18ddd1c8882025e26784a88c63a3a",
+    "semantic_hash": "a0c18ddd1c8882025e26784a88c63a3a"
+  },
+  "D:\\CampusSignal\\lib\\core\\theme\\theme_controller.dart": {
+    "mtime": 1788545675.8084836,
+    "ast_hash": "3ce6a130c0f535ba299d13a0464f3527",
+    "semantic_hash": "3ce6a130c0f535ba299d13a0464f3527"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\action_confirmation_modal.dart": {
+    "mtime": 1788700519.0227642,
+    "ast_hash": "f6aa2e0a0b0c52ec31a0791458077571",
+    "semantic_hash": "f6aa2e0a0b0c52ec31a0791458077571"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\app_logo_badge.dart": {
+    "mtime": 1788500023.4043283,
+    "ast_hash": "28518fd5f30f099964cd8a058c2908e8",
+    "semantic_hash": "28518fd5f30f099964cd8a058c2908e8"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\category_chip.dart": {
+    "mtime": 1788280886.0405102,
+    "ast_hash": "f1913ce311301c7024e1beaf4b387866",
+    "semantic_hash": "f1913ce311301c7024e1beaf4b387866"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\department_picker_modal.dart": {
+    "mtime": 1788579934.550928,
+    "ast_hash": "0fecf6cdd643c89d78a08777a8e62044",
+    "semantic_hash": "0fecf6cdd643c89d78a08777a8e62044"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\interactive_spring.dart": {
+    "mtime": 1788544751.3857205,
+    "ast_hash": "1771d77d0c69c78f5ce0f3df627f4fc0",
+    "semantic_hash": "1771d77d0c69c78f5ce0f3df627f4fc0"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_event_card.dart": {
+    "mtime": 1789566332.2150843,
+    "ast_hash": "2548812745a922cfa61afd3fd7ca9fdc",
+    "semantic_hash": "2548812745a922cfa61afd3fd7ca9fdc"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_filter_chip_row.dart": {
+    "mtime": 1788498496.354634,
+    "ast_hash": "32bf736b745fabf0746fe00c9eabe581",
+    "semantic_hash": "32bf736b745fabf0746fe00c9eabe581"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_header.dart": {
+    "mtime": 1788500233.7306767,
+    "ast_hash": "528082257dc93469202eb315d53b5b36",
+    "semantic_hash": "528082257dc93469202eb315d53b5b36"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_morph_button.dart": {
+    "mtime": 1789566306.392263,
+    "ast_hash": "2b923c72832513d88440fbc7ae59e051",
+    "semantic_hash": "2b923c72832513d88440fbc7ae59e051"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_speed_dial_fab.dart": {
+    "mtime": 1789566371.4084303,
+    "ast_hash": "9be0a18bf4d807002f9469845a4bfa73",
+    "semantic_hash": "9be0a18bf4d807002f9469845a4bfa73"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\m3e_states.dart": {
+    "mtime": 1790695235.952832,
+    "ast_hash": "ca005eb04cf82e210d84c03a1a64ca07",
+    "semantic_hash": "ca005eb04cf82e210d84c03a1a64ca07"
+  },
+  "D:\\CampusSignal\\lib\\core\\widgets\\micro_animated_icon.dart": {
+    "mtime": 1788500353.7409933,
+    "ast_hash": "49878a51658d411a3c846fc9b0866858",
+    "semantic_hash": "49878a51658d411a3c846fc9b0866858"
+  },
+  "D:\\CampusSignal\\lib\\data\\data.dart": {
+    "mtime": 1788624329.3237376,
+    "ast_hash": "cd992c7c7e83b2237964778dd19313e9",
+    "semantic_hash": "cd992c7c7e83b2237964778dd19313e9"
+  },
+  "D:\\CampusSignal\\lib\\data\\repositories\\events_repository.dart": {
+    "mtime": 1790694700.0502744,
+    "ast_hash": "7dd0ae5cf5a1b0ba5898def60481eebb",
+    "semantic_hash": "7dd0ae5cf5a1b0ba5898def60481eebb"
+  },
+  "D:\\CampusSignal\\lib\\data\\supabase\\profile_repository.dart": {
+    "mtime": 1788624523.6370144,
+    "ast_hash": "4e087412c4bec22703ff599ace19e9c7",
+    "semantic_hash": "4e087412c4bec22703ff599ace19e9c7"
+  },
+  "D:\\CampusSignal\\lib\\data\\supabase\\supabase_client.dart": {
+    "mtime": 1788624544.4098606,
+    "ast_hash": "9763784f28efc9cb1518abcb7cd6c238",
+    "semantic_hash": "9763784f28efc9cb1518abcb7cd6c238"
+  },
+  "D:\\CampusSignal\\lib\\features\\about\\about_screen.dart": {
+    "mtime": 1788624963.9606798,
+    "ast_hash": "a2488f9dabd2bbc5525e7a3261931e90",
+    "semantic_hash": "a2488f9dabd2bbc5525e7a3261931e90"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\ai_announcement_creator_screen.dart": {
+    "mtime": 1790695397.5511713,
+    "ast_hash": "3d90a4bdfbdf7586f2b91978a287c0d0",
+    "semantic_hash": "3d90a4bdfbdf7586f2b91978a287c0d0"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\create_announcement_sheet.dart": {
+    "mtime": 1788499967.6450512,
+    "ast_hash": "8112af7f2a598afc05870b4ad8990fec",
+    "semantic_hash": "8112af7f2a598afc05870b4ad8990fec"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\widgets\\announcement_analyzing_step.dart": {
+    "mtime": 1790695319.9504442,
+    "ast_hash": "1be299dfd9a55b724fd7c450ae3a7981",
+    "semantic_hash": "1be299dfd9a55b724fd7c450ae3a7981"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\widgets\\announcement_branch_selector.dart": {
+    "mtime": 1790695332.7713342,
+    "ast_hash": "d6c1e280b653022762e3cb29761471fe",
+    "semantic_hash": "d6c1e280b653022762e3cb29761471fe"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\widgets\\announcement_coordinators_editor.dart": {
+    "mtime": 1790695339.463704,
+    "ast_hash": "49a12bc38f38af8731d679999b666a85",
+    "semantic_hash": "49a12bc38f38af8731d679999b666a85"
+  },
+  "D:\\CampusSignal\\lib\\features\\announcements\\widgets\\announcement_upload_step.dart": {
+    "mtime": 1790695314.1174839,
+    "ast_hash": "42feccbaa57db39d2f49b62a06d5df7f",
+    "semantic_hash": "42feccbaa57db39d2f49b62a06d5df7f"
+  },
+  "D:\\CampusSignal\\lib\\features\\auth\\auth_controller.dart": {
+    "mtime": 1790695055.7003262,
+    "ast_hash": "587a91e3666440f14e4d469bc4cc1815",
+    "semantic_hash": "587a91e3666440f14e4d469bc4cc1815"
+  },
+  "D:\\CampusSignal\\lib\\features\\auth\\auth_screen.dart": {
+    "mtime": 1790866089.5013485,
+    "ast_hash": "8b054707d4beebb3ba27ac5899e7c66b",
+    "semantic_hash": "8b054707d4beebb3ba27ac5899e7c66b"
+  },
+  "D:\\CampusSignal\\lib\\features\\calendar\\calendar_controller.dart": {
+    "mtime": 1788625482.2469203,
+    "ast_hash": "024cddfcfbdaf01e7f671f28ef0c005c",
+    "semantic_hash": "024cddfcfbdaf01e7f671f28ef0c005c"
+  },
+  "D:\\CampusSignal\\lib\\features\\calendar\\calendar_screen.dart": {
+    "mtime": 1789237917.6318364,
+    "ast_hash": "94527b344743b05e35b0a5db47ce2015",
+    "semantic_hash": "94527b344743b05e35b0a5db47ce2015"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\event_details_controller.dart": {
+    "mtime": 1790865957.8096535,
+    "ast_hash": "3211633cbac7dbca803674a418495ff6",
+    "semantic_hash": "3211633cbac7dbca803674a418495ff6"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\event_details_screen.dart": {
+    "mtime": 1790866040.058958,
+    "ast_hash": "726c8884fd06f4e7e65ea9a53818757c",
+    "semantic_hash": "726c8884fd06f4e7e65ea9a53818757c"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\widgets\\event_bento_logistics.dart": {
+    "mtime": 1790866067.0081165,
+    "ast_hash": "00a36f68c5407b0645c45d03d0a6e6cf",
+    "semantic_hash": "00a36f68c5407b0645c45d03d0a6e6cf"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\widgets\\event_coordinators_list.dart": {
+    "mtime": 1790695147.4652405,
+    "ast_hash": "e9623d95ca8d316f9ba841b578845a9b",
+    "semantic_hash": "e9623d95ca8d316f9ba841b578845a9b"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\widgets\\event_details_bottom_bar.dart": {
+    "mtime": 1790695154.396819,
+    "ast_hash": "e42424df4856932f05bf8960f8ab7125",
+    "semantic_hash": "e42424df4856932f05bf8960f8ab7125"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\widgets\\event_details_sliver_header.dart": {
+    "mtime": 1790866057.1005564,
+    "ast_hash": "8c81af9120cc771807be0d427c845173",
+    "semantic_hash": "8c81af9120cc771807be0d427c845173"
+  },
+  "D:\\CampusSignal\\lib\\features\\event_details\\widgets\\event_tags_bar.dart": {
+    "mtime": 1790866075.3297172,
+    "ast_hash": "65dc20b363887b082ca80b0dde151701",
+    "semantic_hash": "65dc20b363887b082ca80b0dde151701"
+  },
+  "D:\\CampusSignal\\lib\\features\\feed\\feed_controller.dart": {
+    "mtime": 1788626668.5337148,
+    "ast_hash": "5fb94631643ba7f4cbfed603542f87dc",
+    "semantic_hash": "5fb94631643ba7f4cbfed603542f87dc"
+  },
+  "D:\\CampusSignal\\lib\\features\\feed\\feed_screen.dart": {
+    "mtime": 1790694761.6215813,
+    "ast_hash": "54bf5b02a84e11463d157afd60c80d20",
+    "semantic_hash": "54bf5b02a84e11463d157afd60c80d20"
+  },
+  "D:\\CampusSignal\\lib\\features\\notifications\\notifications_controller.dart": {
+    "mtime": 1789566536.808563,
+    "ast_hash": "1d2aa6d4fcae852542fb65ff885b2053",
+    "semantic_hash": "1d2aa6d4fcae852542fb65ff885b2053"
+  },
+  "D:\\CampusSignal\\lib\\features\\notifications\\notifications_screen.dart": {
+    "mtime": 1789566547.2596345,
+    "ast_hash": "64b3fd5268daaeeafed00290321211d3",
+    "semantic_hash": "64b3fd5268daaeeafed00290321211d3"
+  },
+  "D:\\CampusSignal\\lib\\features\\onboarding\\onboarding_controller.dart": {
+    "mtime": 1788579680.141362,
+    "ast_hash": "34b92ea43efaffb4ed6641ea6e7db4b4",
+    "semantic_hash": "34b92ea43efaffb4ed6641ea6e7db4b4"
+  },
+  "D:\\CampusSignal\\lib\\features\\onboarding\\onboarding_screen.dart": {
+    "mtime": 1788579952.0799503,
+    "ast_hash": "ee8ffbe7beb46e3e6208ba4be6e58817",
+    "semantic_hash": "ee8ffbe7beb46e3e6208ba4be6e58817"
+  },
+  "D:\\CampusSignal\\lib\\features\\privacy\\privacy_policy_screen.dart": {
+    "mtime": 1788580045.9108336,
+    "ast_hash": "58748b06e36d60d72cbf66bb61e9a665",
+    "semantic_hash": "58748b06e36d60d72cbf66bb61e9a665"
+  },
+  "D:\\CampusSignal\\lib\\features\\profile\\edit_academic_profile_screen.dart": {
+    "mtime": 1789567698.8421097,
+    "ast_hash": "aeb98118db22000d61250ed327ae99e8",
+    "semantic_hash": "aeb98118db22000d61250ed327ae99e8"
+  },
+  "D:\\CampusSignal\\lib\\features\\profile\\profile_controller.dart": {
+    "mtime": 1788624517.5088532,
+    "ast_hash": "212065908213abf859cd1eda63131b69",
+    "semantic_hash": "212065908213abf859cd1eda63131b69"
+  },
+  "D:\\CampusSignal\\lib\\features\\profile\\profile_screen.dart": {
+    "mtime": 1789566462.1218143,
+    "ast_hash": "736a43b3c0b326d8e6f22c68130d7501",
+    "semantic_hash": "736a43b3c0b326d8e6f22c68130d7501"
+  },
+  "D:\\CampusSignal\\lib\\features\\profile\\tag_selection_sheet.dart": {
+    "mtime": 1788579927.3362339,
+    "ast_hash": "c3e611cf76d429998927a62e147cd642",
+    "semantic_hash": "c3e611cf76d429998927a62e147cd642"
+  },
+  "D:\\CampusSignal\\lib\\features\\saved\\saved_controller.dart": {
+    "mtime": 1788499178.8890152,
+    "ast_hash": "9d0c3e812a71c63e76cd2d0478180a66",
+    "semantic_hash": "9d0c3e812a71c63e76cd2d0478180a66"
+  },
+  "D:\\CampusSignal\\lib\\features\\saved\\saved_screen.dart": {
+    "mtime": 1790694786.217332,
+    "ast_hash": "9e8ac3f212720f802009155f3111485d",
+    "semantic_hash": "9e8ac3f212720f802009155f3111485d"
+  },
+  "D:\\CampusSignal\\lib\\features\\search\\search_controller.dart": {
+    "mtime": 1788626659.8968234,
+    "ast_hash": "cadbb48b2e43df3e773a2089897487eb",
+    "semantic_hash": "cadbb48b2e43df3e773a2089897487eb"
+  },
+  "D:\\CampusSignal\\lib\\features\\search\\search_screen.dart": {
+    "mtime": 1790694820.3998215,
+    "ast_hash": "d7f877a7ab36c007341b795cd39f0cd2",
+    "semantic_hash": "d7f877a7ab36c007341b795cd39f0cd2"
+  },
+  "D:\\CampusSignal\\lib\\features\\settings\\settings_screen.dart": {
+    "mtime": 1788700524.6304781,
+    "ast_hash": "b0d6ca188cbb8abdd1ed74ac82277a9f",
+    "semantic_hash": "b0d6ca188cbb8abdd1ed74ac82277a9f"
+  },
+  "D:\\CampusSignal\\lib\\features\\splash\\splash_screen.dart": {
+    "mtime": 1788544814.999203,
+    "ast_hash": "eebc69547440e07c8b23af22fbced98a",
+    "semantic_hash": "eebc69547440e07c8b23af22fbced98a"
+  },
+  "D:\\CampusSignal\\lib\\features\\updater\\app_update_screen.dart": {
+    "mtime": 1788580075.5474548,
+    "ast_hash": "ea17ff3e4b68e48ba6ebe916eba6bc35",
+    "semantic_hash": "ea17ff3e4b68e48ba6ebe916eba6bc35"
+  },
+  "D:\\CampusSignal\\lib\\features\\updater\\startup_update_dialog.dart": {
+    "mtime": 1788544530.7653651,
+    "ast_hash": "b74d8cfcfed3f03ca625dd87143d6ba1",
+    "semantic_hash": "b74d8cfcfed3f03ca625dd87143d6ba1"
+  },
+  "D:\\CampusSignal\\lib\\features\\updater\\update_controller.dart": {
+    "mtime": 1788580067.5224378,
+    "ast_hash": "376aa5a9f084c2ac4df2c971e168a393",
+    "semantic_hash": "376aa5a9f084c2ac4df2c971e168a393"
+  },
+  "D:\\CampusSignal\\lib\\firebase_options.dart": {
+    "mtime": 1788281599.2971022,
+    "ast_hash": "bfc7b0a8524ec6106689691010f31ee2",
+    "semantic_hash": "bfc7b0a8524ec6106689691010f31ee2"
+  },
+  "D:\\CampusSignal\\lib\\main.dart": {
+    "mtime": 1788544811.3556697,
+    "ast_hash": "8327a08e3c8db2952b8ab9b220b65ae8",
+    "semantic_hash": "8327a08e3c8db2952b8ab9b220b65ae8"
+  },
+  "D:\\CampusSignal\\lib\\models\\app_update_info.dart": {
+    "mtime": 1788579295.2411394,
+    "ast_hash": "bb47df85ac0d861279d98d9f7fbc4b33",
+    "semantic_hash": "bb47df85ac0d861279d98d9f7fbc4b33"
+  },
+  "D:\\CampusSignal\\lib\\models\\event_model.dart": {
+    "mtime": 1788505189.5929673,
+    "ast_hash": "7f00375bd40ac05177008b40dd7df6d1",
+    "semantic_hash": "7f00375bd40ac05177008b40dd7df6d1"
+  },
+  "D:\\CampusSignal\\lib\\models\\models.dart": {
+    "mtime": 1788624325.819152,
+    "ast_hash": "62b828ebc7d328bd9dff33a5644055c7",
+    "semantic_hash": "62b828ebc7d328bd9dff33a5644055c7"
+  },
+  "D:\\CampusSignal\\lib\\models\\notification_model.dart": {
+    "mtime": 1788277904.013407,
+    "ast_hash": "f0507975e44ef008fc0e454505bf24c9",
+    "semantic_hash": "f0507975e44ef008fc0e454505bf24c9"
+  },
+  "D:\\CampusSignal\\lib\\models\\profile_model.dart": {
+    "mtime": 1788581106.3700573,
+    "ast_hash": "df3e37bc984988fc8291ecacce2f2785",
+    "semantic_hash": "df3e37bc984988fc8291ecacce2f2785"
+  },
+  "D:\\CampusSignal\\lib\\models\\reminder_model.dart": {
+    "mtime": 1788277637.8189201,
+    "ast_hash": "5b3acb2a9b7a34a4fb0892c1ba8329ad",
+    "semantic_hash": "5b3acb2a9b7a34a4fb0892c1ba8329ad"
+  },
+  "D:\\CampusSignal\\supabase\\schema.sql": {
+    "mtime": 1788579056.3842316,
+    "ast_hash": "789790fc2335a609248430fa4a44adbb",
+    "semantic_hash": "789790fc2335a609248430fa4a44adbb"
+  },
+  "D:\\CampusSignal\\test\\event_details_and_caching_test.dart": {
+    "mtime": 1790696597.7983456,
+    "ast_hash": "c227057380e15a8a5f51d44cd931808e",
+    "semantic_hash": "c227057380e15a8a5f51d44cd931808e"
+  },
+  "D:\\CampusSignal\\test\\models_and_repositories_test.dart": {
+    "mtime": 1789566956.7569633,
+    "ast_hash": "53219d1ec46a06bf215a2f33b5f80738",
+    "semantic_hash": "53219d1ec46a06bf215a2f33b5f80738"
+  },
+  "D:\\CampusSignal\\test\\widget_test.dart": {
+    "mtime": 1788544740.4123666,
+    "ast_hash": "e8a0d21ed3ddfb2e73ceb2669d635dbe",
+    "semantic_hash": "e8a0d21ed3ddfb2e73ceb2669d635dbe"
+  },
+  "D:\\CampusSignal\\updates\\version.json": {
+    "mtime": 1790866325.4059036,
+    "ast_hash": "50611761b6a6125a4f3b7ab07a827cde",
+    "semantic_hash": "50611761b6a6125a4f3b7ab07a827cde"
+  },
+  "D:\\CampusSignal\\web\\manifest.json": {
+    "mtime": 1788500112.624779,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "D:\\CampusSignal\\website\\assets\\js\\app_nav.js": {
+    "mtime": 1788625528.1840005,
+    "ast_hash": "ddefe00374d2eb42db437b5570be0fdd",
+    "semantic_hash": "ddefe00374d2eb42db437b5570be0fdd"
+  },
+  "D:\\CampusSignal\\website\\assets\\js\\auth.js": {
+    "mtime": 1788624648.0626113,
+    "ast_hash": "d5f57199e935fb6f4bc1a33e8efb1aa8",
+    "semantic_hash": "d5f57199e935fb6f4bc1a33e8efb1aa8"
+  },
+  "D:\\CampusSignal\\website\\assets\\js\\catalog.js": {
+    "mtime": 1788625491.5138898,
+    "ast_hash": "3155b266443bd4e07e83cfe12596e1e4",
+    "semantic_hash": "3155b266443bd4e07e83cfe12596e1e4"
+  },
+  "D:\\CampusSignal\\website\\assets\\js\\main.js": {
+    "mtime": 1790866347.254351,
+    "ast_hash": "5d7049770f76541745f8c772839a1032",
+    "semantic_hash": "5d7049770f76541745f8c772839a1032"
+  },
+  "D:\\CampusSignal\\website\\assets\\js\\onboarding.js": {
+    "mtime": 1788585741.365399,
+    "ast_hash": "1b4b32c193445730326b726133c04658",
+    "semantic_hash": "1b4b32c193445730326b726133c04658"
+  },
+  "D:\\CampusSignal\\website\\updates\\version.json": {
+    "mtime": 1790866334.1015573,
+    "ast_hash": "50611761b6a6125a4f3b7ab07a827cde",
+    "semantic_hash": "50611761b6a6125a4f3b7ab07a827cde"
+  },
+  "D:\\CampusSignal\\.github\\workflows\\deploy-pages.yml": {
+    "mtime": 1788589149.6631703,
+    "ast_hash": "99ecb0fdeff481980443b7041e3f24ad",
+    "semantic_hash": "99ecb0fdeff481980443b7041e3f24ad"
+  },
+  "D:\\CampusSignal\\.github\\workflows\\release.yml": {
+    "mtime": 1790696029.4936435,
+    "ast_hash": "b6de3f820b75a5de5e9dfd607808f9ad",
+    "semantic_hash": "b6de3f820b75a5de5e9dfd607808f9ad"
+  },
+  "D:\\CampusSignal\\CampusSignal_DesignThinking_Deck.html": {
+    "mtime": 1788677204.062222,
+    "ast_hash": "0009bfdf0ab820994cda6053b4cbb8f2",
+    "semantic_hash": "0009bfdf0ab820994cda6053b4cbb8f2"
+  },
+  "D:\\CampusSignal\\CampusSignal_PRD.md": {
+    "mtime": 1788277048.514082,
+    "ast_hash": "10852937818b54526dd59274445e8008",
+    "semantic_hash": "10852937818b54526dd59274445e8008"
+  },
+  "D:\\CampusSignal\\README.md": {
+    "mtime": 1788501115.5166993,
+    "ast_hash": "8a686602f1a60680919d37c68a0e2576",
+    "semantic_hash": "8a686602f1a60680919d37c68a0e2576"
+  },
+  "D:\\CampusSignal\\analysis_options.yaml": {
+    "mtime": 1790692812.5710585,
+    "ast_hash": "4d504ecec831b85c4c02a7f2e4ce1464",
+    "semantic_hash": "4d504ecec831b85c4c02a7f2e4ce1464"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\README.md": {
+    "mtime": 1777568251.4659455,
+    "ast_hash": "f7ee1b402881509d197f34963e569927",
+    "semantic_hash": "f7ee1b402881509d197f34963e569927"
+  },
+  "D:\\CampusSignal\\pubspec.yaml": {
+    "mtime": 1790866240.0044029,
+    "ast_hash": "d36fe8931cd6aaaedd61e9bd612afbba",
+    "semantic_hash": "d36fe8931cd6aaaedd61e9bd612afbba"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\auth_sign_in\\code.html": {
+    "mtime": 1788274569.3659163,
+    "ast_hash": "cf0345736011eb9d142257878217d341",
+    "semantic_hash": "cf0345736011eb9d142257878217d341"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\calendar_deadlines\\code.html": {
+    "mtime": 1788274569.4647062,
+    "ast_hash": "9eb37514711bd4856f7c75685f61fa96",
+    "semantic_hash": "9eb37514711bd4856f7c75685f61fa96"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\campussignal\\DESIGN.md": {
+    "mtime": 1788274569.4947166,
+    "ast_hash": "956f2154123a4bc6b695ca6c2ff86f48",
+    "semantic_hash": "956f2154123a4bc6b695ca6c2ff86f48"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\event_details\\code.html": {
+    "mtime": 1788274569.431701,
+    "ast_hash": "3bb8935ae0c3f883f3064193862e7fce",
+    "semantic_hash": "3bb8935ae0c3f883f3064193862e7fce"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\home_feed\\code.html": {
+    "mtime": 1788274569.3990078,
+    "ast_hash": "7c91b704bdc38e2b22e92d76c270543e",
+    "semantic_hash": "7c91b704bdc38e2b22e92d76c270543e"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\notifications\\code.html": {
+    "mtime": 1788274569.3080482,
+    "ast_hash": "e14652c3268723d40d1c33d2fa065089",
+    "semantic_hash": "e14652c3268723d40d1c33d2fa065089"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\onboarding_personalize\\code.html": {
+    "mtime": 1788274569.3489175,
+    "ast_hash": "0fac7bc5e764b94da228b890d6a1942d",
+    "semantic_hash": "0fac7bc5e764b94da228b890d6a1942d"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\onboarding_profile_basics\\code.html": {
+    "mtime": 1788274569.3829165,
+    "ast_hash": "8c08ff637022725db00bbf51ca67117f",
+    "semantic_hash": "8c08ff637022725db00bbf51ca67117f"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\profile\\code.html": {
+    "mtime": 1788274569.4807522,
+    "ast_hash": "aeb54cdfae6df801a391f3ec2d0ea6cb",
+    "semantic_hash": "aeb54cdfae6df801a391f3ec2d0ea6cb"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\saved_bookmarks\\code.html": {
+    "mtime": 1788274569.4486964,
+    "ast_hash": "e4f21747793772ca0127788f876de6ad",
+    "semantic_hash": "e4f21747793772ca0127788f876de6ad"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\search_filter_modal\\code.html": {
+    "mtime": 1788274569.4157906,
+    "ast_hash": "b7246d51c025da55038dc7376527778b",
+    "semantic_hash": "b7246d51c025da55038dc7376527778b"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\splash_screen\\code.html": {
+    "mtime": 1788274569.330917,
+    "ast_hash": "d09aab6658701271cbe5b0ad4daae352",
+    "semantic_hash": "d09aab6658701271cbe5b0ad4daae352"
+  },
+  "D:\\CampusSignal\\website\\404.html": {
+    "mtime": 1788585854.9324605,
+    "ast_hash": "4067b2e592a3cf5377b66b0d395f7796",
+    "semantic_hash": "4067b2e592a3cf5377b66b0d395f7796"
+  },
+  "D:\\CampusSignal\\website\\app\\calendar\\index.html": {
+    "mtime": 1788625546.2105412,
+    "ast_hash": "f5c6ab9f626f1aad3abf3c22d2458768",
+    "semantic_hash": "f5c6ab9f626f1aad3abf3c22d2458768"
+  },
+  "D:\\CampusSignal\\website\\app\\index.html": {
+    "mtime": 1790866517.7852733,
+    "ast_hash": "d77fae5db9325c137291fad6935dcc35",
+    "semantic_hash": "d77fae5db9325c137291fad6935dcc35"
+  },
+  "D:\\CampusSignal\\website\\app\\notifications\\index.html": {
+    "mtime": 1790866532.2478619,
+    "ast_hash": "6a66f7418a5e187d07499a4453bf3bd0",
+    "semantic_hash": "6a66f7418a5e187d07499a4453bf3bd0"
+  },
+  "D:\\CampusSignal\\website\\app\\profile\\index.html": {
+    "mtime": 1788625580.2822952,
+    "ast_hash": "3e1f29913e71394631652a1e1a5c1b70",
+    "semantic_hash": "3e1f29913e71394631652a1e1a5c1b70"
+  },
+  "D:\\CampusSignal\\website\\app\\saved\\index.html": {
+    "mtime": 1789237656.7609687,
+    "ast_hash": "b7a5789ed3508d9e8d6661ff1fc10e28",
+    "semantic_hash": "b7a5789ed3508d9e8d6661ff1fc10e28"
+  },
+  "D:\\CampusSignal\\website\\app\\studio\\index.html": {
+    "mtime": 1788585809.0436883,
+    "ast_hash": "44bb5d59388517e116c62cc310c90b36",
+    "semantic_hash": "44bb5d59388517e116c62cc310c90b36"
+  },
+  "D:\\CampusSignal\\website\\auth\\index.html": {
+    "mtime": 1788585733.7824874,
+    "ast_hash": "ed8d37fffdacc264294e306db1a11170",
+    "semantic_hash": "ed8d37fffdacc264294e306db1a11170"
+  },
+  "D:\\CampusSignal\\website\\download\\index.html": {
+    "mtime": 1790866467.403596,
+    "ast_hash": "d70555d9ad1c2fa16a8313a27a19a6db",
+    "semantic_hash": "d70555d9ad1c2fa16a8313a27a19a6db"
+  },
+  "D:\\CampusSignal\\website\\index.html": {
+    "mtime": 1790866451.8961124,
+    "ast_hash": "300db17e57db4d8ef9f8a9cac654055c",
+    "semantic_hash": "300db17e57db4d8ef9f8a9cac654055c"
+  },
+  "D:\\CampusSignal\\website\\onboarding\\index.html": {
+    "mtime": 1788585755.1546924,
+    "ast_hash": "45de546d360d588d04d10c5a73e5d84f",
+    "semantic_hash": "45de546d360d588d04d10c5a73e5d84f"
+  },
+  "D:\\CampusSignal\\website\\privacy\\index.html": {
+    "mtime": 1788585844.376101,
+    "ast_hash": "0b934bfc5ab369b61351006c163866ac",
+    "semantic_hash": "0b934bfc5ab369b61351006c163866ac"
+  },
+  "D:\\CampusSignal\\website\\terms\\index.html": {
+    "mtime": 1788585850.0754406,
+    "ast_hash": "8f7f594fbbd480b086e23699ea3e974a",
+    "semantic_hash": "8f7f594fbbd480b086e23699ea3e974a"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-hdpi\\ic_launcher.png": {
+    "mtime": 1777568251.4497693,
+    "ast_hash": "13e9c72ec37fac220397aa819fa1ef2d",
+    "semantic_hash": "13e9c72ec37fac220397aa819fa1ef2d"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-hdpi\\launcher_icon.png": {
+    "mtime": 1788500111.3005862,
+    "ast_hash": "0b522521452bb26c28a99269f92b12e1",
+    "semantic_hash": "0b522521452bb26c28a99269f92b12e1"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-mdpi\\ic_launcher.png": {
+    "mtime": 1777568251.4497693,
+    "ast_hash": "6270344430679711b81476e29878caa7",
+    "semantic_hash": "6270344430679711b81476e29878caa7"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-mdpi\\launcher_icon.png": {
+    "mtime": 1788500111.2777624,
+    "ast_hash": "aca2df1292f26b951840771e736e554f",
+    "semantic_hash": "aca2df1292f26b951840771e736e554f"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xhdpi\\ic_launcher.png": {
+    "mtime": 1777568251.4497693,
+    "ast_hash": "a0a8db5985280b3679d99a820ae2db79",
+    "semantic_hash": "a0a8db5985280b3679d99a820ae2db79"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xhdpi\\launcher_icon.png": {
+    "mtime": 1788500111.3356736,
+    "ast_hash": "8b0730da2f429fba6a2ea1baed3da4ad",
+    "semantic_hash": "8b0730da2f429fba6a2ea1baed3da4ad"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\ic_launcher.png": {
+    "mtime": 1777568251.4497693,
+    "ast_hash": "afe1b655b9f32da22f9a4301bb8e6ba8",
+    "semantic_hash": "afe1b655b9f32da22f9a4301bb8e6ba8"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xxhdpi\\launcher_icon.png": {
+    "mtime": 1788500111.3445134,
+    "ast_hash": "1e58de13c01ee29871538b9dcb9a1d0d",
+    "semantic_hash": "1e58de13c01ee29871538b9dcb9a1d0d"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\ic_launcher.png": {
+    "mtime": 1777568251.4497693,
+    "ast_hash": "57838d52c318faff743130c3fcfae0c6",
+    "semantic_hash": "57838d52c318faff743130c3fcfae0c6"
+  },
+  "D:\\CampusSignal\\android\\app\\src\\main\\res\\mipmap-xxxhdpi\\launcher_icon.png": {
+    "mtime": 1788500111.3005862,
+    "ast_hash": "d26b0aaec9f253fcc0f2efad658b1ed7",
+    "semantic_hash": "d26b0aaec9f253fcc0f2efad658b1ed7"
+  },
+  "D:\\CampusSignal\\app_logo.png": {
+    "mtime": 1788499935.4587636,
+    "ast_hash": "55c754c1abf52c339e636dd8704e2901",
+    "semantic_hash": "55c754c1abf52c339e636dd8704e2901"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-1024x1024@1x.png": {
+    "mtime": 1788500112.181497,
+    "ast_hash": "e679c615115a3220e413e7d52b9ab76a",
+    "semantic_hash": "e679c615115a3220e413e7d52b9ab76a"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@1x.png": {
+    "mtime": 1788500112.1203742,
+    "ast_hash": "71a28f20a5bc38d3c9e618b64ecc671c",
+    "semantic_hash": "71a28f20a5bc38d3c9e618b64ecc671c"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@2x.png": {
+    "mtime": 1788500112.1203742,
+    "ast_hash": "05aef4e40594a7a45307298350939358",
+    "semantic_hash": "05aef4e40594a7a45307298350939358"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-20x20@3x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "fa3c0fd00903ac31be33342c41a764a4",
+    "semantic_hash": "fa3c0fd00903ac31be33342c41a764a4"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@1x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "974ad9cf0e24dbbe0231c127608a8227",
+    "semantic_hash": "974ad9cf0e24dbbe0231c127608a8227"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@2x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "b88057f128a197e22673187fda139add",
+    "semantic_hash": "b88057f128a197e22673187fda139add"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-29x29@3x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "535caf259bf2ec2c69e6d60e23a3b694",
+    "semantic_hash": "535caf259bf2ec2c69e6d60e23a3b694"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@1x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "05aef4e40594a7a45307298350939358",
+    "semantic_hash": "05aef4e40594a7a45307298350939358"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@2x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "3b7e1564bf7ed39439636d6fe57f70e5",
+    "semantic_hash": "3b7e1564bf7ed39439636d6fe57f70e5"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-40x40@3x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "0670f712c8416aa3678b9ec4030b182c",
+    "semantic_hash": "0670f712c8416aa3678b9ec4030b182c"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-50x50@1x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "aabe57de8e886f9cf98902243ee4c8a6",
+    "semantic_hash": "aabe57de8e886f9cf98902243ee4c8a6"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-50x50@2x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "5cdd5fae7d768991e17c2af244fc88b6",
+    "semantic_hash": "5cdd5fae7d768991e17c2af244fc88b6"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-57x57@1x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "3165dfd3774b32db6ec0d5ae347a059d",
+    "semantic_hash": "3165dfd3774b32db6ec0d5ae347a059d"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-57x57@2x.png": {
+    "mtime": 1788500112.1223164,
+    "ast_hash": "acc714612f32ecc1532f19f23225e28d",
+    "semantic_hash": "acc714612f32ecc1532f19f23225e28d"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@2x.png": {
+    "mtime": 1788500112.1213136,
+    "ast_hash": "0670f712c8416aa3678b9ec4030b182c",
+    "semantic_hash": "0670f712c8416aa3678b9ec4030b182c"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-60x60@3x.png": {
+    "mtime": 1788500112.1223164,
+    "ast_hash": "619d352c6418cf728ab1064e81472b5f",
+    "semantic_hash": "619d352c6418cf728ab1064e81472b5f"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-72x72@1x.png": {
+    "mtime": 1788500112.1223164,
+    "ast_hash": "0b522521452bb26c28a99269f92b12e1",
+    "semantic_hash": "0b522521452bb26c28a99269f92b12e1"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-72x72@2x.png": {
+    "mtime": 1788500112.1223164,
+    "ast_hash": "1e58de13c01ee29871538b9dcb9a1d0d",
+    "semantic_hash": "1e58de13c01ee29871538b9dcb9a1d0d"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@1x.png": {
+    "mtime": 1788500112.1233132,
+    "ast_hash": "207e6457f64f9a6917409b3695cd7021",
+    "semantic_hash": "207e6457f64f9a6917409b3695cd7021"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-76x76@2x.png": {
+    "mtime": 1788500112.1233132,
+    "ast_hash": "8700dba1833a6e0df89eba5d2bd51f94",
+    "semantic_hash": "8700dba1833a6e0df89eba5d2bd51f94"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\AppIcon.appiconset\\Icon-App-83.5x83.5@2x.png": {
+    "mtime": 1788500112.1233132,
+    "ast_hash": "55844d84dae54a6045b0aa5240bdb61c",
+    "semantic_hash": "55844d84dae54a6045b0aa5240bdb61c"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage.png": {
+    "mtime": 1781685519.8952496,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@2x.png": {
+    "mtime": 1781685519.8952496,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "D:\\CampusSignal\\ios\\Runner\\Assets.xcassets\\LaunchImage.imageset\\LaunchImage@3x.png": {
+    "mtime": 1781685519.8952496,
+    "ast_hash": "978c1bee49d7ad5fc1a4d81099b13e18",
+    "semantic_hash": "978c1bee49d7ad5fc1a4d81099b13e18"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\auth_sign_in\\screen.png": {
+    "mtime": 1788274569.3729167,
+    "ast_hash": "1b3cc27b72390a20fb634d694a2b6d5b",
+    "semantic_hash": "1b3cc27b72390a20fb634d694a2b6d5b"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\calendar_deadlines\\screen.png": {
+    "mtime": 1788274569.4726977,
+    "ast_hash": "d68cd556be479f68e3ebaaec57c6912d",
+    "semantic_hash": "d68cd556be479f68e3ebaaec57c6912d"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\event_details\\screen.png": {
+    "mtime": 1788274569.439765,
+    "ast_hash": "38236553677cbd43b98c653722649cf9",
+    "semantic_hash": "38236553677cbd43b98c653722649cf9"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\home_feed\\screen.png": {
+    "mtime": 1788274569.4056873,
+    "ast_hash": "adc29239ef0b0dcedb62b3bd1f509b8f",
+    "semantic_hash": "adc29239ef0b0dcedb62b3bd1f509b8f"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\notifications\\screen.png": {
+    "mtime": 1788274569.3209195,
+    "ast_hash": "29a704d696f37e49e3796a266f4533c1",
+    "semantic_hash": "29a704d696f37e49e3796a266f4533c1"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\onboarding_personalize\\screen.png": {
+    "mtime": 1788274569.3559165,
+    "ast_hash": "bbf7d9042ffa6d5bb977c39e5ac7af4f",
+    "semantic_hash": "bbf7d9042ffa6d5bb977c39e5ac7af4f"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\onboarding_profile_basics\\screen.png": {
+    "mtime": 1788274569.3890035,
+    "ast_hash": "e753cad46c6012a28b724b5e33d89bac",
+    "semantic_hash": "e753cad46c6012a28b724b5e33d89bac"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\profile\\screen.png": {
+    "mtime": 1788274569.4876957,
+    "ast_hash": "4cc1cb49bc6ae78496aa9c2f5f5a90a6",
+    "semantic_hash": "4cc1cb49bc6ae78496aa9c2f5f5a90a6"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\saved_bookmarks\\screen.png": {
+    "mtime": 1788274569.4556966,
+    "ast_hash": "085e97025166e12dad559593f2c48b9c",
+    "semantic_hash": "085e97025166e12dad559593f2c48b9c"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\search_filter_modal\\screen.png": {
+    "mtime": 1788274569.4227896,
+    "ast_hash": "2959ae879ef16338adf8eb76521b5d1a",
+    "semantic_hash": "2959ae879ef16338adf8eb76521b5d1a"
+  },
+  "D:\\CampusSignal\\stitch_interface_screen_design\\splash_screen\\screen.png": {
+    "mtime": 1788274569.3389156,
+    "ast_hash": "c9b57f31e9159e9f70dcfcddfc6dcc5f",
+    "semantic_hash": "c9b57f31e9159e9f70dcfcddfc6dcc5f"
+  },
+  "D:\\CampusSignal\\web\\favicon.png": {
+    "mtime": 1788500112.3178885,
+    "ast_hash": "7bdf767b6dde2f96a23ba50407e8fa7b",
+    "semantic_hash": "7bdf767b6dde2f96a23ba50407e8fa7b"
+  },
+  "D:\\CampusSignal\\web\\icons\\Icon-192.png": {
+    "mtime": 1788500112.3501532,
+    "ast_hash": "d26b0aaec9f253fcc0f2efad658b1ed7",
+    "semantic_hash": "d26b0aaec9f253fcc0f2efad658b1ed7"
+  },
+  "D:\\CampusSignal\\web\\icons\\Icon-512.png": {
+    "mtime": 1788500112.4760613,
+    "ast_hash": "65f069767e4986d4eccf0969224a667e",
+    "semantic_hash": "65f069767e4986d4eccf0969224a667e"
+  },
+  "D:\\CampusSignal\\web\\icons\\Icon-maskable-192.png": {
+    "mtime": 1788500112.5077336,
+    "ast_hash": "d26b0aaec9f253fcc0f2efad658b1ed7",
+    "semantic_hash": "d26b0aaec9f253fcc0f2efad658b1ed7"
+  },
+  "D:\\CampusSignal\\web\\icons\\Icon-maskable-512.png": {
+    "mtime": 1788500112.6224487,
+    "ast_hash": "65f069767e4986d4eccf0969224a667e",
+    "semantic_hash": "65f069767e4986d4eccf0969224a667e"
+  },
+  "D:\\CampusSignal\\website\\assets\\img\\app_logo.png": {
+    "mtime": 1788499935.4587636,
+    "ast_hash": "55c754c1abf52c339e636dd8704e2901",
+    "semantic_hash": "55c754c1abf52c339e636dd8704e2901"
+  },
+  "D:\\CampusSignal\\website\\favicon.png": {
+    "mtime": 1788500112.3178885,
+    "ast_hash": "7bdf767b6dde2f96a23ba50407e8fa7b",
+    "semantic_hash": "7bdf767b6dde2f96a23ba50407e8fa7b"
+  }
+}

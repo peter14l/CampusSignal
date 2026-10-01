@@ -7,6 +7,7 @@ import '../profile/profile_controller.dart';
 class FeedState {
   final String selectedCategory;
   final String selectedDepartment; // 'all' or specific department
+  final EventScope? scopeFilter; // null = My Campus + Federated Hackathons, interCollege = Pan-India Only
   final List<EventModel> events;
   final bool isLoading;
   final bool isRefreshing;
@@ -16,6 +17,7 @@ class FeedState {
   const FeedState({
     this.selectedCategory = 'for_you',
     this.selectedDepartment = 'all',
+    this.scopeFilter,
     this.events = const [],
     this.isLoading = false,
     this.isRefreshing = false,
@@ -26,6 +28,8 @@ class FeedState {
   FeedState copyWith({
     String? selectedCategory,
     String? selectedDepartment,
+    EventScope? scopeFilter,
+    bool clearScopeFilter = false,
     List<EventModel>? events,
     bool? isLoading,
     bool? isRefreshing,
@@ -35,6 +39,7 @@ class FeedState {
     return FeedState(
       selectedCategory: selectedCategory ?? this.selectedCategory,
       selectedDepartment: selectedDepartment ?? this.selectedDepartment,
+      scopeFilter: clearScopeFilter ? null : (scopeFilter ?? this.scopeFilter),
       events: events ?? this.events,
       isLoading: isLoading ?? this.isLoading,
       isRefreshing: isRefreshing ?? this.isRefreshing,
@@ -61,12 +66,17 @@ class FeedController extends Notifier<FeedState> {
     }
 
     try {
-      final userBranch = ref.read(authControllerProvider).profile?.branch ??
-          ref.read(profileControllerProvider).profile?.branch;
+      final profile = ref.read(authControllerProvider).profile ??
+          ref.read(profileControllerProvider).profile;
+      final userBranch = profile?.branch;
+      final userCollegeId = profile?.collegeId;
+
       final events = await _repository.getFeedEvents(
         category: state.selectedCategory,
         userBranch: userBranch,
         targetDepartment: state.selectedDepartment != 'all' ? state.selectedDepartment : null,
+        userCollegeId: userCollegeId,
+        scopeFilter: state.scopeFilter,
       );
       final savedEvents = await _repository.getSavedEvents();
       final savedIds = savedEvents.map((e) => e.id).toSet();
@@ -96,6 +106,16 @@ class FeedController extends Notifier<FeedState> {
   Future<void> selectDepartment(String department) async {
     if (state.selectedDepartment == department) return;
     state = state.copyWith(selectedDepartment: department, isLoading: true);
+    await loadFeed();
+  }
+
+  Future<void> selectScopeFilter(EventScope? scope) async {
+    if (state.scopeFilter == scope) return;
+    state = state.copyWith(
+      scopeFilter: scope,
+      clearScopeFilter: scope == null,
+      isLoading: true,
+    );
     await loadFeed();
   }
 

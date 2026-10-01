@@ -19,6 +19,8 @@ import '../features/search/search_screen.dart';
 import '../features/settings/settings_screen.dart';
 import '../features/splash/splash_screen.dart';
 import '../features/updater/app_update_screen.dart';
+import '../features/tutorial/tutorial_screen.dart';
+import '../features/admin/admin_moderation_screen.dart';
 import 'scaffold_with_nav_bar.dart';
 
 final rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'root');
@@ -160,6 +162,28 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         pageBuilder: (context, state) => MaterialPage<void>(
           key: state.pageKey,
           child: const PrivacyPolicyScreen(),
+        ),
+      ),
+
+      // Top Level Route: App Guide & Interactive Tutorial
+      GoRoute(
+        path: '/tutorial',
+        name: 'tutorial',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage<void>(
+          key: state.pageKey,
+          child: const TutorialScreen(),
+        ),
+      ),
+
+      // Top Level Route: Admin Moderation & Fest Hub
+      GoRoute(
+        path: '/admin-moderation',
+        name: 'admin-moderation',
+        parentNavigatorKey: rootNavigatorKey,
+        pageBuilder: (context, state) => MaterialPage<void>(
+          key: state.pageKey,
+          child: const AdminModerationScreen(),
         ),
       ),
 

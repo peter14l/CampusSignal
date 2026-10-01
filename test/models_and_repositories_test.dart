@@ -1,10 +1,37 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:campus_signal/models/college_model.dart';
 import 'package:campus_signal/models/event_model.dart';
 import 'package:campus_signal/models/profile_model.dart';
 import 'package:campus_signal/models/notification_model.dart';
 import 'package:campus_signal/features/notifications/notifications_controller.dart';
 
 void main() {
+  group('CollegeModel Tests', () {
+    test('Default fallback and JSON serialization works', () {
+      final college = CollegeModel.fromJson(null);
+      expect(college.id, 'sxuk');
+      expect(college.shortCode, 'SXUK');
+      expect(college.name, "St. Xavier's University, Kolkata");
+
+      const customCollege = CollegeModel(
+        id: 'ju',
+        name: 'Jadavpur University',
+        shortCode: 'JU',
+        city: 'Kolkata',
+        state: 'West Bengal',
+        domainPatterns: ['@jadavpuruniversity.in'],
+        popularBranches: ['B.E. Computer Science & Engineering', 'M.C.A.'],
+      );
+
+      final json = customCollege.toJson();
+      expect(json['id'], 'ju');
+      expect(json['short_code'], 'JU');
+
+      final fromJson = CollegeModel.fromJson(json);
+      expect(fromJson, customCollege);
+      expect(fromJson.popularBranches.length, 2);
+    });
+  });
   group('EventModel Tests', () {
     test('Defensive parsing handles null and empty map', () {
       final event = EventModel.fromJson(null);
@@ -84,14 +111,52 @@ void main() {
       expect(event.matchScore, 0.88);
       expect(event.metadata, isEmpty);
     });
+
+    test('Parses multi-college scoping and moderation status', () {
+      final json = {
+        'id': 'evt-inter-1',
+        'title': 'National AI Challenge',
+        'category': 'Hackathons',
+        'scope': 'interCollege',
+        'moderation_status': 'pendingApproval',
+        'college_id': 'ju',
+        'college_name': 'Jadavpur University',
+        'college_short_code': 'JU',
+        'fest_id': 'fest-srijan',
+      };
+
+      final event = EventModel.fromJson(json);
+      expect(event.isInterCollege, true);
+      expect(event.isIntraCollege, false);
+      expect(event.moderationStatus, EventModerationStatus.pendingApproval);
+      expect(event.collegeShortCode, 'JU');
+      expect(event.festId, 'fest-srijan');
+      expect(event.isInternship, false);
+
+      final internshipJson = {
+        'id': 'evt-intern-1',
+        'title': 'Software Engineering Intern',
+        'category': 'Internships',
+        'college_id': 'sxuk',
+      };
+      final internEvent = EventModel.fromJson(internshipJson);
+      expect(internEvent.isInternship, true);
+      expect(internEvent.isIntraCollege, true);
+    });
   });
 
   group('ProfileModel Tests', () {
-    test('Parses profile json properly', () {
+    test('Parses profile json with multi-college role & verification', () {
       final json = {
         'id': 'user-1',
         'full_name': 'Alex Rivera',
         'college_email': 'alex@campus.edu',
+        'college_id': 'ju',
+        'college_short_code': 'JU',
+        'role': 'festAdmin',
+        'is_verified_student': true,
+        'roll_number': 'JU/CSE/24/01',
+        'managed_fest_ids': ['fest-srijan'],
         'branch': 'CSE',
         'year': '3',
         'semester': 5,
@@ -104,6 +169,12 @@ void main() {
       final profile = ProfileModel.fromJson(json);
       expect(profile.id, 'user-1');
       expect(profile.fullName, 'Alex Rivera');
+      expect(profile.collegeShortCode, 'JU');
+      expect(profile.role, UserRole.festAdmin);
+      expect(profile.isVerifiedStudent, true);
+      expect(profile.rollNumber, 'JU/CSE/24/01');
+      expect(profile.canModerate, true);
+      expect(profile.canPublishDirectly, true);
       expect(profile.year, 3);
       expect(profile.semester, 5);
       expect(profile.semesterLabel, 'Semester 5');

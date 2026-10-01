@@ -1,11 +1,9 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/theme/motion.dart';
-import '../../core/widgets/department_picker_modal.dart';
 import 'onboarding_controller.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -16,9 +14,12 @@ class OnboardingScreen extends ConsumerStatefulWidget {
 }
 
 class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
+  final TextEditingController _campusSearchController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _skillInputController = TextEditingController();
   final TextEditingController _interestInputController = TextEditingController();
+
+  String _campusSearchQuery = '';
 
   final List<String> _preMadeInterests = const [
     'Hackathons',
@@ -64,6 +65,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   @override
   void dispose() {
+    _campusSearchController.dispose();
     _nameController.dispose();
     _skillInputController.dispose();
     _interestInputController.dispose();
@@ -75,14 +77,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final state = ref.read(onboardingControllerProvider);
 
     if (state.currentStep == 0) {
+      onboardingCtrl.nextStep();
+    } else if (state.currentStep == 1) {
       onboardingCtrl.updateFullName(_nameController.text.trim());
       onboardingCtrl.nextStep();
+    } else if (state.currentStep == 2) {
+      onboardingCtrl.nextStep();
     } else {
+      // Step 3: Complete Onboarding
       final success = await onboardingCtrl.completeOnboarding();
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Profile setup complete! Welcome to CampusSignal.'),
+          SnackBar(
+            content: Text(
+              state.verificationSuccess
+                  ? 'ID Verified! Welcome to ${state.selectedCollegeShortCode} on CampusSignal.'
+                  : 'Welcome to CampusSignal! You can verify your student ID anytime in Profile.',
+            ),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -111,6 +122,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     }
   }
 
+  String _getStepTitle(int step) {
+    switch (step) {
+      case 0:
+        return 'Find Your Campus';
+      case 1:
+        return 'Academic Details';
+      case 2:
+        return 'Interests & Skills';
+      case 3:
+        return 'Student Verification';
+      default:
+        return 'Setup Profile';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = ref.watch(onboardingControllerProvider);
@@ -130,7 +156,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           backgroundColor: colorScheme.surface,
           elevation: 0,
           title: Text(
-            state.currentStep == 0 ? 'Academic Details' : 'Interests & Skills',
+            _getStepTitle(state.currentStep),
             style: theme.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700),
           ),
           leading: state.currentStep > 0
@@ -139,122 +165,138 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   onPressed: _onBackPressed,
                 )
               : null,
+          actions: [
+            if (state.currentStep == 3)
+              TextButton(
+                onPressed: () {
+                  ref.read(onboardingControllerProvider.notifier).skipVerification();
+                  _onNextPressed();
+                },
+                child: const Text('Skip for Now'),
+              ),
+            const SizedBox(width: 8),
+          ],
         ),
         body: SafeArea(
           child: Column(
             children: [
-              // Top Progress Indicator
+              // Top 4-Step Progress Indicator
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                 child: Row(
-                  children: [
-                    Expanded(
+                  children: List.generate(4, (index) {
+                    final isCompleted = index < state.currentStep;
+                    final isCurrent = index == state.currentStep;
+                    return Expanded(
                       child: Container(
-                        height: 4,
+                        margin: const EdgeInsets.symmetric(horizontal: 3),
+                        height: 5,
                         decoration: BoxDecoration(
-                          color: colorScheme.primary,
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: AnimatedContainer(
-                        duration: AppMotion.durationMedium2,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: state.currentStep >= 1
+                          color: isCompleted
                               ? colorScheme.primary
-                              : colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(2),
+                              : isCurrent
+                                  ? colorScheme.primary.withValues(alpha: 0.6)
+                                  : colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(10),
                         ),
                       ),
-                    ),
-                  ],
+                    );
+                  }),
                 ),
               ),
 
-              // Scrollable Step Body
-              Expanded(
-                child: SingleChildScrollView(
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  child: AnimatedSwitcher(
-                    duration: AppMotion.durationMedium3,
-                    switchInCurve: AppMotion.spring,
-                    switchOutCurve: AppMotion.emphasizedAccelerate,
-                    child: state.currentStep == 0
-                        ? _buildStep1Academics(context, state, theme)
-                        : _buildStep2Personalize(context, state, theme),
+              // Error Message Banner
+              if (state.errorMessage != null)
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  decoration: BoxDecoration(
+                    color: colorScheme.errorContainer.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(LucideIcons.alertCircle, color: colorScheme.onErrorContainer, size: 18),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          state.errorMessage!,
+                          style: TextStyle(
+                            color: colorScheme.onErrorContainer,
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
+
+              // Body Content by Step
+              Expanded(
+                child: AnimatedSwitcher(
+                  duration: AppMotion.durationMedium2,
+                  switchInCurve: AppMotion.emphasizedDecelerate,
+                  switchOutCurve: AppMotion.emphasizedAccelerate,
+                  child: state.currentStep == 0
+                      ? _buildStep0Campus(context, state, colorScheme)
+                      : state.currentStep == 1
+                          ? _buildStep1Academics(context, state, colorScheme)
+                          : state.currentStep == 2
+                              ? _buildStep2Personalize(context, state, colorScheme)
+                              : _buildStep3Verification(context, state, colorScheme),
+                ),
               ),
 
-              // Bottom Navigation Bar
+              // Bottom Navigation Action Bar
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                padding: const EdgeInsets.fromLTRB(20, 12, 20, 16),
                 decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerLowest,
+                  color: colorScheme.surface,
                   border: Border(
                     top: BorderSide(
-                      color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
                     ),
                   ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.04),
-                      blurRadius: 16,
-                      offset: const Offset(0, -4),
-                    ),
-                  ],
                 ),
-                child: Row(
-                  children: [
-                    if (state.currentStep > 0)
-                      OutlinedButton.icon(
-                        onPressed: state.isSaving ? null : _onBackPressed,
-                        icon: const Icon(LucideIcons.arrowLeft, size: 16),
-                        label: const Text('Back'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        ),
-                      )
-                    else
-                      const SizedBox(width: 20),
-                    const Spacer(),
-                    FilledButton(
-                      onPressed: state.isSaving ? null : _onNextPressed,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: FilledButton(
+                    style: FilledButton.styleFrom(
+                      backgroundColor: colorScheme.primary,
+                      foregroundColor: colorScheme.onPrimary,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      child: state.isSaving
-                          ? SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: colorScheme.onPrimary,
-                              ),
-                            )
-                          : Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  state.currentStep == 0 ? 'Next: Personalize' : 'Complete & Launch Feed',
-                                  style: const TextStyle(fontWeight: FontWeight.w700),
-                                ),
-                                const SizedBox(width: 8),
-                                Icon(
-                                  state.currentStep == 0 ? LucideIcons.arrowRight : LucideIcons.sparkles,
-                                  size: 16,
-                                ),
-                              ],
-                            ),
                     ),
-                  ],
+                    onPressed: state.isSaving ? null : _onNextPressed,
+                    child: state.isSaving
+                        ? SizedBox(
+                            width: 22,
+                            height: 22,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2.5,
+                              color: colorScheme.onPrimary,
+                            ),
+                          )
+                        : Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                state.currentStep == 3
+                                    ? (state.verificationSuccess ? 'Finish & Enter Campus' : 'Continue to Feed')
+                                    : 'Next Step',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(LucideIcons.arrowRight, size: 18),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ],
@@ -264,197 +306,326 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  Widget _buildStep1Academics(BuildContext context, OnboardingState state, ThemeData theme) {
-    final onboardingCtrl = ref.read(onboardingControllerProvider.notifier);
-    final colorScheme = theme.colorScheme;
+  // STEP 0: Find Your Campus
+  Widget _buildStep0Campus(BuildContext context, OnboardingState state, ColorScheme colorScheme) {
+    final colleges = AppConstants.indianColleges.where((c) {
+      if (_campusSearchQuery.isEmpty) return true;
+      final query = _campusSearchQuery.toLowerCase();
+      return c.name.toLowerCase().contains(query) ||
+          c.shortCode.toLowerCase().contains(query) ||
+          c.city.toLowerCase().contains(query);
+    }).toList();
 
-    return Column(
-      key: const ValueKey('step_1_academics'),
-      crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
+      key: const ValueKey('step-0-campus'),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       children: [
-        // User Profile Header Card (if fetched from Google)
+        Text(
+          'Select your University or College',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'CampusSignal connects your campus with inter-college discovery across India.',
+          style: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontSize: 13.5,
+          ),
+        ),
+        const SizedBox(height: 18),
+
+        // Campus Search Box
+        TextField(
+          controller: _campusSearchController,
+          onChanged: (val) {
+            setState(() {
+              _campusSearchQuery = val.trim();
+            });
+          },
+          decoration: InputDecoration(
+            hintText: 'Search college name, short code, or city...',
+            prefixIcon: const Icon(LucideIcons.search, size: 20),
+            suffixIcon: _campusSearchQuery.isNotEmpty
+                ? IconButton(
+                    icon: const Icon(LucideIcons.x, size: 18),
+                    onPressed: () {
+                      _campusSearchController.clear();
+                      setState(() {
+                        _campusSearchQuery = '';
+                      });
+                    },
+                  )
+                : null,
+            filled: true,
+            fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            ),
+            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Quick Pick Pills
+        Text(
+          'POPULAR UNIVERSITIES',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: AppConstants.indianColleges.take(6).map((college) {
+            final isSelected = state.selectedCollegeId == college.id;
+            return ChoiceChip(
+              label: Text(college.shortCode),
+              selected: isSelected,
+              onSelected: (_) {
+                ref.read(onboardingControllerProvider.notifier).selectCollege(college);
+              },
+              selectedColor: colorScheme.primaryContainer,
+              labelStyle: TextStyle(
+                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
+                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
+              ),
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 18),
+
+        // Colleges Directory List
+        Text(
+          'ALL INSTITUTIONS',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.onSurfaceVariant,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...colleges.map((college) {
+          final isSelected = state.selectedCollegeId == college.id;
+          return Container(
+            margin: const EdgeInsets.only(bottom: 10),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? colorScheme.primaryContainer.withValues(alpha: 0.4)
+                  : colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.outlineVariant.withValues(alpha: 0.3),
+                width: isSelected ? 1.8 : 1,
+              ),
+            ),
+            child: ListTile(
+              contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+              leading: Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: isSelected ? colorScheme.primary : colorScheme.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                alignment: Alignment.center,
+                child: Text(
+                  college.shortCode.substring(0, college.shortCode.length >= 2 ? 2 : 1),
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: isSelected ? colorScheme.onPrimary : colorScheme.onSurfaceVariant,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              title: Text(
+                college.name,
+                style: TextStyle(
+                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.w600,
+                  fontSize: 14.5,
+                ),
+              ),
+              subtitle: Text(
+                '${college.city}, ${college.state}',
+                style: TextStyle(
+                  fontSize: 12,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+              ),
+              trailing: isSelected
+                  ? Icon(LucideIcons.checkCircle2, color: colorScheme.primary)
+                  : null,
+              onTap: () {
+                ref.read(onboardingControllerProvider.notifier).selectCollege(college);
+              },
+            ),
+          );
+        }),
+      ],
+    );
+  }
+
+  // STEP 1: Academic Background
+  Widget _buildStep1Academics(BuildContext context, OnboardingState state, ColorScheme colorScheme) {
+    // Lookup selected college's branches
+    final currentCollege = AppConstants.indianColleges.firstWhere(
+      (c) => c.id == state.selectedCollegeId,
+      orElse: () => AppConstants.indianColleges.first,
+    );
+
+    final availableBranches = currentCollege.popularBranches.isNotEmpty
+        ? currentCollege.popularBranches
+        : AppConstants.branches.take(8).toList();
+
+    return ListView(
+      key: const ValueKey('step-1-academics'),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      children: [
+        // Selected College Pill Reminder
         Container(
-          padding: const EdgeInsets.all(14),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
-            color: colorScheme.primaryContainer.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+            color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(12),
           ),
           child: Row(
             children: [
-              if (state.avatarUrl != null && state.avatarUrl!.isNotEmpty)
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: CachedNetworkImage(
-                    imageUrl: state.avatarUrl!,
-                    width: 48,
-                    height: 48,
-                    memCacheWidth: 120,
-                    memCacheHeight: 120,
-                    fit: BoxFit.cover,
-                    errorWidget: (context, url, error) => _buildAvatarPlaceholder(colorScheme),
-                  ),
-                )
-              else
-                _buildAvatarPlaceholder(colorScheme),
-              const SizedBox(width: 14),
+              Icon(LucideIcons.school, size: 16, color: colorScheme.primary),
+              const SizedBox(width: 8),
               Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      state.fullName.isNotEmpty ? state.fullName : 'SXUK Student',
-                      style: theme.textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                    if (state.collegeEmail != null)
-                      Text(
-                        state.collegeEmail!,
-                        style: theme.textTheme.bodySmall?.copyWith(
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                  ],
+                child: Text(
+                  '${state.selectedCollegeName} (${state.selectedCollegeShortCode})',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12.5,
+                    color: colorScheme.onPrimaryContainer,
+                  ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              Icon(LucideIcons.circleCheck, color: colorScheme.primary, size: 20),
+              GestureDetector(
+                onTap: () => ref.read(onboardingControllerProvider.notifier).setStep(0),
+                child: Text(
+                  'Change',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w700,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
             ],
           ),
         ),
+        const SizedBox(height: 18),
+
+        Text(
+          'Academic Information',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'We personalize notices and internship recommendations based on your branch and semester.',
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13.5),
+        ),
         const SizedBox(height: 20),
 
+        // Full Name
         Text(
-          'Select your Department & Semester',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
+          'FULL NAME',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
           ),
         ),
-        const SizedBox(height: 6),
-        Text(
-          'We use this to rank notices, hackathons, and eligibility rules specific to your course.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        if (state.errorMessage != null) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.alertCircle, color: colorScheme.onErrorContainer, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    state.errorMessage!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onErrorContainer,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-
-        // Full Name Field
-        Text(
-          'Full Name',
-          style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w700),
-        ),
-        const SizedBox(height: 6),
+        const SizedBox(height: 8),
         TextField(
           controller: _nameController,
-          textCapitalization: TextCapitalization.words,
           decoration: InputDecoration(
-            prefixIcon: Icon(LucideIcons.user, color: colorScheme.onSurfaceVariant, size: 18),
-            hintText: 'e.g. Aditi Sharma',
+            hintText: 'e.g. Aarav Sharma',
+            prefixIcon: const Icon(LucideIcons.user, size: 19),
+            filled: true,
+            fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(14),
+              borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+            ),
           ),
-          onChanged: (val) => onboardingCtrl.updateFullName(val),
+          onChanged: (val) {
+            ref.read(onboardingControllerProvider.notifier).updateFullName(val);
+          },
         ),
         const SizedBox(height: 20),
 
-        // Department / Degree Program Selector
+        // Department / Branch Dropdown
         Text(
-          'Department / Degree Program *',
-          style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w700),
+          'PROGRAMME / BRANCH',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
         ),
-        const SizedBox(height: 6),
-        InkWell(
-          onTap: () {
-            HapticFeedback.selectionClick();
-            _showDepartmentPicker(context, state.branch, (selected) {
-              onboardingCtrl.updateBranch(selected);
-            });
-          },
-          borderRadius: BorderRadius.circular(16),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
-              ),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.graduationCap, color: colorScheme.primary, size: 20),
-                const SizedBox(width: 12),
-                Expanded(
+        const SizedBox(height: 8),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 14),
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+          ),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              isExpanded: true,
+              value: availableBranches.contains(state.branch)
+                  ? state.branch
+                  : (availableBranches.isNotEmpty ? availableBranches.first : null),
+              icon: const Icon(LucideIcons.chevronDown, size: 18),
+              onChanged: (newBranch) {
+                ref.read(onboardingControllerProvider.notifier).updateBranch(newBranch);
+              },
+              items: availableBranches.map((b) {
+                return DropdownMenuItem<String>(
+                  value: b,
                   child: Text(
-                    state.branch != null && state.branch!.isNotEmpty
-                        ? state.branch!
-                        : 'Select your degree programme',
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      fontWeight: FontWeight.w600,
-                      color: state.branch != null && state.branch!.isNotEmpty
-                          ? colorScheme.onSurface
-                          : colorScheme.onSurfaceVariant,
-                    ),
+                    b,
+                    style: const TextStyle(fontSize: 13.5, fontWeight: FontWeight.w500),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                ),
-                Icon(LucideIcons.chevronDown, color: colorScheme.onSurfaceVariant, size: 18),
-              ],
+                );
+              }).toList(),
             ),
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 22),
 
-        // Semester Selector Chips (Semester 1 to 8 / 10)
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              'Current Semester *',
-              style: theme.textTheme.titleSmall?.copyWith(color: colorScheme.onSurface, fontWeight: FontWeight.w700),
-            ),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-              decoration: BoxDecoration(
-                color: colorScheme.secondaryContainer,
-                borderRadius: BorderRadius.circular(8),
-              ),
-              child: Text(
-                'Year ${state.year}',
-                style: TextStyle(
-                  fontSize: 11,
-                  fontWeight: FontWeight.w700,
-                  color: colorScheme.onSecondaryContainer,
-                ),
-              ),
-            ),
-          ],
+        // Semester Selector
+        Text(
+          'CURRENT SEMESTER',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
         ),
-        const SizedBox(height: 10),
+        const SizedBox(height: 8),
         Wrap(
           spacing: 8,
           runSpacing: 8,
@@ -462,88 +633,52 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             final sem = i + 1;
             final isSelected = state.semester == sem;
             return ChoiceChip(
-              label: Text('Semester $sem'),
+              label: Text('Sem $sem'),
               selected: isSelected,
-              onSelected: (_) => onboardingCtrl.updateSemester(sem),
+              onSelected: (_) {
+                ref.read(onboardingControllerProvider.notifier).updateSemester(sem);
+              },
               selectedColor: colorScheme.primaryContainer,
-              backgroundColor: colorScheme.surfaceContainer,
               labelStyle: TextStyle(
-                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
                 fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                fontSize: 13,
+                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
               ),
             );
           }),
         ),
-        const SizedBox(height: 32),
       ],
     );
   }
 
-  Widget _buildStep2Personalize(BuildContext context, OnboardingState state, ThemeData theme) {
-    final onboardingCtrl = ref.read(onboardingControllerProvider.notifier);
-    final colorScheme = theme.colorScheme;
-
-    return Column(
-      key: const ValueKey('step_2_personalize'),
-      crossAxisAlignment: CrossAxisAlignment.start,
+  // STEP 2: Signal Radar (Interests & Skills)
+  Widget _buildStep2Personalize(BuildContext context, OnboardingState state, ColorScheme colorScheme) {
+    return ListView(
+      key: const ValueKey('step-2-personalize'),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
       children: [
         Text(
-          'Personalize Interests & Skills',
-          style: theme.textTheme.titleLarge?.copyWith(
-            fontWeight: FontWeight.w800,
-          ),
-        ),
-        const SizedBox(height: 6),
-        Text(
-          'Select from pre-made chips to train the recommendation engine on what matters to you.',
-          style: theme.textTheme.bodyMedium?.copyWith(
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 24),
-
-        if (state.errorMessage != null) ...[
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-            margin: const EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              color: colorScheme.errorContainer,
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: Row(
-              children: [
-                Icon(LucideIcons.alertCircle, color: colorScheme.onErrorContainer, size: 18),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    state.errorMessage!,
-                    style: theme.textTheme.bodySmall?.copyWith(
-                      color: colorScheme.onErrorContainer,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-
-        // Section 1: Pre-made Interests
-        Row(
-          children: [
-            Icon(LucideIcons.sparkles, size: 18, color: colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(
-              'CAMPUS INTERESTS & EVENTS',
-              style: TextStyle(
-                fontSize: 12,
+          'Signal Radar',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                 fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-                color: colorScheme.primary,
+                letterSpacing: -0.3,
               ),
-            ),
-          ],
+        ),
+        const SizedBox(height: 4),
+        Text(
+          'Choose your domain interests and skills to tune the match score for hackathons & events.',
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13.5),
+        ),
+        const SizedBox(height: 20),
+
+        // Interests Section
+        Text(
+          'INTERESTS & OPPORTUNITY TYPES',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -554,16 +689,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             return FilterChip(
               label: Text(interest),
               selected: isSelected,
-              avatar: isSelected ? Icon(LucideIcons.check, size: 14, color: colorScheme.onPrimaryContainer) : null,
-              onSelected: (_) => onboardingCtrl.toggleInterest(interest),
+              onSelected: (_) {
+                ref.read(onboardingControllerProvider.notifier).toggleInterest(interest);
+              },
               selectedColor: colorScheme.primaryContainer,
-              backgroundColor: colorScheme.surfaceContainer,
-              labelStyle: TextStyle(
-                color: isSelected ? colorScheme.onPrimaryContainer : colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                fontSize: 13,
-              ),
-              showCheckmark: false,
+              checkmarkColor: colorScheme.primary,
             );
           }).toList(),
         ),
@@ -575,37 +705,37 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Expanded(
               child: TextField(
                 controller: _interestInputController,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _addCustomInterest(),
                 decoration: InputDecoration(
-                  hintText: 'Add custom interest...',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  suffixIcon: IconButton(
-                    icon: Icon(LucideIcons.circlePlus, color: colorScheme.primary, size: 20),
-                    onPressed: _addCustomInterest,
+                  hintText: 'Add custom interest (e.g. Robotics, FinTech)...',
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                   ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 ),
+                onSubmitted: (_) => _addCustomInterest(),
               ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              icon: const Icon(LucideIcons.plus, size: 20),
+              onPressed: _addCustomInterest,
             ),
           ],
         ),
-        const SizedBox(height: 28),
+        const SizedBox(height: 24),
 
-        // Section 2: Pre-made Skills
-        Row(
-          children: [
-            Icon(LucideIcons.wrench, size: 18, color: colorScheme.primary),
-            const SizedBox(width: 8),
-            Text(
-              'SKILLS & DOMAINS',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 0.8,
-                color: colorScheme.primary,
-              ),
-            ),
-          ],
+        // Skills Section
+        Text(
+          'TECHNICAL & CREATIVE SKILLS',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
         ),
         const SizedBox(height: 10),
         Wrap(
@@ -616,20 +746,15 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             return FilterChip(
               label: Text(skill),
               selected: isSelected,
-              avatar: isSelected ? Icon(LucideIcons.check, size: 14, color: colorScheme.onSecondaryContainer) : null,
-              onSelected: (_) => onboardingCtrl.toggleSkill(skill),
-              selectedColor: colorScheme.secondaryContainer,
-              backgroundColor: colorScheme.surfaceContainer,
-              labelStyle: TextStyle(
-                color: isSelected ? colorScheme.onSecondaryContainer : colorScheme.onSurface,
-                fontWeight: isSelected ? FontWeight.w700 : FontWeight.w500,
-                fontSize: 13,
-              ),
-              showCheckmark: false,
+              onSelected: (_) {
+                ref.read(onboardingControllerProvider.notifier).toggleSkill(skill);
+              },
+              selectedColor: colorScheme.primaryContainer,
+              checkmarkColor: colorScheme.primary,
             );
           }).toList(),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: 16),
 
         // Custom Skill Input
         Row(
@@ -637,48 +762,229 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             Expanded(
               child: TextField(
                 controller: _skillInputController,
-                textInputAction: TextInputAction.done,
-                onSubmitted: (_) => _addCustomSkill(),
                 decoration: InputDecoration(
-                  hintText: 'Add custom skill (e.g. Go, Figma, SQL)...',
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  suffixIcon: IconButton(
-                    icon: Icon(LucideIcons.circlePlus, color: colorScheme.primary, size: 20),
-                    onPressed: _addCustomSkill,
+                  hintText: 'Add custom skill (e.g. Rust, Figma)...',
+                  filled: true,
+                  fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
                   ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
                 ),
+                onSubmitted: (_) => _addCustomSkill(),
               ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              icon: const Icon(LucideIcons.plus, size: 20),
+              onPressed: _addCustomSkill,
             ),
           ],
         ),
-        const SizedBox(height: 40),
       ],
     );
   }
 
-  Widget _buildAvatarPlaceholder(ColorScheme colorScheme) {
-    return Container(
-      width: 48,
-      height: 48,
-      decoration: BoxDecoration(
-        color: colorScheme.primary,
-        shape: BoxShape.circle,
-      ),
-      child: Center(
-        child: Icon(LucideIcons.user, color: colorScheme.onPrimary, size: 24),
-      ),
+  // STEP 3: Student Verification Fast-Track
+  Widget _buildStep3Verification(BuildContext context, OnboardingState state, ColorScheme colorScheme) {
+    return ListView(
+      key: const ValueKey('step-3-verification'),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      children: [
+        Text(
+          'Verify Your Student Status',
+          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+        ),
+        const SizedBox(height: 6),
+        Text(
+          'Indian universities rarely have .edu emails. Instant ID Card OCR lets you unlock campus-only features safely.',
+          style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13.5),
+        ),
+        const SizedBox(height: 20),
+
+        // Perks Callout Box
+        Container(
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [colorScheme.primaryContainer.withValues(alpha: 0.5), colorScheme.surfaceContainerLow],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(LucideIcons.badgeCheck, color: colorScheme.primary, size: 22),
+                  const SizedBox(width: 8),
+                  Text(
+                    'Verified Student Privileges',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                      color: colorScheme.onPrimaryContainer,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 12),
+              _buildPerkItem(
+                LucideIcons.lock,
+                'Private Placement Wall',
+                'Access internal campus-only internships and company placement notices.',
+                colorScheme,
+              ),
+              const SizedBox(height: 8),
+              _buildPerkItem(
+                LucideIcons.vote,
+                'Official Club Elections',
+                'Cast votes and apply for student council / club coordinator positions.',
+                colorScheme,
+              ),
+              const SizedBox(height: 8),
+              _buildPerkItem(
+                LucideIcons.trophy,
+                'Verified Pan-India Teams',
+                'Register for national inter-college hackathons with auto-vetted credentials.',
+                colorScheme,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+
+        // Verification Card Action
+        if (state.verificationSuccess) ...[
+          Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: Colors.green.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
+            ),
+            child: Row(
+              children: [
+                const Icon(LucideIcons.checkCircle2, color: Colors.green, size: 36),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Student ID Verified!',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 15,
+                          color: Colors.green,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        'Roll No: ${state.verifiedRollNumber ?? "SXUK/2026/01"}',
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      Text(
+                        'Campus: ${state.selectedCollegeShortCode}',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ] else ...[
+          Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                style: BorderStyle.solid,
+              ),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  LucideIcons.camera,
+                  size: 44,
+                  color: colorScheme.primary,
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Upload Student ID Card Photo',
+                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Gemini Vision OCR will verify your college name and roll number in seconds.',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ),
+                const SizedBox(height: 16),
+                FilledButton.tonalIcon(
+                  icon: state.isVerifyingIdCard
+                      ? const SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        )
+                      : const Icon(LucideIcons.scanLine, size: 18),
+                  label: Text(state.isVerifyingIdCard ? 'Scanning ID Card...' : 'Scan / Upload Student ID'),
+                  onPressed: state.isVerifyingIdCard
+                      ? null
+                      : () {
+                          ref.read(onboardingControllerProvider.notifier).verifyIdCard();
+                        },
+                ),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
-  void _showDepartmentPicker(
-    BuildContext context,
-    String? currentSelected,
-    ValueChanged<String> onSelected,
-  ) {
-    DepartmentPickerSheet.show(
-      context,
-      currentSelection: currentSelected,
-      onSelected: onSelected,
+  Widget _buildPerkItem(IconData icon, String title, String description, ColorScheme colorScheme) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 16, color: colorScheme.primary),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 12.5),
+              ),
+              Text(
+                description,
+                style: TextStyle(fontSize: 11.5, color: colorScheme.onSurfaceVariant),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 }

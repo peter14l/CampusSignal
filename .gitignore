@@ -57,3 +57,5 @@ key.properties
 # Cloudflare Wrangler
 .wrangler/
 updates/*.apk
+graphify-out/cache/
+

@@ -378,6 +378,21 @@ class SettingsScreen extends ConsumerWidget {
                       color: colorScheme.surfaceContainerHigh,
                       borderRadius: BorderRadius.circular(10),
                     ),
+                    child: Icon(LucideIcons.bookOpen, size: 18, color: colorScheme.onSurface),
+                  ),
+                  title: const Text('App Guide & Platform Rules', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),
+                  subtitle: const Text('Multi-college scopes, internship privacy & fest rules', style: TextStyle(fontSize: 12)),
+                  trailing: Icon(LucideIcons.chevronRight, size: 18, color: colorScheme.onSurfaceVariant),
+                  onTap: () => context.push('/tutorial'),
+                ),
+                Divider(height: 1, color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                ListTile(
+                  leading: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHigh,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
                     child: Icon(LucideIcons.shield, size: 18, color: colorScheme.onSurface),
                   ),
                   title: const Text('Privacy Policy & DPDP Compliance', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14)),

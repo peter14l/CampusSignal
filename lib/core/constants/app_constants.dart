@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
+import '../../models/college_model.dart';
 
 /// Core application constants for CampusSignal
 class AppConstants {
@@ -7,9 +8,170 @@ class AppConstants {
 
   static const String appName = 'CampusSignal';
   static const String appTagline = 'Signal, not noise. Campus discovery simplified.';
-  static const String appVersion = '1.3.1';
-  static const String appBuildNumber = '14';
-  static const String appVersionDisplay = 'v1.3.1 (Build 14)';
+  static const String appVersion = '1.4.0';
+  static const String appBuildNumber = '15';
+  static const String appVersionDisplay = 'v1.4.0 (Build 15)';
+
+  /// Default College Fallback
+  static const String defaultCollegeId = 'sxuk';
+  static const String defaultCollegeName = "St. Xavier's University, Kolkata";
+  static const String defaultCollegeShortCode = 'SXUK';
+
+  /// Master Directory of Curated Indian Colleges & Universities
+  static const List<CollegeModel> indianColleges = [
+    CollegeModel(
+      id: 'sxuk',
+      name: "St. Xavier's University, Kolkata",
+      shortCode: 'SXUK',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      domainPatterns: ['@sxuk.edu.in', '@sxuk.in'],
+      popularBranches: [
+        'B.Tech in CSE',
+        'B.Tech in AI & ML',
+        'B.Tech in ECE',
+        'B.Sc. in Statistics and Data Science',
+        'B.Com. (Honours)',
+        'B.M.S. (Honours)',
+        'M.Sc. Computer Science',
+        'LLM. Law',
+      ],
+    ),
+    CollegeModel(
+      id: 'ju',
+      name: 'Jadavpur University',
+      shortCode: 'JU',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      domainPatterns: ['@jadavpuruniversity.in', '@jdvu.ac.in'],
+      popularBranches: [
+        'B.E. Computer Science & Engineering',
+        'B.E. Electronics & Telecommunication',
+        'B.E. Information Technology',
+        'B.E. Mechanical Engineering',
+        'B.E. Electrical Engineering',
+        'M.C.A.',
+        'M.Tech Computer Science',
+      ],
+    ),
+    CollegeModel(
+      id: 'iitkgp',
+      name: 'Indian Institute of Technology Kharagpur',
+      shortCode: 'IITKGP',
+      city: 'Kharagpur',
+      state: 'West Bengal',
+      domainPatterns: ['@iitkgp.ac.in'],
+      popularBranches: [
+        'B.Tech in Computer Science and Engineering',
+        'B.Tech in Artificial Intelligence',
+        'B.Tech in Electronics & Electrical Comm.',
+        'B.Tech in Mathematics & Computing',
+        'Dual Degree B.Tech/M.Tech CSE',
+      ],
+    ),
+    CollegeModel(
+      id: 'iitb',
+      name: 'Indian Institute of Technology Bombay',
+      shortCode: 'IITB',
+      city: 'Mumbai',
+      state: 'Maharashtra',
+      domainPatterns: ['@iitb.ac.in'],
+      popularBranches: [
+        'B.Tech Computer Science and Engineering',
+        'B.Tech Electrical Engineering',
+        'B.Tech Mechanical Engineering',
+        'M.Tech Computer Science',
+      ],
+    ),
+    CollegeModel(
+      id: 'du',
+      name: 'University of Delhi',
+      shortCode: 'DU',
+      city: 'New Delhi',
+      state: 'Delhi',
+      domainPatterns: ['@du.ac.in'],
+      popularBranches: [
+        'B.Sc. (Hons) Computer Science',
+        'B.A. (Hons) Economics',
+        'B.Com. (Honours)',
+        'B.Sc. (Hons) Mathematics',
+        'M.Sc. Informatics',
+      ],
+    ),
+    CollegeModel(
+      id: 'sxc',
+      name: "St. Xavier's College (Autonomous), Kolkata",
+      shortCode: 'SXC',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      domainPatterns: ['@sxccal.edu'],
+      popularBranches: [
+        'B.Sc. Computer Science (Honours)',
+        'B.Com. (Honours)',
+        'B.Sc. Statistics (Honours)',
+        'B.Sc. Economics (Honours)',
+        'B.Sc. Multimedia & Animation',
+      ],
+    ),
+    CollegeModel(
+      id: 'christ',
+      name: 'Christ University',
+      shortCode: 'CHRIST',
+      city: 'Bengaluru',
+      state: 'Karnataka',
+      domainPatterns: ['@christuniversity.in'],
+      popularBranches: [
+        'B.Tech Computer Science & Engineering',
+        'B.C.A. (Bachelor of Computer Applications)',
+        'B.B.A. (Honours)',
+        'B.Sc. Data Science',
+      ],
+    ),
+    CollegeModel(
+      id: 'bits',
+      name: 'BITS Pilani',
+      shortCode: 'BITS',
+      city: 'Pilani',
+      state: 'Rajasthan',
+      domainPatterns: ['@pilani.bits-pilani.ac.in'],
+      popularBranches: [
+        'B.E. Computer Science',
+        'B.E. Electrical & Electronics',
+        'M.Sc. Mathematics',
+        'M.Sc. Economics',
+      ],
+    ),
+    CollegeModel(
+      id: 'nitdgp',
+      name: 'National Institute of Technology Durgapur',
+      shortCode: 'NITDGP',
+      city: 'Durgapur',
+      state: 'West Bengal',
+      domainPatterns: ['@nitdgp.ac.in'],
+      popularBranches: [
+        'B.Tech Computer Science and Engineering',
+        'B.Tech Electronics & Comm. Engineering',
+        'B.Tech Information Technology',
+        'M.C.A.',
+      ],
+    ),
+  ];
+
+  /// Set of categories that are naturally open pan-India across institutions
+  static const Set<String> defaultInterCollegeCategories = {
+    'hackathon',
+    'fest',
+    'competition',
+    'conference',
+  };
+
+  /// Pre-configured Fest Convenor Passkeys for demo & institutional staging
+  static const Map<String, String> festPasskeyDirectory = {
+    'XAVHACKS-26': 'fest-xavhacks',
+    'DEMO-FEST-2026': 'fest-demo',
+    'SRIJAN-26': 'fest-srijan',
+    'KSHITIJ-26': 'fest-kshitij',
+  };
 
   /// SXUK College Email Domain
   static const String collegeEmailDomain = '@sxuk.edu.in';

@@ -1,5 +1,19 @@
 import 'package:intl/intl.dart';
 
+/// Scope of visibility for campus events
+enum EventScope {
+  intraCollege, // Campus-only: local notices, club meetings, and private internships
+  interCollege, // Pan-India: hackathons, cultural fests, national conferences
+}
+
+/// Moderation lifecycle status for campus events
+enum EventModerationStatus {
+  draft,
+  pendingApproval,
+  published,
+  rejected,
+}
+
 /// Contact coordinator information for campus events
 class EventContact {
   final String name;
@@ -61,6 +75,18 @@ class EventModel {
   final String? contactEmail;
   final List<String> attachments;
 
+  // Pan-India Multi-College & Moderation fields
+  final String? collegeId;
+  final String? collegeName;
+  final String? collegeShortCode;
+  final String? collegeLogoUrl;
+  final EventScope scope;
+  final EventModerationStatus moderationStatus;
+  final String? festId;
+  final String? festName;
+  final String? approvedBy;
+  final String? rejectionReason;
+
   const EventModel({
     required this.id,
     required this.title,
@@ -88,6 +114,16 @@ class EventModel {
     this.instagramHandle,
     this.contactEmail,
     this.attachments = const [],
+    this.collegeId = 'sxuk',
+    this.collegeName = "St. Xavier's University, Kolkata",
+    this.collegeShortCode = 'SXUK',
+    this.collegeLogoUrl,
+    this.scope = EventScope.intraCollege,
+    this.moderationStatus = EventModerationStatus.published,
+    this.festId,
+    this.festName,
+    this.approvedBy,
+    this.rejectionReason,
   });
 
   /// Defensive JSON deserializer that safely handles nulls, missing keys,
@@ -152,6 +188,28 @@ class EventModel {
       return const [];
     }
 
+    EventScope parseScope(dynamic value) {
+      if (value == null) return EventScope.intraCollege;
+      if (value is EventScope) return value;
+      final s = value.toString().toLowerCase().trim();
+      if (s == 'intercollege' || s == 'inter_college' || s == 'inter') {
+        return EventScope.interCollege;
+      }
+      return EventScope.intraCollege;
+    }
+
+    EventModerationStatus parseModerationStatus(dynamic value) {
+      if (value == null) return EventModerationStatus.published;
+      if (value is EventModerationStatus) return value;
+      final s = value.toString().toLowerCase().trim();
+      if (s == 'pendingapproval' || s == 'pending_approval' || s == 'pending') {
+        return EventModerationStatus.pendingApproval;
+      }
+      if (s == 'rejected') return EventModerationStatus.rejected;
+      if (s == 'draft') return EventModerationStatus.draft;
+      return EventModerationStatus.published;
+    }
+
     final parsedMeta = parseMetadata(json['metadata']);
 
     return EventModel(
@@ -198,6 +256,25 @@ class EventModel {
           parsedMeta['contact_email']?.toString(),
       attachments: parseStringList(
           json['attachments'] ?? parsedMeta['attachments']),
+      collegeId: json['college_id']?.toString() ??
+          json['collegeId']?.toString() ??
+          'sxuk',
+      collegeName: json['college_name']?.toString() ??
+          json['collegeName']?.toString() ??
+          "St. Xavier's University, Kolkata",
+      collegeShortCode: json['college_short_code']?.toString() ??
+          json['collegeShortCode']?.toString() ??
+          'SXUK',
+      collegeLogoUrl: json['college_logo_url']?.toString() ??
+          json['collegeLogoUrl']?.toString(),
+      scope: parseScope(json['scope']),
+      moderationStatus: parseModerationStatus(
+          json['moderation_status'] ?? json['moderationStatus']),
+      festId: json['fest_id']?.toString() ?? json['festId']?.toString(),
+      festName: json['fest_name']?.toString() ?? json['festName']?.toString(),
+      approvedBy: json['approved_by']?.toString() ?? json['approvedBy']?.toString(),
+      rejectionReason: json['rejection_reason']?.toString() ??
+          json['rejectionReason']?.toString(),
     );
   }
 
@@ -243,6 +320,16 @@ class EventModel {
       'instagram_handle': instagramHandle,
       'contact_email': contactEmail,
       'attachments': attachments,
+      'college_id': collegeId,
+      'college_name': collegeName,
+      'college_short_code': collegeShortCode,
+      'college_logo_url': collegeLogoUrl,
+      'scope': scope.name,
+      'moderation_status': moderationStatus.name,
+      'fest_id': festId,
+      'fest_name': festName,
+      'approved_by': approvedBy,
+      'rejection_reason': rejectionReason,
     };
   }
 
@@ -273,6 +360,16 @@ class EventModel {
     String? instagramHandle,
     String? contactEmail,
     List<String>? attachments,
+    String? collegeId,
+    String? collegeName,
+    String? collegeShortCode,
+    String? collegeLogoUrl,
+    EventScope? scope,
+    EventModerationStatus? moderationStatus,
+    String? festId,
+    String? festName,
+    String? approvedBy,
+    String? rejectionReason,
   }) {
     return EventModel(
       id: id ?? this.id,
@@ -301,8 +398,29 @@ class EventModel {
       instagramHandle: instagramHandle ?? this.instagramHandle,
       contactEmail: contactEmail ?? this.contactEmail,
       attachments: attachments ?? this.attachments,
+      collegeId: collegeId ?? this.collegeId,
+      collegeName: collegeName ?? this.collegeName,
+      collegeShortCode: collegeShortCode ?? this.collegeShortCode,
+      collegeLogoUrl: collegeLogoUrl ?? this.collegeLogoUrl,
+      scope: scope ?? this.scope,
+      moderationStatus: moderationStatus ?? this.moderationStatus,
+      festId: festId ?? this.festId,
+      festName: festName ?? this.festName,
+      approvedBy: approvedBy ?? this.approvedBy,
+      rejectionReason: rejectionReason ?? this.rejectionReason,
     );
   }
+
+  /// Whether event is federated pan-India across all colleges
+  bool get isInterCollege => scope == EventScope.interCollege;
+
+  /// Whether event is restricted solely to the hosting campus
+  bool get isIntraCollege => scope == EventScope.intraCollege;
+
+  /// Private Internship & Placement Wall rule detector
+  bool get isInternship =>
+      category.toLowerCase().contains('intern') ||
+      category.toLowerCase().contains('placement');
 
   /// True if deadline is approaching within next 48 hours and is in the future.
   bool get isDeadlineSoon {

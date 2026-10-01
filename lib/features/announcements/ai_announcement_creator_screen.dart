@@ -10,7 +10,6 @@ import '../../core/constants/app_constants.dart';
 import '../../core/services/fcm_notification_service.dart';
 import '../../core/services/gemini_ocr_service.dart';
 import '../../core/services/r2_storage_service.dart';
-import '../../core/widgets/interactive_spring.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
 import '../feed/feed_controller.dart';

@@ -561,6 +561,25 @@ class ProfileScreen extends ConsumerWidget {
                 child: Column(
                   children: [
                     _buildHubTile(
+                      icon: LucideIcons.bookOpen,
+                      title: 'App Guide & Platform Rules',
+                      subtitle: 'Scopes, internship privacy & fest playbooks',
+                      onTap: () => context.push('/tutorial'),
+                      colorScheme: colorScheme,
+                    ),
+                    if (profile.canModerate) ...[
+                      Divider(height: 1, indent: 56, color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                      _buildHubTile(
+                        icon: LucideIcons.shieldCheck,
+                        title: 'Admin Moderation Hub',
+                        subtitle: 'Pending approvals & fest convenor passkeys',
+                        onTap: () => context.push('/admin-moderation'),
+                        colorScheme: colorScheme,
+                        iconColor: colorScheme.primary,
+                      ),
+                    ],
+                    Divider(height: 1, indent: 56, color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                    _buildHubTile(
                       icon: LucideIcons.palette,
                       title: 'Settings & Theming (Material You)',
                       subtitle: 'Dark mode, wallpapers & alerts',

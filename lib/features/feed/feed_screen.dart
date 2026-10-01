@@ -10,6 +10,7 @@ import '../../core/widgets/m3e_event_card.dart';
 import '../../core/widgets/m3e_speed_dial_fab.dart';
 import '../../core/widgets/m3e_states.dart';
 import '../../core/widgets/micro_animated_icon.dart';
+import '../../models/event_model.dart';
 import '../auth/auth_controller.dart';
 import '../notifications/notifications_controller.dart';
 import '../saved/saved_controller.dart';
@@ -120,6 +121,18 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
           ],
         ),
         actions: [
+          if (profile?.canModerate == true) ...[
+            MicroAnimatedIconButton.circle(
+              size: 38,
+              iconSize: 19,
+              iconData: LucideIcons.shieldCheck,
+              color: colorScheme.primary,
+              backgroundColor: colorScheme.primaryContainer.withValues(alpha: 0.5),
+              onPressed: () => context.push('/admin-moderation'),
+              tooltip: 'Admin Moderation Hub',
+            ),
+            const SizedBox(width: 6),
+          ],
           MicroAnimatedIconButton.circle(
             size: 38,
             iconSize: 19,
@@ -264,6 +277,132 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                           color: colorScheme.onSurfaceVariant,
                           fontSize: 13,
                           height: 1.35,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+
+            // Pan-India Multi-College Scope Switcher
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+                child: Container(
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            ref.read(feedControllerProvider.notifier).selectScopeFilter(null);
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: feedState.scopeFilter != EventScope.interCollege
+                                  ? colorScheme.surface
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: feedState.scopeFilter != EventScope.interCollege
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.06),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  LucideIcons.school,
+                                  size: 14,
+                                  color: feedState.scopeFilter != EventScope.interCollege
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'My Campus (${profile?.collegeShortCode ?? "SXUK"})',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: feedState.scopeFilter != EventScope.interCollege
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: feedState.scopeFilter != EventScope.interCollege
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: GestureDetector(
+                          onTap: () {
+                            ref.read(feedControllerProvider.notifier).selectScopeFilter(EventScope.interCollege);
+                          },
+                          behavior: HitTestBehavior.opaque,
+                          child: AnimatedContainer(
+                            duration: const Duration(milliseconds: 200),
+                            decoration: BoxDecoration(
+                              color: feedState.scopeFilter == EventScope.interCollege
+                                  ? colorScheme.surface
+                                  : Colors.transparent,
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: feedState.scopeFilter == EventScope.interCollege
+                                  ? [
+                                      BoxShadow(
+                                        color: Colors.black.withValues(alpha: 0.06),
+                                        blurRadius: 4,
+                                        offset: const Offset(0, 1),
+                                      ),
+                                    ]
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  LucideIcons.globe,
+                                  size: 14,
+                                  color: feedState.scopeFilter == EventScope.interCollege
+                                      ? colorScheme.primary
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'Pan-India Fests',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: feedState.scopeFilter == EventScope.interCollege
+                                        ? FontWeight.w700
+                                        : FontWeight.w500,
+                                    color: feedState.scopeFilter == EventScope.interCollege
+                                        ? colorScheme.primary
+                                        : colorScheme.onSurfaceVariant,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       ),
                     ],

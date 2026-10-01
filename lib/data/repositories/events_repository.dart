@@ -66,11 +66,13 @@ class EventsRepository {
     }
   }
 
-  /// Fetch ranked feed events with category and branch/department targeting filter.
+  /// Fetch ranked feed events with category, branch/department, and multi-college scope filtering.
   Future<List<EventModel>> getFeedEvents({
     String category = 'for_you',
     String? userBranch,
     String? targetDepartment,
+    String? userCollegeId,
+    EventScope? scopeFilter,
   }) async {
     await _loadCustomEventsFromDisk();
 
@@ -100,7 +102,14 @@ class EventsRepository {
           }
         }
         if (dbEvents.isNotEmpty) {
-          return _filterAndRank(dbEvents, category, userBranch, targetDepartment);
+          return _filterAndRank(
+            dbEvents,
+            category,
+            userBranch,
+            targetDepartment,
+            userCollegeId,
+            scopeFilter,
+          );
         }
       }
     } catch (e) {
@@ -109,14 +118,28 @@ class EventsRepository {
 
     if (!isDemoMode && _cachedEvents.isNotEmpty) {
       // Real mode with offline or custom events
-      return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
+      return _filterAndRank(
+        _cachedEvents,
+        category,
+        userBranch,
+        targetDepartment,
+        userCollegeId,
+        scopeFilter,
+      );
     }
 
     // Rich fallback dataset ensuring student always has events to explore
     if (_cachedEvents.isEmpty) {
       _cachedEvents.addAll(generateMockEvents());
     }
-    return _filterAndRank(_cachedEvents, category, userBranch, targetDepartment);
+    return _filterAndRank(
+      _cachedEvents,
+      category,
+      userBranch,
+      targetDepartment,
+      userCollegeId,
+      scopeFilter,
+    );
   }
 
   List<EventModel> _filterAndRank(
@@ -124,11 +147,55 @@ class EventsRepository {
     String category,
     String? userBranch,
     String? targetDepartment,
+    String? userCollegeId,
+    EventScope? scopeFilter,
   ) {
     final catLower = category.toLowerCase().trim();
     List<EventModel> filtered = List.from(events);
 
-    // 1. Filter by Target Department / Branch Visibility
+    // 0. Only published events appear in the general feed
+    filtered = filtered.where((e) => e.moderationStatus == EventModerationStatus.published).toList();
+
+    // 1. Pan-India Multi-College Scoping & Private Internship Wall
+    final effectiveCollegeId = userCollegeId?.trim().toLowerCase();
+
+    filtered = filtered.where((e) {
+      // RULE: Private Internship Wall
+      // Internships/Placements are strictly walled to the hosting college.
+      if (e.isInternship) {
+        if (scopeFilter == EventScope.interCollege) {
+          return false; // Internships physically never appear in Pan-India view
+        }
+        if (effectiveCollegeId != null &&
+            e.collegeId != null &&
+            e.collegeId!.toLowerCase() != effectiveCollegeId) {
+          return false; // Hidden from students of other universities
+        }
+      }
+
+      // RULE: Scope Filtering
+      if (scopeFilter == EventScope.interCollege) {
+        // Pan-India view: Only open inter-college hackathons and national fests
+        return e.scope == EventScope.interCollege && !e.isInternship;
+      } else if (scopeFilter == EventScope.intraCollege) {
+        // Strict Campus-Only view: local events and notices for current college
+        if (effectiveCollegeId != null && e.collegeId != null) {
+          return e.collegeId!.toLowerCase() == effectiveCollegeId;
+        }
+        return e.scope == EventScope.intraCollege;
+      } else {
+        // Default "My Campus" Feed:
+        // Shows student's college events (both intra and inter) + other colleges' inter-college events (non-internships)
+        if (effectiveCollegeId != null && e.collegeId != null) {
+          if (e.collegeId!.toLowerCase() == effectiveCollegeId) {
+            return true;
+          }
+        }
+        return e.scope == EventScope.interCollege && !e.isInternship;
+      }
+    }).toList();
+
+    // 2. Filter by Target Department / Branch Visibility
     if (targetDepartment != null &&
         targetDepartment.isNotEmpty &&
         targetDepartment.toLowerCase() != 'all' &&
@@ -139,7 +206,7 @@ class EventsRepository {
       filtered = filtered.where((e) => e.isTargetedForBranch(userBranch)).toList();
     }
 
-    // 2. Filter by Category
+    // 3. Filter by Category
     if (catLower == 'for_you' || catLower == 'for you' || catLower.isEmpty || catLower == 'all') {
       filtered.sort((a, b) => (b.matchScore ?? 0.99).compareTo(a.matchScore ?? 0.99));
     } else if (catLower == 'deadlines_soon' || catLower == 'deadlines soon') {
@@ -164,10 +231,14 @@ class EventsRepository {
     return filtered;
   }
 
-  /// Create and publish a new announcement
+  /// Create and publish a new announcement with scope enforcement
   Future<EventModel> createEvent(EventModel event) async {
+    // Enforce Private Internship Wall: Internships must always be intraCollege
+    final effectiveScope = event.isInternship ? EventScope.intraCollege : event.scope;
+
     final rankedEvent = event.copyWith(
       matchScore: event.matchScore ?? 0.99,
+      scope: effectiveScope,
     );
 
     // Insert at index 0 in local cache for instant zero-latency UI update
@@ -195,6 +266,13 @@ class EventsRepository {
           'apply_url': rankedEvent.applyUrl,
           'poster_r2_key': rankedEvent.posterR2Key,
           'status': rankedEvent.status,
+          'college_id': rankedEvent.collegeId,
+          'college_name': rankedEvent.collegeName,
+          'college_short_code': rankedEvent.collegeShortCode,
+          'scope': rankedEvent.scope.name,
+          'moderation_status': rankedEvent.moderationStatus.name,
+          'fest_id': rankedEvent.festId,
+          'fest_name': rankedEvent.festName,
           'created_at': DateTime.now().toIso8601String(),
         });
       }
@@ -203,6 +281,72 @@ class EventsRepository {
     }
 
     return rankedEvent;
+  }
+
+  /// Retrieve pending events awaiting approval in the moderation queue
+  Future<List<EventModel>> getPendingEvents({
+    String? collegeId,
+    List<String>? festIds,
+  }) async {
+    await _loadCustomEventsFromDisk();
+    final all = List<EventModel>.from(_cachedEvents);
+    if (all.isEmpty) {
+      all.addAll(generateMockEvents());
+    }
+
+    return all.where((e) {
+      if (e.moderationStatus != EventModerationStatus.pendingApproval) {
+        return false;
+      }
+      // If festIds specified, user has convenor authority over these fests
+      if (festIds != null && festIds.isNotEmpty && e.festId != null) {
+        if (festIds.contains(e.festId)) return true;
+      }
+      // If collegeId specified, user is campus faculty/admin for that college
+      if (collegeId != null && e.collegeId != null) {
+        return e.collegeId!.toLowerCase() == collegeId.toLowerCase();
+      }
+      return festIds == null && collegeId == null;
+    }).toList();
+  }
+
+  /// Approve a pending event and publish to live feeds
+  Future<void> approveEvent(String eventId, {String? approvedBy}) async {
+    final idx = _cachedEvents.indexWhere((e) => e.id == eventId);
+    if (idx != -1) {
+      final updated = _cachedEvents[idx].copyWith(
+        moderationStatus: EventModerationStatus.published,
+        approvedBy: approvedBy,
+      );
+      _cachedEvents[idx] = updated;
+      await _persistCustomEvent(updated);
+    }
+  }
+
+  /// Reject a pending event with a constructive reason
+  Future<void> rejectEvent(String eventId, {required String reason}) async {
+    final idx = _cachedEvents.indexWhere((e) => e.id == eventId);
+    if (idx != -1) {
+      final updated = _cachedEvents[idx].copyWith(
+        moderationStatus: EventModerationStatus.rejected,
+        rejectionReason: reason,
+      );
+      _cachedEvents[idx] = updated;
+      await _persistCustomEvent(updated);
+    }
+  }
+
+  /// Promote a campus-only event to Pan-India federated status
+  Future<void> elevateEventScope(String eventId, EventScope scope) async {
+    final idx = _cachedEvents.indexWhere((e) => e.id == eventId);
+    if (idx != -1) {
+      final event = _cachedEvents[idx];
+      // Internships can NEVER be promoted to inter-college
+      if (event.isInternship && scope == EventScope.interCollege) return;
+      final updated = event.copyWith(scope: scope);
+      _cachedEvents[idx] = updated;
+      await _persistCustomEvent(updated);
+    }
   }
 
   /// Get single event details by ID with resilient multi-tier fallback.
