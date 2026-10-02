@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Opportunity Feed — CampusSignal SXUK</title>
-  <meta name="description" content="Personalized discovery feed of hackathons, campus drives, workshops, and fests for St. Xavier's University students.">
+  <title>Opportunity Feed — CampusSignal</title>
+  <meta name="description" content="Personalized discovery feed of hackathons, campus drives, workshops, and fests for college students across India.">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="../assets/img/app_logo.png">
@@ -42,8 +42,16 @@
         <div id="header-page-title" style="display: none; font-size: 1.15rem; font-weight: 800; color: var(--text-primary);"></div>
 
         <div class="header-actions">
+          <!-- Institution Picker Select (Pan-India Simulator) -->
+          <select id="institution-picker-select" style="max-width: 155px; height: 38px; border-radius: var(--radius-md); background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; padding: 0 8px; font-weight: 700; cursor: pointer;">
+            <option value="SXUK" selected>SXUK Kolkata</option>
+            <option value="IITB">IIT Bombay</option>
+            <option value="JU">Jadavpur Univ</option>
+            <option value="BITS">BITS Pilani</option>
+          </select>
+
           <!-- Department Quick Filter (Visible on Feed) -->
-          <select id="department-filter-select" style="max-width: 220px; height: 38px; border-radius: var(--radius-md); background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; padding: 0 10px;">
+          <select id="department-filter-select" style="max-width: 200px; height: 38px; border-radius: var(--radius-md); background: var(--bg-secondary); border: 1px solid var(--border-subtle); color: var(--text-primary); font-size: 0.8125rem; padding: 0 10px;">
             <option value="all">All Disciplines</option>
             <option value="my-dept" selected>My Department Filter</option>
           </select>
@@ -76,6 +84,18 @@
         <div class="app-body-layout">
           <!-- Main Feed Column -->
           <div class="app-feed-column">
+            <!-- Scope Segmented Switcher (Pan-India vs My Campus) -->
+            <div class="scope-segment-container" style="display: flex; gap: 8px; margin-bottom: 12px; background: var(--bg-surface); padding: 4px; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); width: fit-content;">
+              <button type="button" class="btn btn-sm scope-toggle-btn" id="btn-scope-campus" style="display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 700; background: var(--primary); color: #fff; border: none; cursor: pointer; transition: all 0.2s ease;">
+                <i data-lucide="school" style="width: 14px; height: 14px;"></i>
+                <span id="simulator-scope-campus-label">My Campus (SXUK)</span>
+              </button>
+              <button type="button" class="btn btn-sm scope-toggle-btn" id="btn-scope-inter" style="display: flex; align-items: center; gap: 6px; padding: 6px 14px; border-radius: var(--radius-sm); font-size: 0.8125rem; font-weight: 600; background: transparent; color: var(--text-secondary); border: none; cursor: pointer; transition: all 0.2s ease;">
+                <i data-lucide="globe" style="width: 14px; height: 14px;"></i>
+                <span>Pan-India Fests</span>
+              </button>
+            </div>
+
             <!-- Category Filter Bar -->
             <div class="category-pills-bar" id="category-pills-container">
               <!-- Populated via JS -->
@@ -88,7 +108,7 @@
               </div>
               <div style="display: flex; align-items: center; gap: 6px; font-size: 0.8125rem; color: var(--emerald);">
                 <i data-lucide="shield-check" style="width: 16px; height: 16px;"></i>
-                <span>SXUK Verified Broadcasts</span>
+                <span id="simulator-verified-label">Campus Verified Broadcasts</span>
               </div>
             </div>
 
@@ -642,6 +662,8 @@
       let activeCategory = 'all';
       let searchQuery = '';
       let filterByDept = true;
+      let activeScope = 'campus'; // 'campus' | 'inter'
+      let activeCollege = 'SXUK';
 
       const pillsContainer = document.getElementById('category-pills-container');
       const gridContainer = document.getElementById('events-grid-container');
@@ -651,9 +673,47 @@
       const emptyState = document.getElementById('events-empty-state');
       const deadlinesContainer = document.getElementById('deadlines-list-container');
       const resetBtn = document.getElementById('btn-reset-filters');
+      const institutionSelect = document.getElementById('institution-picker-select');
+      const btnScopeCampus = document.getElementById('btn-scope-campus');
+      const btnScopeInter = document.getElementById('btn-scope-inter');
+      const scopeCampusLabel = document.getElementById('simulator-scope-campus-label');
 
       if (globalUserProfile?.branch) {
         deptFilterSelect.options[1].textContent = `My Dept (${globalUserProfile.branch.slice(0, 18)}...)`;
+      }
+
+      if (institutionSelect) {
+        institutionSelect.addEventListener('change', (e) => {
+          activeCollege = e.target.value;
+          if (scopeCampusLabel) {
+            scopeCampusLabel.textContent = `My Campus (${activeCollege})`;
+          }
+          renderEventsGrid();
+        });
+      }
+
+      if (btnScopeCampus && btnScopeInter) {
+        btnScopeCampus.addEventListener('click', () => {
+          activeScope = 'campus';
+          btnScopeCampus.style.background = 'var(--primary)';
+          btnScopeCampus.style.color = '#fff';
+          btnScopeCampus.style.fontWeight = '700';
+          btnScopeInter.style.background = 'transparent';
+          btnScopeInter.style.color = 'var(--text-secondary)';
+          btnScopeInter.style.fontWeight = '600';
+          renderEventsGrid();
+        });
+
+        btnScopeInter.addEventListener('click', () => {
+          activeScope = 'inter';
+          btnScopeInter.style.background = 'var(--primary)';
+          btnScopeInter.style.color = '#fff';
+          btnScopeInter.style.fontWeight = '700';
+          btnScopeCampus.style.background = 'transparent';
+          btnScopeCampus.style.color = 'var(--text-secondary)';
+          btnScopeCampus.style.fontWeight = '600';
+          renderEventsGrid();
+        });
       }
 
       function renderCategoryPills() {
@@ -680,6 +740,16 @@
         const sourceEvents = window.activeEventsList || [];
         
         let filtered = sourceEvents.filter(event => {
+          // Scope Filtering & Private Placement Wall
+          if (activeScope === 'campus') {
+            const eventCollege = event.collegeShortCode || 'SXUK';
+            if (eventCollege !== activeCollege) return false;
+          } else if (activeScope === 'inter') {
+            // Pan-India view shows inter-college events across all campuses
+            // Strictly exclude private intra-college internships/drives
+            if (event.scope === 'intraCollege' || event.category === 'internship') return false;
+          }
+
           if (activeCategory !== 'all' && event.category !== activeCategory) return false;
           if (searchQuery) {
             const q = searchQuery.toLowerCase();
@@ -1298,5 +1368,11 @@
       window.refreshProfileUI();
     }
   </script>
+
+  <!-- Floating M3 Expressive Post Signal FAB in Simulator -->
+  <button id="simulator-post-fab" onclick="switchAppTab('studio')" style="position: fixed; bottom: 28px; right: 28px; height: 56px; padding: 0 20px; border-radius: 16px; background: #DCE1FF; color: #001550; border: none; font-size: 0.9375rem; font-weight: 800; display: flex; align-items: center; gap: 10px; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25); cursor: pointer; z-index: 100; transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;">
+    <i data-lucide="plus" style="width: 20px; height: 20px; stroke-width: 2.8;"></i>
+    <span>Post Signal</span>
+  </button>
 </body>
 </html>

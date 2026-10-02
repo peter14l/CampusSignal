@@ -841,6 +841,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .device-screen {
+  position: relative;
   flex: 1;
   background: #0C1017;
   padding: 44px 16px 16px;
