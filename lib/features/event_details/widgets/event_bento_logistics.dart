@@ -162,7 +162,7 @@ class EventBentoLogistics extends StatelessWidget {
                   ],
                 ),
               ),
-              if (actionWidget != null) actionWidget,
+              ?actionWidget,
             ],
           ),
           const SizedBox(height: 8),
