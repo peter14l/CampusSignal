@@ -97,14 +97,14 @@ function initMobileNav() {
    3. Dynamic Version & Release Notes Fetcher
    ========================================================================== */
 const DEFAULT_VERSION_DATA = {
-  version: "1.4.0",
-  versionCode: 15,
-  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0.apk",
+  version: "1.4.1",
+  versionCode: 16,
+  apkUrl: "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.1.apk",
   archApkUrls: {
-    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-arm64-v8a.apk",
-    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-armeabi-v7a.apk",
-    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0-x86_64.apk",
-    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.0.apk"
+    "arm64-v8a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.1-arm64-v8a.apk",
+    "armeabi-v7a": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.1-armeabi-v7a.apk",
+    "x86_64": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.1-x86_64.apk",
+    "universal": "https://pub-a56b2096b15c42f3b81606f43267e8c8.r2.dev/updates/CampusSignal-v1.4.1.apk"
   },
   archSizes: {
     "arm64-v8a": "29.9 MB",
@@ -118,8 +118,8 @@ const DEFAULT_VERSION_DATA = {
     "x86_64": "f6471eb4bc90abc54070668111231d4179e1835112a422e7502d5bd4c23a0e69",
     "universal": "adc3684dec893106a7d8063004d297cdf8a93619c661771f31c0e03ec4e5646f"
   },
-  publishedAt: "2026-10-01",
-  releaseNotes: "• Pan-India Multi-College Expansion: Multi-campus discovery across IITs, NITs, BITS, SXUK, JU, DU with customized campus-filtered feeds\n• Private Internship Wall: Internships and placement drives strictly restricted to host university students\n• 4-Step Onboarding Wizard: Campus selector, academic profile, Signal Radar interest/skill matching, and ID verification fast-track\n• Admin Moderation Hub & Passkeys: Multi-tier event review queue and instant passkey activation for fest convenors\n• Interactive In-App Tutorial: Detailed guides for students, organizers, and college administrators"
+  publishedAt: "2026-10-02",
+  releaseNotes: "• Post Creation Decoupling: Fully generalized post & event creation flows across pan-India universities without hardcoded institutions\n• Signup College Selector: Searchable M3 Expressive university picker directly on the authentication and onboarding screens\n• Dynamic Feed Scope: Automatically replaces legacy campus tags with your university shortcode (e.g. My Campus (IITB))\n• Material 3 Expressive Extended FAB: Brand new 56dp squircle Post Signal button with anchored tonal action cards and fluid spring motion"
 };
 
 async function initVersionData() {

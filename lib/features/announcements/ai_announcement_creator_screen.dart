@@ -12,6 +12,7 @@ import '../../core/services/gemini_ocr_service.dart';
 import '../../core/services/r2_storage_service.dart';
 import '../../data/repositories/events_repository.dart';
 import '../../models/event_model.dart';
+import '../auth/auth_controller.dart';
 import '../feed/feed_controller.dart';
 import '../search/search_controller.dart';
 import 'widgets/announcement_analyzing_step.dart';
@@ -87,6 +88,8 @@ class _AiAnnouncementCreatorScreenState
 
   final List<String> _formats = const ['In-Person', 'Online', 'Hybrid'];
 
+  EventScope _selectedScope = EventScope.intraCollege;
+
   @override
   void initState() {
     super.initState();
@@ -95,13 +98,17 @@ class _AiAnnouncementCreatorScreenState
     _startDate = DateTime.now().add(const Duration(days: 7));
     _deadlineDate = DateTime.now().add(const Duration(days: 5));
 
+    if (widget.initialCategory == 'hackathon' || widget.initialCategory == 'fest') {
+      _selectedScope = EventScope.interCollege;
+    }
+
     _titleController = TextEditingController();
-    _organizerController = TextEditingController(text: 'SXUK Student Affairs');
+    _organizerController = TextEditingController();
     _descriptionController = TextEditingController();
-    _venueController = TextEditingController(text: 'SXUK Campus');
+    _venueController = TextEditingController();
     _applyUrlController = TextEditingController();
     _instagramController = TextEditingController();
-    _eligibilityController = TextEditingController(text: 'Open to all SXUK students');
+    _eligibilityController = TextEditingController();
     _tagsController = TextEditingController();
   }
 
@@ -323,24 +330,35 @@ class _AiAnnouncementCreatorScreenState
         ? const <String>['All Branches']
         : _selectedBranches.toList();
 
+    final authState = ref.read(authControllerProvider);
+    final profile = authState.profile;
+    final college = authState.selectedCollege;
+    final collegeShortCode = profile?.collegeShortCode ?? college.shortCode;
+    final collegeName = profile?.collegeName ?? college.name;
+    final collegeId = profile?.collegeId ?? college.id;
+
     final tags = _tagsController.text
         .split(',')
         .map((t) => t.trim())
         .where((t) => t.isNotEmpty)
         .toList();
 
+    final effectiveScope = _category == 'internship' ? EventScope.intraCollege : _selectedScope;
+
     final newEvent = EventModel(
       id: eventId,
       title: _titleController.text.trim(),
       description: _descriptionController.text.trim(),
       category: _category,
-      organizerName: _organizerController.text.trim(),
+      organizerName: _organizerController.text.trim().isNotEmpty
+          ? _organizerController.text.trim()
+          : '$collegeShortCode Student Affairs',
       startsAt: _startDate,
       endsAt: _startDate.add(const Duration(hours: 4)),
       deadlineAt: _deadlineDate,
       venue: _venueController.text.trim().isNotEmpty
           ? _venueController.text.trim()
-          : 'SXUK Campus',
+          : '$collegeShortCode Campus',
       format: _format,
       applyUrl: _applyUrlController.text.trim().isNotEmpty
           ? _applyUrlController.text.trim()
@@ -352,12 +370,16 @@ class _AiAnnouncementCreatorScreenState
       attachments: attachmentUrls,
       eligibilityText: _eligibilityController.text.trim().isNotEmpty
           ? _eligibilityController.text.trim()
-          : (_isCampusWide ? 'Open to all SXUK students' : 'Targeted branches only'),
+          : (_isCampusWide ? 'Open to all $collegeShortCode students' : 'Targeted branches only'),
       eligibilityBranches: targetBranches,
       posterR2Key: posterKey,
       status: 'published',
       matchScore: 0.99,
-      matchedTags: tags.isNotEmpty ? tags : ['SXUK', _category],
+      matchedTags: tags.isNotEmpty ? tags : [collegeShortCode, _category],
+      collegeId: collegeId,
+      collegeName: collegeName,
+      collegeShortCode: collegeShortCode,
+      scope: effectiveScope,
     );
 
     // 1. Save to Events Repository (persists locally and syncs to remote)
@@ -474,6 +496,15 @@ class _AiAnnouncementCreatorScreenState
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
 
+    final authState = ref.watch(authControllerProvider);
+    final profile = authState.profile;
+    final college = authState.selectedCollege;
+    final collegeShortCode = profile?.collegeShortCode ?? college.shortCode;
+
+    if (_organizerController.text.isEmpty) {
+      _organizerController.text = '$collegeShortCode Student Affairs';
+    }
+
     return Form(
       key: _formKey,
       child: ListView(
@@ -576,7 +607,14 @@ class _AiAnnouncementCreatorScreenState
                   ),
                   selected: isSelected,
                   onSelected: (_) {
-                    setState(() => _category = type['id'] as String);
+                    setState(() {
+                      _category = type['id'] as String;
+                      if (_category == 'internship') {
+                        _selectedScope = EventScope.intraCollege;
+                      } else if (_category == 'hackathon' || _category == 'fest') {
+                        _selectedScope = EventScope.interCollege;
+                      }
+                    });
                   },
                   selectedColor: colorScheme.primaryContainer,
                   backgroundColor: colorScheme.surfaceContainer,
@@ -589,6 +627,108 @@ class _AiAnnouncementCreatorScreenState
                   ),
                 );
               },
+            ),
+          ),
+          const SizedBox(height: 14),
+
+          // DISCOVERY SCOPE (Pan-India vs Campus-Only)
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(LucideIcons.globe, size: 14, color: colorScheme.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          'DISCOVERY SCOPE',
+                          style: theme.textTheme.labelSmall?.copyWith(
+                            fontSize: 10.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.8,
+                            color: colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    if (_category == 'internship')
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: colorScheme.tertiaryContainer,
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.lock, size: 10, color: colorScheme.onTertiaryContainer),
+                            const SizedBox(width: 4),
+                            Text(
+                              'Campus Only (Locked)',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w700,
+                                color: colorScheme.onTertiaryContainer,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: ChoiceChip(
+                        avatar: Icon(
+                          LucideIcons.school,
+                          size: 14,
+                          color: _selectedScope == EventScope.intraCollege
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        label: Text('My Campus ($collegeShortCode)'),
+                        selected: _selectedScope == EventScope.intraCollege,
+                        onSelected: _category == 'internship'
+                            ? null
+                            : (_) => setState(() => _selectedScope = EventScope.intraCollege),
+                        selectedColor: colorScheme.primaryContainer,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: ChoiceChip(
+                        avatar: Icon(
+                          LucideIcons.globe,
+                          size: 14,
+                          color: _selectedScope == EventScope.interCollege
+                              ? colorScheme.onPrimaryContainer
+                              : colorScheme.onSurfaceVariant,
+                        ),
+                        label: const Text('Pan-India (Open)'),
+                        selected: _selectedScope == EventScope.interCollege,
+                        onSelected: _category == 'internship'
+                            ? null
+                            : (_) => setState(() => _selectedScope = EventScope.interCollege),
+                        selectedColor: colorScheme.primaryContainer,
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 20),
@@ -805,7 +945,7 @@ class _AiAnnouncementCreatorScreenState
             style: TextStyle(color: colorScheme.onSurface),
             decoration: InputDecoration(
               labelText: 'Host Club / Society / Department *',
-              hintText: 'e.g. St. Xavier\'s University Film Society',
+              hintText: 'e.g. $collegeShortCode Student Affairs / Club',
               prefixIcon: Icon(LucideIcons.users,
                   color: colorScheme.onSurfaceVariant, size: 18),
             ),
@@ -821,7 +961,7 @@ class _AiAnnouncementCreatorScreenState
             style: TextStyle(color: colorScheme.onSurface),
             decoration: InputDecoration(
               labelText: 'Instagram Handle (Optional)',
-              hintText: '@sxuk_filmsoc',
+              hintText: '@${collegeShortCode.toLowerCase()}_society',
               prefixIcon: Icon(LucideIcons.atSign,
                   color: colorScheme.onSurfaceVariant, size: 18),
             ),
@@ -983,6 +1123,7 @@ class _AiAnnouncementCreatorScreenState
             isCampusWide: _isCampusWide,
             selectedBranches: _selectedBranches,
             availableBranches: _availableBranches,
+            collegeShortCode: collegeShortCode,
             onCampusWideChanged: (val) {
               setState(() {
                 _isCampusWide = val;

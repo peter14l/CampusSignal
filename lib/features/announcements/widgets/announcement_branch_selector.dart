@@ -7,6 +7,7 @@ class AnnouncementBranchSelector extends StatelessWidget {
   final bool isCampusWide;
   final Set<String> selectedBranches;
   final List<String> availableBranches;
+  final String? collegeShortCode;
   final ValueChanged<bool> onCampusWideChanged;
   final void Function(String branch, bool selected) onBranchToggle;
 
@@ -15,6 +16,7 @@ class AnnouncementBranchSelector extends StatelessWidget {
     required this.isCampusWide,
     required this.selectedBranches,
     required this.availableBranches,
+    this.collegeShortCode,
     required this.onCampusWideChanged,
     required this.onBranchToggle,
   });
@@ -66,7 +68,7 @@ class AnnouncementBranchSelector extends StatelessWidget {
           const SizedBox(height: 4),
           Text(
             isCampusWide
-                ? 'Broadcast to ALL branches across SXUK'
+                ? 'Broadcast to ALL branches across ${collegeShortCode ?? "campus"}'
                 : 'Target specific departments only (Exclusive access)',
             style: theme.textTheme.bodySmall?.copyWith(
               color: isCampusWide

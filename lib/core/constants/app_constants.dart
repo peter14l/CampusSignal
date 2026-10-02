@@ -8,9 +8,9 @@ class AppConstants {
 
   static const String appName = 'CampusSignal';
   static const String appTagline = 'Signal, not noise. Campus discovery simplified.';
-  static const String appVersion = '1.4.0';
-  static const String appBuildNumber = '15';
-  static const String appVersionDisplay = 'v1.4.0 (Build 15)';
+  static const String appVersion = '1.4.1';
+  static const String appBuildNumber = '16';
+  static const String appVersionDisplay = 'v1.4.1 (Build 16)';
 
   /// Default College Fallback
   static const String defaultCollegeId = 'sxuk';

@@ -114,19 +114,25 @@ class OnboardingState {
 class OnboardingController extends Notifier<OnboardingState> {
   @override
   OnboardingState build() {
-    final profile = ref.watch(authControllerProvider).profile;
+    final authState = ref.watch(authControllerProvider);
+    final profile = authState.profile;
+    final selectedCollege = authState.selectedCollege;
+
     if (profile != null) {
       final initialSemester = profile.semester ?? (profile.year != null ? (profile.year! * 2 - 1) : 3);
       final computedYear = (initialSemester + 1) ~/ 2;
 
       return OnboardingState(
-        selectedCollegeId: profile.collegeId ?? 'sxuk',
-        selectedCollegeName: profile.collegeName ?? "St. Xavier's University, Kolkata",
-        selectedCollegeShortCode: profile.collegeShortCode ?? 'SXUK',
+        selectedCollegeId: profile.collegeId ?? selectedCollege.id,
+        selectedCollegeName: profile.collegeName ?? selectedCollege.name,
+        selectedCollegeShortCode: profile.collegeShortCode ?? selectedCollege.shortCode,
         fullName: profile.fullName.isNotEmpty ? profile.fullName : '',
         collegeEmail: profile.collegeEmail,
         avatarUrl: profile.avatarUrl,
-        branch: profile.branch ?? 'B.Tech in CSE',
+        branch: profile.branch ??
+            (selectedCollege.popularBranches.isNotEmpty
+                ? selectedCollege.popularBranches.first
+                : 'B.Tech in CSE'),
         semester: initialSemester,
         year: computedYear,
         selectedInterests: profile.interests.isNotEmpty
@@ -146,7 +152,14 @@ class OnboardingController extends Notifier<OnboardingState> {
         verifiedRollNumber: profile.rollNumber,
       );
     }
-    return const OnboardingState();
+    return OnboardingState(
+      selectedCollegeId: selectedCollege.id,
+      selectedCollegeName: selectedCollege.name,
+      selectedCollegeShortCode: selectedCollege.shortCode,
+      branch: selectedCollege.popularBranches.isNotEmpty
+          ? selectedCollege.popularBranches.first
+          : 'B.Tech in CSE',
+    );
   }
 
   void selectCollege(CollegeModel college) {

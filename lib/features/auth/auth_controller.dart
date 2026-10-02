@@ -6,9 +6,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../../core/constants/app_constants.dart';
 import '../../core/mock/mock_data.dart';
 import '../../core/storage/shared_preferences_provider.dart';
 import '../../core/supabase/supabase_config.dart';
+import '../../models/college_model.dart';
 import '../../models/profile_model.dart';
 
 enum GoogleAuthStatus {
@@ -28,6 +30,7 @@ class AuthState {
   final ProfileModel? profile;
   final bool isAuthenticated;
   final bool isDemoMode;
+  final CollegeModel selectedCollege;
 
   const AuthState({
     this.isLoading = false,
@@ -39,6 +42,22 @@ class AuthState {
     this.profile,
     this.isAuthenticated = false,
     this.isDemoMode = false,
+    this.selectedCollege = const CollegeModel(
+      id: 'sxuk',
+      name: "St. Xavier's University, Kolkata",
+      shortCode: 'SXUK',
+      city: 'Kolkata',
+      state: 'West Bengal',
+      domainPatterns: ['@sxuk.edu.in', '@sxuk.in'],
+      popularBranches: [
+        'B.Tech in CSE',
+        'B.Tech in AI & ML',
+        'B.Tech in ECE',
+        'B.Sc. in Statistics and Data Science',
+        'B.Com. (Honours)',
+        'B.M.S. (Honours)',
+      ],
+    ),
   });
 
   AuthState copyWith({
@@ -51,6 +70,7 @@ class AuthState {
     ProfileModel? profile,
     bool? isAuthenticated,
     bool? isDemoMode,
+    CollegeModel? selectedCollege,
     bool clearError = false,
     bool clearSuccess = false,
   }) {
@@ -64,6 +84,7 @@ class AuthState {
       profile: profile ?? this.profile,
       isAuthenticated: isAuthenticated ?? this.isAuthenticated,
       isDemoMode: isDemoMode ?? this.isDemoMode,
+      selectedCollege: selectedCollege ?? this.selectedCollege,
     );
   }
 }
@@ -73,6 +94,7 @@ class AuthController extends Notifier<AuthState> {
   static const String _keyIsAuth = 'campussignal_is_authenticated';
   static const String _keyAuthEmail = 'campussignal_auth_email';
   static const String _keyIsDemoMode = 'campussignal_is_demo_mode';
+  static const String _keySelectedCollegeId = 'campussignal_selected_college_id';
 
   Timer? _countdownTimer;
   static String get _googleServerClientId {
@@ -136,7 +158,7 @@ class AuthController extends Notifier<AuthState> {
         (fbUser != null
             ? ProfileModel(
                 id: fbUser.uid,
-                fullName: fbUser.displayName ?? 'SXUK Student',
+                fullName: fbUser.displayName ?? 'Campus Student',
                 collegeEmail: fbUser.email,
                 avatarUrl: fbUser.photoURL,
                 branch: 'Computer Science & Engineering',
@@ -149,15 +171,56 @@ class AuthController extends Notifier<AuthState> {
                 ? kDefaultProfile.copyWith(collegeEmail: effectiveEmail)
                 : null));
 
+    final savedCollegeId = prefs.getString(_keySelectedCollegeId) ?? restoredProfile?.collegeId;
+    CollegeModel initialSelectedCollege = AppConstants.indianColleges.first;
+    if (savedCollegeId != null && savedCollegeId.isNotEmpty) {
+      initialSelectedCollege = AppConstants.indianColleges.firstWhere(
+        (c) => c.id == savedCollegeId,
+        orElse: () => CollegeModel(
+          id: savedCollegeId,
+          name: restoredProfile?.collegeName ?? AppConstants.defaultCollegeName,
+          shortCode: restoredProfile?.collegeShortCode ?? AppConstants.defaultCollegeShortCode,
+          city: '',
+          state: '',
+        ),
+      );
+    }
+
     final initialAuthState = AuthState(
       isAuthenticated: isAuthenticated,
       isDemoMode: isDemoMode,
       email: effectiveEmail,
       profile: effectiveProfile,
+      selectedCollege: initialSelectedCollege,
     );
 
     _initAuthListener();
     return initialAuthState;
+  }
+
+  void selectCollege(CollegeModel college) {
+    ProfileModel? updatedProfile;
+    if (state.profile != null) {
+      updatedProfile = state.profile!.copyWith(
+        collegeId: college.id,
+        collegeName: college.name,
+        collegeShortCode: college.shortCode,
+      );
+    }
+    state = state.copyWith(
+      selectedCollege: college,
+      profile: updatedProfile ?? state.profile,
+      clearError: true,
+    );
+    try {
+      final prefs = ref.read(sharedPreferencesProvider);
+      prefs.setString(_keySelectedCollegeId, college.id);
+      if (updatedProfile != null) {
+        _persistAuth(updatedProfile, state.email, isDemo: state.isDemoMode);
+      }
+    } catch (e) {
+      debugPrint('Error persisting selected college: $e');
+    }
   }
 
   Future<void> _persistAuth(ProfileModel profile, String? email, {bool isDemo = false}) async {
@@ -246,10 +309,25 @@ class AuthController extends Notifier<AuthState> {
             year: effectiveYear,
           );
 
+          CollegeModel? matchedCollege;
+          if (remoteProfile.collegeId != null && remoteProfile.collegeId!.isNotEmpty) {
+            matchedCollege = AppConstants.indianColleges.firstWhere(
+              (c) => c.id == remoteProfile.collegeId,
+              orElse: () => CollegeModel(
+                id: remoteProfile.collegeId!,
+                name: remoteProfile.collegeName ?? remoteProfile.collegeId!,
+                shortCode: remoteProfile.collegeShortCode ?? remoteProfile.collegeId!.toUpperCase(),
+                city: '',
+                state: '',
+              ),
+            );
+          }
+
           state = state.copyWith(
             isAuthenticated: true,
             profile: mergedProfile,
             email: email ?? mergedProfile.collegeEmail,
+            selectedCollege: matchedCollege ?? state.selectedCollege,
           );
           await _persistAuth(mergedProfile, email ?? mergedProfile.collegeEmail);
 
@@ -273,12 +351,20 @@ class AuthController extends Notifier<AuthState> {
     final fallbackProfile = current?.copyWith(
           id: userId,
           collegeEmail: email ?? current.collegeEmail,
+          collegeId: current.collegeId ?? state.selectedCollege.id,
+          collegeName: current.collegeName ?? state.selectedCollege.name,
+          collegeShortCode: current.collegeShortCode ?? state.selectedCollege.shortCode,
         ) ??
         ProfileModel(
           id: userId,
-          fullName: 'SXUK Student',
+          fullName: '${state.selectedCollege.shortCode} Student',
           collegeEmail: email,
-          branch: 'Computer Science & Engineering',
+          collegeId: state.selectedCollege.id,
+          collegeName: state.selectedCollege.name,
+          collegeShortCode: state.selectedCollege.shortCode,
+          branch: state.selectedCollege.popularBranches.isNotEmpty
+              ? state.selectedCollege.popularBranches.first
+              : 'Computer Science & Engineering',
           semester: 3,
           year: 2,
         );
@@ -407,6 +493,9 @@ class AuthController extends Notifier<AuthState> {
               fullName: displayName,
               collegeEmail: email,
               avatarUrl: photoUrl,
+              collegeId: state.selectedCollege.id,
+              collegeName: state.selectedCollege.name,
+              collegeShortCode: state.selectedCollege.shortCode,
               branch: null,
               year: null,
               semester: null,
@@ -464,6 +553,9 @@ class AuthController extends Notifier<AuthState> {
         fullName: displayName,
         collegeEmail: email,
         avatarUrl: photoUrl,
+        collegeId: state.selectedCollege.id,
+        collegeName: state.selectedCollege.name,
+        collegeShortCode: state.selectedCollege.shortCode,
         branch: null,
         year: null,
         semester: null,
@@ -507,6 +599,9 @@ class AuthController extends Notifier<AuthState> {
     if (isExistingUser) {
       final existingProfile = kDefaultProfile.copyWith(
         avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=400&q=80',
+        collegeId: state.selectedCollege.id,
+        collegeName: state.selectedCollege.name,
+        collegeShortCode: state.selectedCollege.shortCode,
       );
       state = state.copyWith(
         isLoading: false,
@@ -518,16 +613,22 @@ class AuthController extends Notifier<AuthState> {
       await _persistAuth(existingProfile, existingProfile.collegeEmail, isDemo: true);
       return GoogleAuthStatus.authenticated;
     } else {
-      final newProfile = const ProfileModel(
+      final domain = state.selectedCollege.domainPatterns.isNotEmpty
+          ? state.selectedCollege.domainPatterns.first.replaceFirst('@', '')
+          : 'college.edu.in';
+      final newProfile = ProfileModel(
         id: 'user-google-new-001',
         fullName: 'Rhea Sen',
-        collegeEmail: 'rhea.sen@sxuk.edu.in',
+        collegeEmail: 'rhea.sen@$domain',
         avatarUrl: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=400&q=80',
+        collegeId: state.selectedCollege.id,
+        collegeName: state.selectedCollege.name,
+        collegeShortCode: state.selectedCollege.shortCode,
         branch: null,
         year: null,
         semester: null,
-        interests: [],
-        skills: [],
+        interests: const [],
+        skills: const [],
       );
       state = state.copyWith(
         isLoading: false,
@@ -544,18 +645,18 @@ class AuthController extends Notifier<AuthState> {
   bool validateEmail(String email) {
     final trimmed = email.trim().toLowerCase();
     if (trimmed.isEmpty) return false;
-    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@sxuk\.edu\.in$');
-    if (kDebugMode) {
-      return trimmed.endsWith('@sxuk.edu.in') || trimmed.contains('@');
-    }
+    final emailRegex = RegExp(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$');
     return emailRegex.hasMatch(trimmed);
   }
 
   Future<bool> sendOtp(String email) async {
     final trimmed = email.trim().toLowerCase();
     if (!validateEmail(trimmed)) {
+      final domainHint = state.selectedCollege.domainPatterns.isNotEmpty
+          ? state.selectedCollege.domainPatterns.first.replaceFirst('@', '')
+          : 'college.edu.in';
       state = state.copyWith(
-        errorMessage: 'Please enter a valid SXUK college email (e.g. name@sxuk.edu.in)',
+        errorMessage: 'Please enter a valid email address (e.g. name@$domainHint or personal email)',
       );
       return false;
     }
@@ -655,6 +756,9 @@ class AuthController extends Notifier<AuthState> {
         await Future.delayed(const Duration(milliseconds: 700));
         final mockProfile = kDefaultProfile.copyWith(
           collegeEmail: email,
+          collegeId: state.selectedCollege.id,
+          collegeName: state.selectedCollege.name,
+          collegeShortCode: state.selectedCollege.shortCode,
         );
 
         state = state.copyWith(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../models/event_model.dart';
+import '../auth/auth_controller.dart';
 import '../search/search_controller.dart';
 
 class CreateAnnouncementSheet extends ConsumerStatefulWidget {
@@ -30,6 +31,7 @@ class _CreateAnnouncementSheetState
   final _formKey = GlobalKey<FormState>();
 
   late String _selectedCategory;
+  EventScope _selectedScope = EventScope.intraCollege;
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _organizerController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
@@ -78,7 +80,9 @@ class _CreateAnnouncementSheetState
   void initState() {
     super.initState();
     _selectedCategory = widget.initialCategory;
-    _organizerController.text = 'SXUK Student Council';
+    if (widget.initialCategory == 'hackathon' || widget.initialCategory == 'fest') {
+      _selectedScope = EventScope.interCollege;
+    }
   }
 
   @override
@@ -112,6 +116,13 @@ class _CreateAnnouncementSheetState
       _deadlineTime.minute,
     );
 
+    final authState = ref.read(authControllerProvider);
+    final profile = authState.profile;
+    final college = authState.selectedCollege;
+    final collegeShortCode = profile?.collegeShortCode ?? college.shortCode;
+    final collegeName = profile?.collegeName ?? college.name;
+    final collegeId = profile?.collegeId ?? college.id;
+
     final tags = _tagsController.text
         .split(',')
         .map((t) => t.trim())
@@ -119,8 +130,16 @@ class _CreateAnnouncementSheetState
         .toList();
 
     if (tags.isEmpty) {
-      tags.addAll(['SXUK', _selectedCategory.toUpperCase(), 'Campus']);
+      tags.addAll([collegeShortCode, _selectedCategory.toUpperCase(), 'Campus']);
     }
+
+    final effectiveScope = _selectedCategory == 'internship'
+        ? EventScope.intraCollege
+        : _selectedScope;
+
+    final defaultApplyUrl = college.domainPatterns.isNotEmpty
+        ? 'https://www.${college.domainPatterns.first.replaceFirst("@", "")}'
+        : 'https://campussignal.in';
 
     final newEvent = EventModel(
       id: 'announcement-${DateTime.now().millisecondsSinceEpoch}',
@@ -129,24 +148,30 @@ class _CreateAnnouncementSheetState
           ? _descriptionController.text.trim()
           : 'New announcement created by ${_organizerController.text.trim()}.',
       category: _selectedCategory,
-      organizerName: _organizerController.text.trim(),
+      organizerName: _organizerController.text.trim().isNotEmpty
+          ? _organizerController.text.trim()
+          : '$collegeShortCode Student Council',
       startsAt: startDateTime,
       endsAt: startDateTime.add(const Duration(hours: 4)),
       deadlineAt: deadlineDateTime,
       venue: _venueController.text.trim().isNotEmpty
           ? _venueController.text.trim()
-          : 'SXUK Campus',
+          : '$collegeShortCode Campus',
       format: _format,
       teamSizeText: _teamSizeController.text.trim().isNotEmpty
           ? _teamSizeController.text.trim()
           : 'Individual / Teams',
-      eligibilityText: 'Open to SXUK students across all branches and years.',
+      eligibilityText: 'Open to $collegeShortCode students across all branches and years.',
       applyUrl: _applyUrlController.text.trim().isNotEmpty
           ? _applyUrlController.text.trim()
-          : 'https://www.sxuk.edu.in',
+          : defaultApplyUrl,
       matchedTags: tags,
       matchScore: 0.95,
       status: 'published',
+      collegeId: collegeId,
+      collegeName: collegeName,
+      collegeShortCode: collegeShortCode,
+      scope: effectiveScope,
     );
 
     ref.read(searchControllerProvider.notifier).addNewEvent(newEvent);
@@ -177,6 +202,16 @@ class _CreateAnnouncementSheetState
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
     final textTheme = theme.textTheme;
+
+    final authState = ref.watch(authControllerProvider);
+    final profile = authState.profile;
+    final college = authState.selectedCollege;
+    final collegeShortCode = profile?.collegeShortCode ?? college.shortCode;
+    final collegeName = profile?.collegeName ?? college.name;
+
+    if (_organizerController.text.isEmpty) {
+      _organizerController.text = '$collegeShortCode Student Council';
+    }
 
     return Container(
       decoration: BoxDecoration(
@@ -238,7 +273,7 @@ class _CreateAnnouncementSheetState
                           ),
                         ),
                         Text(
-                          'Publish opportunities to SXUK CampusSignal',
+                          'Publish opportunities to $collegeShortCode CampusSignal',
                           style: textTheme.bodySmall?.copyWith(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -287,7 +322,7 @@ class _CreateAnnouncementSheetState
                         final isSelected = _selectedCategory == type['id'];
                         return ChoiceChip(
                           label: Row(
-                            mainAxisSize: MainAxisSize.min,
+                              mainAxisSize: MainAxisSize.min,
                             children: [
                               Icon(
                                 type['icon'] as IconData,
@@ -304,6 +339,11 @@ class _CreateAnnouncementSheetState
                           onSelected: (_) {
                             setState(() {
                               _selectedCategory = type['id'] as String;
+                              if (_selectedCategory == 'internship') {
+                                _selectedScope = EventScope.intraCollege;
+                              } else if (_selectedCategory == 'hackathon' || _selectedCategory == 'fest') {
+                                _selectedScope = EventScope.interCollege;
+                              }
                             });
                           },
                           selectedColor: colorScheme.primaryContainer,
@@ -319,6 +359,108 @@ class _CreateAnnouncementSheetState
                           ),
                         );
                       },
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  // DISCOVERY SCOPE (Pan-India vs Campus-Only)
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: colorScheme.surfaceContainerHigh.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                Icon(LucideIcons.globe, size: 14, color: colorScheme.primary),
+                                const SizedBox(width: 6),
+                                Text(
+                                  'DISCOVERY SCOPE',
+                                  style: textTheme.labelSmall?.copyWith(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w800,
+                                    letterSpacing: 0.8,
+                                    color: colorScheme.primary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (_selectedCategory == 'internship')
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                decoration: BoxDecoration(
+                                  color: colorScheme.tertiaryContainer,
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(LucideIcons.lock, size: 10, color: colorScheme.onTertiaryContainer),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      'Campus Only (Locked)',
+                                      style: TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.w700,
+                                        color: colorScheme.onTertiaryContainer,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: ChoiceChip(
+                                avatar: Icon(
+                                  LucideIcons.school,
+                                  size: 14,
+                                  color: _selectedScope == EventScope.intraCollege
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                                label: Text('My Campus ($collegeShortCode)'),
+                                selected: _selectedScope == EventScope.intraCollege,
+                                onSelected: _selectedCategory == 'internship'
+                                    ? null
+                                    : (_) => setState(() => _selectedScope = EventScope.intraCollege),
+                                selectedColor: colorScheme.primaryContainer,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: ChoiceChip(
+                                avatar: Icon(
+                                  LucideIcons.globe,
+                                  size: 14,
+                                  color: _selectedScope == EventScope.interCollege
+                                      ? colorScheme.onPrimaryContainer
+                                      : colorScheme.onSurfaceVariant,
+                                ),
+                                label: const Text('Pan-India (Open)'),
+                                selected: _selectedScope == EventScope.interCollege,
+                                onSelected: _selectedCategory == 'internship'
+                                    ? null
+                                    : (_) => setState(() => _selectedScope = EventScope.interCollege),
+                                selectedColor: colorScheme.primaryContainer,
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -347,7 +489,7 @@ class _CreateAnnouncementSheetState
                     style: TextStyle(color: colorScheme.onSurface),
                     decoration: InputDecoration(
                       labelText: 'Organizer / Club Name *',
-                      hintText: 'e.g. SXUK ACM Student Chapter',
+                      hintText: 'e.g. $collegeShortCode ACM Student Chapter',
                       prefixIcon: Icon(LucideIcons.users,
                           color: colorScheme.onSurfaceVariant, size: 18),
                     ),

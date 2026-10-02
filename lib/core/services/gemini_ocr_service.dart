@@ -344,10 +344,10 @@ Return ONLY a valid JSON object matching this exact schema:
   "deadlineDate": "YYYY-MM-DD (e.g. 2026-09-15) or null if not found",
   "venue": "Hall name, Room/Lab number, Auditorium, or 'Online (Zoom/Meet)'",
   "format": "In-Person | Online | Hybrid",
-  "eligibility": "Academic criteria, e.g. 'All SXUK Students', 'B.Tech / MCA', 'Year 1-3'",
+  "eligibility": "Academic criteria, e.g. 'All Enrolled Students', 'B.Tech / MCA', 'Year 1-3'",
   "targetBranches": ["List specific academic branches if mentioned, e.g. 'Mass Communication & Media', 'Computer Science & Engineering', or empty array [] if open to All Branches"],
   "applyUrl": "Exact Google Form URL, QR code decoded link, or registration link (e.g. https://forms.gle/...)",
-  "instagramHandle": "Instagram username/handle e.g. @sxuk_filmsoc or null",
+  "instagramHandle": "Instagram username/handle e.g. @campus_society or null",
   "contactEmail": "Contact email if listed or null",
   "contacts": [
     {
@@ -356,14 +356,14 @@ Return ONLY a valid JSON object matching this exact schema:
       "role": "Coordinator / Lead"
     }
   ],
-  "tags": ["3 to 6 relevant keywords, e.g. 'Film', 'Photography', 'Prizes', 'SXUK']",
+  "tags": ["3 to 6 relevant keywords, e.g. 'Film', 'Photography', 'Prizes', 'Campus']",
   "rawOcrText": "Full text transcribed from poster",
   "confidence": 0.95
 }
 
 CRITICAL RULES:
 1. Return ONLY the JSON object. Do not include markdown code block backticks or conversational text.
-2. If certain details are missing from the flyer, provide realistic smart inferences for SXUK campus context.
+2. If certain details are missing from the flyer, provide realistic smart inferences for Indian university campus context.
 ''';
 
     final requestBody = jsonEncode({
@@ -445,8 +445,8 @@ CRITICAL RULES:
   ExtractedAnnouncement _buildHeuristicFallback(Uint8List imageBytes) {
     final now = DateTime.now();
     return ExtractedAnnouncement(
-      title: 'SXUK Campus Event Announcement',
-      organizer: 'St. Xavier\'s University Society',
+      title: 'Campus Event Announcement',
+      organizer: 'Campus Society / Club',
       category: 'hackathon',
       description: 'Exciting campus opportunity analyzed from uploaded flyer. Join peers across departments for collaboration, learning, and prizes.',
       startDate: now.add(const Duration(days: 7)),
@@ -454,10 +454,10 @@ CRITICAL RULES:
       deadlineDate: now.add(const Duration(days: 5)),
       venue: 'University Auditorium / Lab Complex',
       format: 'In-Person',
-      eligibility: 'Open to all SXUK students',
+      eligibility: 'Open to all enrolled students',
       targetBranches: const ['All Branches'],
-      applyUrl: 'https://forms.gle/sxuk-campus-signal-event',
-      tags: const ['Campus', 'Innovation', 'SXUK', 'Workshop'],
+      applyUrl: 'https://forms.gle/campus-signal-event',
+      tags: const ['Campus', 'Innovation', 'Hackathon', 'Workshop'],
       contacts: const [
         EventContact(
           name: 'Student Coordinator',
@@ -465,7 +465,7 @@ CRITICAL RULES:
           role: 'Convenor',
         ),
       ],
-      instagramHandle: '@sxuk_campus',
+      instagramHandle: '@campussignal',
       confidenceScore: 0.85,
     );
   }

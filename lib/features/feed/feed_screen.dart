@@ -77,7 +77,9 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final profile = ref.watch(authControllerProvider.select((s) => s.profile));
+    final authState = ref.watch(authControllerProvider);
+    final profile = authState.profile;
+    final collegeCode = profile?.collegeShortCode ?? authState.selectedCollege.shortCode;
     final feedState = ref.watch(feedControllerProvider);
     final unreadNotifs = ref.watch(notificationsControllerProvider.select((s) => s.unreadCount));
     final savedState = ref.watch(savedControllerProvider);
@@ -246,7 +248,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                                 ),
                                 const SizedBox(width: 5),
                                 Text(
-                                  '${profile?.departmentLabel ?? (profile?.branch ?? "SXUK Campus")} • ${profile?.semesterLabel ?? "Student Hub"}',
+                                  '${profile?.departmentLabel ?? (profile?.branch ?? "$collegeCode Campus")} • ${profile?.semesterLabel ?? "Student Hub"}',
                                   style: TextStyle(
                                     color: colorScheme.primary,
                                     fontSize: 11.5,
@@ -337,7 +339,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  'My Campus (${profile?.collegeShortCode ?? "SXUK"})',
+                                  'My Campus ($collegeCode)',
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: feedState.scopeFilter != EventScope.interCollege

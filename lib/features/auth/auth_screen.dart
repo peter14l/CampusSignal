@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/theme/motion.dart';
+import '../../core/widgets/college_picker_modal.dart';
 import '../../core/widgets/interactive_spring.dart';
 import 'auth_controller.dart';
 
@@ -305,7 +306,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           Text(
                             authState.isOtpSent
                                 ? 'We sent a 6-digit code to ${authState.email}'
-                                : 'St. Xavier\'s University, Kolkata — The official real-time opportunities & campus notices hub.',
+                                : 'Pan-India Real-Time Opportunities, Hackathons & Campus Notices Hub',
                             style: theme.textTheme.bodyMedium?.copyWith(
                               color: colorScheme.onSurfaceVariant,
                               fontSize: 13.5,
@@ -335,6 +336,128 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.stretch,
                               children: [
+                                // Campus / University Selector Card
+                                Container(
+                                  margin: const EdgeInsets.only(bottom: 18),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerHigh,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: colorScheme.primary.withValues(alpha: 0.25),
+                                    ),
+                                  ),
+                                  child: Material(
+                                    color: Colors.transparent,
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: InkWell(
+                                      borderRadius: BorderRadius.circular(16),
+                                      onTap: authState.isLoading
+                                          ? null
+                                          : () {
+                                              CollegePickerModal.show(
+                                                context,
+                                                initialSelectedCollege: authState.selectedCollege,
+                                                onCollegeSelected: (college) {
+                                                  ref.read(authControllerProvider.notifier).selectCollege(college);
+                                                },
+                                              );
+                                            },
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                                        child: Row(
+                                          children: [
+                                            Container(
+                                              padding: const EdgeInsets.all(8),
+                                              decoration: BoxDecoration(
+                                                color: colorScheme.primaryContainer,
+                                                borderRadius: BorderRadius.circular(10),
+                                              ),
+                                              child: Icon(
+                                                LucideIcons.school,
+                                                size: 18,
+                                                color: colorScheme.onPrimaryContainer,
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Row(
+                                                    children: [
+                                                      Text(
+                                                        'SELECTED CAMPUS',
+                                                        style: theme.textTheme.labelSmall?.copyWith(
+                                                          fontSize: 9.5,
+                                                          fontWeight: FontWeight.w800,
+                                                          letterSpacing: 0.8,
+                                                          color: colorScheme.primary,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(width: 6),
+                                                      Container(
+                                                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                                                        decoration: BoxDecoration(
+                                                          color: colorScheme.primary.withValues(alpha: 0.1),
+                                                          borderRadius: BorderRadius.circular(6),
+                                                        ),
+                                                        child: Text(
+                                                          authState.selectedCollege.shortCode,
+                                                          style: TextStyle(
+                                                            fontSize: 10,
+                                                            fontWeight: FontWeight.w800,
+                                                            color: colorScheme.primary,
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  const SizedBox(height: 2),
+                                                  Text(
+                                                    authState.selectedCollege.name,
+                                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                                      fontWeight: FontWeight.w700,
+                                                      fontSize: 12.5,
+                                                      color: colorScheme.onSurface,
+                                                    ),
+                                                    maxLines: 1,
+                                                    overflow: TextOverflow.ellipsis,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                              decoration: BoxDecoration(
+                                                color: colorScheme.surface,
+                                                borderRadius: BorderRadius.circular(10),
+                                                border: Border.all(
+                                                  color: colorScheme.outlineVariant.withValues(alpha: 0.6),
+                                                ),
+                                              ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  Text(
+                                                    'Change',
+                                                    style: TextStyle(
+                                                      fontSize: 11.5,
+                                                      fontWeight: FontWeight.w700,
+                                                      color: colorScheme.primary,
+                                                    ),
+                                                  ),
+                                                  const SizedBox(width: 4),
+                                                  Icon(LucideIcons.chevronRight, size: 13, color: colorScheme.primary),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+
                                 // Error Banner
                                 if (authState.errorMessage != null) ...[
                                   Container(
@@ -535,7 +658,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
                           // Footer Terms Note with Clickable Navigation Link
                           Text.rich(
                             TextSpan(
-                              text: 'By continuing you agree to SXUK CampusSignal ',
+                              text: 'By continuing you agree to CampusSignal ',
                               style: theme.textTheme.bodySmall?.copyWith(
                                 fontSize: 11,
                                 color: colorScheme.onSurfaceVariant.withValues(alpha: 0.7),
@@ -582,6 +705,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
 
   Widget _buildEmailSection(BuildContext context, AuthState authState) {
     final colorScheme = Theme.of(context).colorScheme;
+    final college = authState.selectedCollege;
+    final domain = college.domainPatterns.isNotEmpty
+        ? college.domainPatterns.first.replaceFirst('@', '')
+        : 'campus.edu.in';
 
     return Column(
       key: const ValueKey('email_section'),
@@ -595,9 +722,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen>
           decoration: InputDecoration(
             prefixIcon: Icon(LucideIcons.mail,
                 color: colorScheme.onSurfaceVariant, size: 18),
-            hintText: 'name@sxuk.edu.in',
-            labelText: 'College Email',
-            helperText: 'Must end with @sxuk.edu.in',
+            hintText: 'name@$domain',
+            labelText: '${college.shortCode} or Personal Email',
+            helperText: college.domainPatterns.isNotEmpty
+                ? 'Official @$domain or personal email'
+                : 'Campus or personal email for ID verification',
             suffixIcon: _emailController.text.isNotEmpty
                 ? IconButton(
                     icon: const Icon(LucideIcons.x, size: 18),
