@@ -1,36 +1,20 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/repositories/events_repository.dart';
+import '../../data/repositories/student_verification_repository.dart';
 import '../../models/event_model.dart';
+import '../../models/id_card_verification_model.dart';
 import '../../models/profile_model.dart';
 import '../auth/auth_controller.dart';
 import '../profile/profile_controller.dart';
-
-class FlaggedStudentVerification {
-  final String id;
-  final String studentName;
-  final String rollNumber;
-  final String collegeName;
-  final String branch;
-  final String semester;
-  final String submittedAt;
-
-  const FlaggedStudentVerification({
-    required this.id,
-    required this.studentName,
-    required this.rollNumber,
-    required this.collegeName,
-    required this.branch,
-    required this.semester,
-    required this.submittedAt,
-  });
-}
 
 class AdminState {
   final bool isLoading;
   final bool isProcessing;
   final List<EventModel> pendingEvents;
-  final List<FlaggedStudentVerification> pendingVerifications;
+  final List<StudentVerificationModel> pendingVerifications;
+  final String selectedDepartment;
+  final List<String> availableDepartments;
   final String? successMessage;
   final String? errorMessage;
   final String? claimedKey;
@@ -40,6 +24,15 @@ class AdminState {
     this.isProcessing = false,
     this.pendingEvents = const [],
     this.pendingVerifications = const [],
+    this.selectedDepartment = 'All Departments',
+    this.availableDepartments = const [
+      'All Departments',
+      'CSE',
+      'ECE',
+      'Commerce',
+      'Management',
+      'Mass Communication',
+    ],
     this.successMessage,
     this.errorMessage,
     this.claimedKey,
@@ -49,7 +42,9 @@ class AdminState {
     bool? isLoading,
     bool? isProcessing,
     List<EventModel>? pendingEvents,
-    List<FlaggedStudentVerification>? pendingVerifications,
+    List<StudentVerificationModel>? pendingVerifications,
+    String? selectedDepartment,
+    List<String>? availableDepartments,
     String? successMessage,
     String? errorMessage,
     String? claimedKey,
@@ -60,6 +55,8 @@ class AdminState {
       isProcessing: isProcessing ?? this.isProcessing,
       pendingEvents: pendingEvents ?? this.pendingEvents,
       pendingVerifications: pendingVerifications ?? this.pendingVerifications,
+      selectedDepartment: selectedDepartment ?? this.selectedDepartment,
+      availableDepartments: availableDepartments ?? this.availableDepartments,
       successMessage: clearMessages ? null : (successMessage ?? this.successMessage),
       errorMessage: clearMessages ? null : (errorMessage ?? this.errorMessage),
       claimedKey: claimedKey ?? this.claimedKey,
@@ -75,8 +72,10 @@ class AdminController extends Notifier<AdminState> {
   }
 
   EventsRepository get _repository => ref.read(eventsRepositoryProvider);
+  StudentVerificationRepository get _verificationRepository =>
+      ref.read(studentVerificationRepositoryProvider);
 
-  Future<void> loadPendingQueue() async {
+  Future<void> loadPendingQueue({String? department}) async {
     state = state.copyWith(isLoading: true, clearMessages: true);
 
     try {
@@ -88,32 +87,34 @@ class AdminController extends Notifier<AdminState> {
         festIds: profile?.managedFestIds,
       );
 
-      // Default mock pending verifications for demonstration
-      final defaultVerifications = [
-        const FlaggedStudentVerification(
-          id: 'verif-1',
-          studentName: 'Priya Mukherjee',
-          rollNumber: 'SXUK/CSE/24/089',
-          collegeName: "St. Xavier's University, Kolkata",
-          branch: 'B.Tech in CSE',
-          semester: 'Sem 4',
-          submittedAt: 'Today, 2:15 PM',
-        ),
-        const FlaggedStudentVerification(
-          id: 'verif-2',
-          studentName: 'Rohan Sen',
-          rollNumber: 'JU/ETCE/23/044',
-          collegeName: 'Jadavpur University',
-          branch: 'B.E. Electronics & Telecommunication',
-          semester: 'Sem 6',
-          submittedAt: 'Yesterday, 6:40 PM',
-        ),
-      ];
+      final verifications = await _verificationRepository.getPendingModerationQueue(
+        collegeId: profile?.collegeId,
+        department: department ?? state.selectedDepartment,
+      );
+
+      // Extract unique department list
+      final deptSet = <String>{'All Departments'};
+      for (final v in verifications) {
+        if (v.department != null && v.department!.isNotEmpty) {
+          deptSet.add(v.department!);
+        }
+      }
+      for (final def in [
+        'CSE',
+        'ECE',
+        'Commerce',
+        'Management',
+        'Mass Communication',
+      ]) {
+        deptSet.add(def);
+      }
 
       state = state.copyWith(
         isLoading: false,
         pendingEvents: pending,
-        pendingVerifications: defaultVerifications,
+        pendingVerifications: verifications,
+        availableDepartments: deptSet.toList(),
+        selectedDepartment: department ?? state.selectedDepartment,
       );
     } catch (e) {
       state = state.copyWith(
@@ -121,6 +122,11 @@ class AdminController extends Notifier<AdminState> {
         errorMessage: 'Failed to load moderation queue: $e',
       );
     }
+  }
+
+  void filterDepartment(String department) {
+    state = state.copyWith(selectedDepartment: department);
+    loadPendingQueue(department: department);
   }
 
   Future<void> approveEvent(String eventId) async {
@@ -227,12 +233,68 @@ class AdminController extends Notifier<AdminState> {
     }
   }
 
-  Future<void> approveStudentVerification(String verifId) async {
-    final updated = state.pendingVerifications.where((v) => v.id != verifId).toList();
-    state = state.copyWith(
-      pendingVerifications: updated,
-      successMessage: 'Student ID card approved and verified badge granted.',
-    );
+  Future<void> approveStudentVerification(
+    String verifId, {
+    String? reviewerNotes,
+    DateTime? expiresAt,
+  }) async {
+    state = state.copyWith(isProcessing: true, clearMessages: true);
+    try {
+      final currentProfile = ref.read(authControllerProvider).profile;
+      final reviewerId = currentProfile?.id ?? 'faculty-dean-01';
+
+      await _verificationRepository.approveVerification(
+        verificationId: verifId,
+        reviewerId: reviewerId,
+        reviewerNotes: reviewerNotes,
+        expiresAt: expiresAt ?? StudentVerificationModel.computeAcademicExpiration(),
+      );
+
+      final updated = state.pendingVerifications.where((v) => v.id != verifId).toList();
+      state = state.copyWith(
+        isProcessing: false,
+        pendingVerifications: updated,
+        successMessage: 'Student ID card approved with Dean-compliant academic expiration.',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isProcessing: false,
+        errorMessage: 'Failed to approve student verification: $e',
+      );
+    }
+  }
+
+  Future<void> rejectStudentVerification({
+    required String verifId,
+    required RejectionCode rejectionCode,
+    required String rejectionReason,
+    String? reviewerNotes,
+  }) async {
+    state = state.copyWith(isProcessing: true, clearMessages: true);
+    try {
+      final currentProfile = ref.read(authControllerProvider).profile;
+      final reviewerId = currentProfile?.id ?? 'faculty-dean-01';
+
+      await _verificationRepository.rejectVerification(
+        verificationId: verifId,
+        reviewerId: reviewerId,
+        rejectionCode: rejectionCode,
+        rejectionReason: rejectionReason,
+        reviewerNotes: reviewerNotes,
+      );
+
+      final updated = state.pendingVerifications.where((v) => v.id != verifId).toList();
+      state = state.copyWith(
+        isProcessing: false,
+        pendingVerifications: updated,
+        successMessage: 'Student verification rejected. Reason: ${rejectionCode.description}',
+      );
+    } catch (e) {
+      state = state.copyWith(
+        isProcessing: false,
+        errorMessage: 'Failed to reject verification: $e',
+      );
+    }
   }
 }
 

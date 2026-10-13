@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/constants/app_constants.dart';
 import '../../core/theme/motion.dart';
+import '../../models/id_card_verification_model.dart';
 import 'onboarding_controller.dart';
 
 class OnboardingScreen extends ConsumerStatefulWidget {
@@ -786,7 +788,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 
-  // STEP 3: Student Verification Fast-Track
+  // STEP 3: Student Verification Fast-Track (SheerID Standard)
   Widget _buildStep3Verification(BuildContext context, OnboardingState state, ColorScheme colorScheme) {
     return ListView(
       key: const ValueKey('step-3-verification'),
@@ -801,10 +803,10 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         ),
         const SizedBox(height: 6),
         Text(
-          'Indian universities rarely have .edu emails. Instant ID Card OCR lets you unlock campus-only features safely.',
+          'Most Indian universities lack .edu domains. Instant ID Card OCR unlocks private campus walls with SheerID-grade assurance.',
           style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13.5),
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: 18),
 
         // Perks Callout Box
         Container(
@@ -859,9 +861,94 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
             ],
           ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
-        // Verification Card Action
+        // Document Type Selector (Secondary Proof of Enrollment)
+        Text(
+          'DOCUMENT TYPE (SHEERID COMPLIANT)',
+          style: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: colorScheme.primary,
+            letterSpacing: 0.8,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: DocumentType.values.map((docType) {
+            final isSelected = state.selectedDocumentType == docType;
+            return ChoiceChip(
+              label: Text(docType.label, style: const TextStyle(fontSize: 12.5)),
+              selected: isSelected,
+              onSelected: state.isVerifyingIdCard
+                  ? null
+                  : (selected) {
+                      if (selected) {
+                        ref.read(onboardingControllerProvider.notifier).setDocumentType(docType);
+                      }
+                    },
+              selectedColor: colorScheme.primaryContainer,
+            );
+          }).toList(),
+        ),
+        const SizedBox(height: 20),
+
+        // Verification Checklist Progress
+        if (state.isVerifyingIdCard || state.verificationChecklistStep > 0) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: colorScheme.surfaceContainerLow,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    const Icon(LucideIcons.cpu, size: 18),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Multimodal Verification Engine',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13.5,
+                        color: colorScheme.onSurface,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                _buildChecklistRow(
+                  'Document Scan & Image Clarity',
+                  state.verificationChecklistStep >= 2,
+                  state.verificationChecklistStep == 1,
+                  colorScheme,
+                ),
+                const SizedBox(height: 8),
+                _buildChecklistRow(
+                  'Institution & Department Match',
+                  state.verificationChecklistStep >= 3,
+                  state.verificationChecklistStep == 2,
+                  colorScheme,
+                ),
+                const SizedBox(height: 8),
+                _buildChecklistRow(
+                  'Anti-Fraud Roll Number Uniqueness',
+                  state.verificationChecklistStep >= 4,
+                  state.verificationChecklistStep == 3,
+                  colorScheme,
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+        ],
+
+        // State Resolution Cards
         if (state.verificationSuccess) ...[
           Container(
             padding: const EdgeInsets.all(18),
@@ -870,44 +957,114 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               borderRadius: BorderRadius.circular(16),
               border: Border.all(color: Colors.green.withValues(alpha: 0.4)),
             ),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Icon(LucideIcons.checkCircle2, color: Colors.green, size: 36),
-                const SizedBox(width: 14),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Student ID Verified!',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w700,
-                          fontSize: 15,
-                          color: Colors.green,
-                        ),
+                Row(
+                  children: [
+                    const Icon(LucideIcons.checkCircle2, color: Colors.green, size: 32),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'SheerID Verified • 1-Year Active Grant',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 14.5,
+                              color: Colors.green,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Roll: ${state.verifiedRollNumber ?? "SXUK/2026/01"}',
+                            style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
+                          ),
+                          Text(
+                            'Valid through: ${DateTime.now().year + 1}-06-30 (Academic Expiry)',
+                            style: TextStyle(fontSize: 11.5, color: colorScheme.onSurfaceVariant),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        'Roll No: ${state.verifiedRollNumber ?? "SXUK/2026/01"}',
-                        style: const TextStyle(
-                          fontSize: 12.5,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      Text(
-                        'Campus: ${state.selectedCollegeShortCode}',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: colorScheme.onSurfaceVariant,
-                        ),
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                if (state.verificationNotes != null) ...[
+                  const SizedBox(height: 10),
+                  Text(
+                    state.verificationNotes!,
+                    style: const TextStyle(fontSize: 12, color: Colors.green),
                   ),
+                ],
+              ],
+            ),
+          ),
+        ] else if (state.isDuplicateRollDetected) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.red.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(LucideIcons.alertOctagon, color: Colors.red, size: 24),
+                    SizedBox(width: 10),
+                    Text(
+                      'Identity Conflict Alert',
+                      style: TextStyle(color: Colors.red, fontWeight: FontWeight.w700, fontSize: 14),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  'Roll number "${state.verifiedRollNumber}" is already registered by another account at ${state.selectedCollegeShortCode}.',
+                  style: const TextStyle(fontSize: 12.5),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Submission escalated to Dean Moderation Hub. You can continue onboarding while this is reviewed.',
+                  style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                ),
+              ],
+            ),
+          ),
+        ] else if (state.verificationStatus == VerificationStatus.pending && !state.isVerifyingIdCard) ...[
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.amber.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Row(
+                  children: [
+                    Icon(LucideIcons.clock, color: Colors.amber, size: 22),
+                    SizedBox(width: 10),
+                    Text(
+                      'Escalated to Department Moderator Queue',
+                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.w700, fontSize: 14),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  'Your document has been sent to faculty coordinators for ${state.branch ?? "your department"} for manual validation.',
+                  style: const TextStyle(fontSize: 12.5),
                 ),
               ],
             ),
           ),
         ] else ...[
+          // Upload / Capture Card
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
@@ -915,50 +1072,115 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
               borderRadius: BorderRadius.circular(18),
               border: Border.all(
                 color: colorScheme.outlineVariant.withValues(alpha: 0.4),
-                style: BorderStyle.solid,
               ),
             ),
             child: Column(
               children: [
                 Icon(
                   LucideIcons.camera,
-                  size: 44,
+                  size: 40,
                   color: colorScheme.primary,
                 ),
                 const SizedBox(height: 10),
-                const Text(
-                  'Upload Student ID Card Photo',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                Text(
+                  'Upload ${state.selectedDocumentType.label}',
+                  style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'Gemini Vision OCR will verify your college name and roll number in seconds.',
+                  'DPDP 2023 Compliant: Address and blood group are never stored. Private storage with 15-min signed URLs.',
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    fontSize: 12.5,
+                    fontSize: 11.5,
                     color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 16),
-                FilledButton.tonalIcon(
-                  icon: state.isVerifyingIdCard
-                      ? const SizedBox(
-                          width: 16,
-                          height: 16,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : const Icon(LucideIcons.scanLine, size: 18),
-                  label: Text(state.isVerifyingIdCard ? 'Scanning ID Card...' : 'Scan / Upload Student ID'),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton.icon(
+                        icon: const Icon(LucideIcons.camera, size: 16),
+                        label: const Text('Camera', style: TextStyle(fontSize: 12.5)),
+                        onPressed: state.isVerifyingIdCard
+                            ? null
+                            : () => ref
+                                .read(onboardingControllerProvider.notifier)
+                                .pickAndVerifyDocument(source: ImageSource.camera),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: FilledButton.tonalIcon(
+                        icon: const Icon(LucideIcons.image, size: 16),
+                        label: const Text('Gallery', style: TextStyle(fontSize: 12.5)),
+                        onPressed: state.isVerifyingIdCard
+                            ? null
+                            : () => ref
+                                .read(onboardingControllerProvider.notifier)
+                                .pickAndVerifyDocument(source: ImageSource.gallery),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 10),
+                TextButton.icon(
+                  icon: const Icon(LucideIcons.scanLine, size: 15),
+                  label: const Text('Simulate Instant OCR Scan (Demo Mode)', style: TextStyle(fontSize: 12)),
                   onPressed: state.isVerifyingIdCard
                       ? null
-                      : () {
-                          ref.read(onboardingControllerProvider.notifier).verifyIdCard();
-                        },
+                      : () => ref.read(onboardingControllerProvider.notifier).verifyIdCard(),
                 ),
               ],
             ),
           ),
         ],
+
+        const SizedBox(height: 16),
+        // Skip Button
+        Center(
+          child: TextButton(
+            onPressed: () {
+              ref.read(onboardingControllerProvider.notifier).skipVerification();
+              _onNextPressed();
+            },
+            child: Text(
+              'Skip for Now (Verify Later in Profile)',
+              style: TextStyle(
+                fontSize: 12.5,
+                color: colorScheme.onSurfaceVariant,
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildChecklistRow(String title, bool isDone, bool isInProgress, ColorScheme colorScheme) {
+    return Row(
+      children: [
+        if (isDone)
+          const Icon(LucideIcons.checkCircle2, color: Colors.green, size: 16)
+        else if (isInProgress)
+          const SizedBox(
+            width: 16,
+            height: 16,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          )
+        else
+          Icon(LucideIcons.circle, color: colorScheme.outlineVariant, size: 16),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            title,
+            style: TextStyle(
+              fontSize: 12,
+              fontWeight: isDone || isInProgress ? FontWeight.w600 : FontWeight.normal,
+              color: isDone ? Colors.green : (isInProgress ? colorScheme.primary : colorScheme.onSurfaceVariant),
+            ),
+          ),
+        ),
       ],
     );
   }
@@ -988,3 +1210,4 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     );
   }
 }
+

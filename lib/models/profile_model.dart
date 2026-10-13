@@ -1,3 +1,5 @@
+import 'id_card_verification_model.dart';
+
 enum UserRole {
   student,
   clubLead,
@@ -26,6 +28,12 @@ class ProfileModel {
   final String? collegeShortCode;
   final UserRole role;
   final bool isVerifiedStudent;
+  final VerificationStatus verificationStatus;
+  final DateTime? verifiedAt;
+  final DateTime? verificationExpiresAt;
+  final String? idCardFrontUrl;
+  final String? verificationRejectionReason;
+  final String? activeVerificationId;
   final String? rollNumber;
   final List<String> managedFestIds;
   final List<String> managedClubIds;
@@ -48,6 +56,12 @@ class ProfileModel {
     this.collegeShortCode = 'SXUK',
     this.role = UserRole.student,
     this.isVerifiedStudent = false,
+    this.verificationStatus = VerificationStatus.unverified,
+    this.verifiedAt,
+    this.verificationExpiresAt,
+    this.idCardFrontUrl,
+    this.verificationRejectionReason,
+    this.activeVerificationId,
     this.rollNumber,
     this.managedFestIds = const [],
     this.managedClubIds = const [],
@@ -127,6 +141,21 @@ class ProfileModel {
         json['isVerifiedStudent'] == true ||
         metadataMap['is_verified_student'] == true;
 
+    final rawStatus = json['verification_status'] ??
+        json['verificationStatus'] ??
+        metadataMap['verification_status'];
+
+    final parsedStatus = rawStatus != null
+        ? VerificationStatus.fromString(rawStatus)
+        : (isVerified ? VerificationStatus.approved : VerificationStatus.unverified);
+
+    final parsedVerifiedAt = parseDate(
+      json['verified_at'] ?? json['verifiedAt'] ?? metadataMap['verified_at'],
+    );
+    final parsedExpiresAt = parseDate(
+      json['verification_expires_at'] ?? json['verificationExpiresAt'] ?? json['expires_at'] ?? metadataMap['verification_expires_at'],
+    );
+
     return ProfileModel(
       id: json['id']?.toString() ?? '',
       fullName: json['full_name']?.toString() ??
@@ -159,6 +188,18 @@ class ProfileModel {
           'SXUK',
       role: parsedRole,
       isVerifiedStudent: isVerified,
+      verificationStatus: parsedStatus,
+      verifiedAt: parsedVerifiedAt,
+      verificationExpiresAt: parsedExpiresAt,
+      idCardFrontUrl: json['id_card_front_url']?.toString() ??
+          json['idCardFrontUrl']?.toString() ??
+          metadataMap['id_card_front_url']?.toString(),
+      verificationRejectionReason: json['verification_rejection_reason']?.toString() ??
+          json['verificationRejectionReason']?.toString() ??
+          metadataMap['verification_rejection_reason']?.toString(),
+      activeVerificationId: json['active_verification_id']?.toString() ??
+          json['activeVerificationId']?.toString() ??
+          metadataMap['active_verification_id']?.toString(),
       rollNumber: json['roll_number']?.toString() ??
           json['rollNumber']?.toString() ??
           metadataMap['roll_number']?.toString(),
@@ -179,6 +220,18 @@ class ProfileModel {
     mergedMetadata['college_id'] = collegeId;
     mergedMetadata['college_short_code'] = collegeShortCode;
     mergedMetadata['is_verified_student'] = isVerifiedStudent;
+    mergedMetadata['verification_status'] = verificationStatus.name;
+    if (verifiedAt != null) mergedMetadata['verified_at'] = verifiedAt!.toIso8601String();
+    if (verificationExpiresAt != null) {
+      mergedMetadata['verification_expires_at'] = verificationExpiresAt!.toIso8601String();
+    }
+    if (idCardFrontUrl != null) mergedMetadata['id_card_front_url'] = idCardFrontUrl;
+    if (verificationRejectionReason != null) {
+      mergedMetadata['verification_rejection_reason'] = verificationRejectionReason;
+    }
+    if (activeVerificationId != null) {
+      mergedMetadata['active_verification_id'] = activeVerificationId;
+    }
 
     return {
       'id': id,
@@ -196,6 +249,15 @@ class ProfileModel {
       'college_short_code': collegeShortCode,
       'role': role.name,
       'is_verified_student': isVerifiedStudent,
+      'verification_status': verificationStatus.name,
+      if (verifiedAt != null) 'verified_at': verifiedAt!.toIso8601String(),
+      if (verificationExpiresAt != null)
+        'verification_expires_at': verificationExpiresAt!.toIso8601String(),
+      if (idCardFrontUrl != null) 'id_card_front_url': idCardFrontUrl,
+      if (verificationRejectionReason != null)
+        'verification_rejection_reason': verificationRejectionReason,
+      if (activeVerificationId != null)
+        'active_verification_id': activeVerificationId,
       'roll_number': rollNumber,
       'managed_fest_ids': managedFestIds,
       'managed_club_ids': managedClubIds,
@@ -214,6 +276,7 @@ class ProfileModel {
     mergedMetadata['college_id'] = collegeId;
     mergedMetadata['college_short_code'] = collegeShortCode;
     mergedMetadata['is_verified_student'] = isVerifiedStudent;
+    mergedMetadata['verification_status'] = verificationStatus.name;
 
     return {
       'id': id,
@@ -230,6 +293,15 @@ class ProfileModel {
       'college_short_code': collegeShortCode,
       'role': role.name,
       'is_verified_student': isVerifiedStudent,
+      'verification_status': verificationStatus.name,
+      if (verifiedAt != null) 'verified_at': verifiedAt!.toIso8601String(),
+      if (verificationExpiresAt != null)
+        'verification_expires_at': verificationExpiresAt!.toIso8601String(),
+      if (idCardFrontUrl != null) 'id_card_front_url': idCardFrontUrl,
+      if (verificationRejectionReason != null)
+        'verification_rejection_reason': verificationRejectionReason,
+      if (activeVerificationId != null)
+        'active_verification_id': activeVerificationId,
       'roll_number': rollNumber,
       'managed_fest_ids': managedFestIds,
       'managed_club_ids': managedClubIds,
@@ -256,6 +328,12 @@ class ProfileModel {
     String? collegeShortCode,
     UserRole? role,
     bool? isVerifiedStudent,
+    VerificationStatus? verificationStatus,
+    DateTime? verifiedAt,
+    DateTime? verificationExpiresAt,
+    String? idCardFrontUrl,
+    String? verificationRejectionReason,
+    String? activeVerificationId,
     String? rollNumber,
     List<String>? managedFestIds,
     List<String>? managedClubIds,
@@ -278,10 +356,45 @@ class ProfileModel {
       collegeShortCode: collegeShortCode ?? this.collegeShortCode,
       role: role ?? this.role,
       isVerifiedStudent: isVerifiedStudent ?? this.isVerifiedStudent,
+      verificationStatus: verificationStatus ?? this.verificationStatus,
+      verifiedAt: verifiedAt ?? this.verifiedAt,
+      verificationExpiresAt: verificationExpiresAt ?? this.verificationExpiresAt,
+      idCardFrontUrl: idCardFrontUrl ?? this.idCardFrontUrl,
+      verificationRejectionReason: verificationRejectionReason ?? this.verificationRejectionReason,
+      activeVerificationId: activeVerificationId ?? this.activeVerificationId,
       rollNumber: rollNumber ?? this.rollNumber,
       managedFestIds: managedFestIds ?? this.managedFestIds,
       managedClubIds: managedClubIds ?? this.managedClubIds,
     );
+  }
+
+  /// Whether user has active verified student access
+  bool get isFullyVerified {
+    if (isVerificationExpired) return false;
+    if (verificationStatus == VerificationStatus.approved) return true;
+    return isVerifiedStudent &&
+        verificationStatus != VerificationStatus.rejected &&
+        verificationStatus != VerificationStatus.expired &&
+        verificationStatus != VerificationStatus.pending;
+  }
+
+  /// Whether the student's verification term has ended
+  bool get isVerificationExpired {
+    if (verificationStatus == VerificationStatus.expired) return true;
+    if (verificationExpiresAt != null && DateTime.now().isAfter(verificationExpiresAt!)) {
+      return true;
+    }
+    return false;
+  }
+
+  /// Whether an ID card submission is currently awaiting Dean/Faculty review
+  bool get isVerificationPending => verificationStatus == VerificationStatus.pending;
+
+  /// Days remaining on current verification badge
+  int get daysUntilExpiration {
+    if (verificationExpiresAt == null) return 0;
+    final diff = verificationExpiresAt!.difference(DateTime.now()).inDays;
+    return diff > 0 ? diff : 0;
   }
 
   /// Whether user has privileged moderation rights over events or fests

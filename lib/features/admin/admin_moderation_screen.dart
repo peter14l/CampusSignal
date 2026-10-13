@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 import '../../core/widgets/category_chip.dart';
+import '../../models/id_card_verification_model.dart';
 import '../../models/profile_model.dart';
 import '../auth/auth_controller.dart';
 import 'admin_controller.dart';
@@ -625,66 +627,554 @@ class _AdminModerationScreenState extends ConsumerState<AdminModerationScreen>
     );
   }
 
-  // TAB 3: ID Verification Queue
+  // TAB 3: ID Verification Queue (Dean & Faculty Moderation Hub)
   Widget _buildVerificationQueueTab(BuildContext context, AdminState state, ColorScheme colorScheme) {
-    if (state.pendingVerifications.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(LucideIcons.badgeCheck, size: 48, color: Colors.green.withValues(alpha: 0.7)),
-            const SizedBox(height: 12),
-            const Text('No Pending ID Verifications', style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-      itemCount: state.pendingVerifications.length,
-      itemBuilder: (context, index) {
-        final verif = state.pendingVerifications[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-            side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+    return Column(
+      children: [
+        // Department Scoping Filter Bar
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          color: colorScheme.surface,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Icon(LucideIcons.filter, size: 14, color: colorScheme.primary),
+                      const SizedBox(width: 6),
+                      Text(
+                        'DEPARTMENT MODERATION SCOPE',
+                        style: TextStyle(
+                          fontSize: 10.5,
+                          fontWeight: FontWeight.w700,
+                          color: colorScheme.primary,
+                          letterSpacing: 0.7,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    '${state.pendingVerifications.length} Pending',
+                    style: TextStyle(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w600,
+                      color: colorScheme.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: state.availableDepartments.map((dept) {
+                    final isSelected = state.selectedDepartment == dept;
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 6),
+                      child: FilterChip(
+                        label: Text(dept, style: const TextStyle(fontSize: 12)),
+                        selected: isSelected,
+                        onSelected: (_) {
+                          ref.read(adminControllerProvider.notifier).filterDepartment(dept);
+                        },
+                        selectedColor: colorScheme.primaryContainer,
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ),
+            ],
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16),
+        ),
+        const Divider(height: 1),
+
+        // Queue List
+        Expanded(
+          child: state.pendingVerifications.isEmpty
+              ? Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(LucideIcons.badgeCheck, size: 48, color: Colors.green.withValues(alpha: 0.7)),
+                      const SizedBox(height: 12),
+                      const Text(
+                        'No Pending ID Verifications',
+                        style: TextStyle(fontWeight: FontWeight.w700, fontSize: 15),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        'All student credentials in "${state.selectedDepartment}" are fully reviewed.',
+                        style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                      ),
+                    ],
+                  ),
+                )
+              : ListView.builder(
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 24),
+                  itemCount: state.pendingVerifications.length,
+                  itemBuilder: (context, index) {
+                    final verif = state.pendingVerifications[index];
+                    final confPercent = (verif.ocrConfidence * 100).toInt();
+
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 14),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                        side: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Header Row
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        verif.fullNameOnCard,
+                                        style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 15),
+                                      ),
+                                      Text(
+                                        'Roll: ${verif.rollNumber}',
+                                        style: TextStyle(
+                                          fontSize: 12.5,
+                                          color: colorScheme.primary,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: colorScheme.surfaceContainerHighest,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    verif.documentType.label,
+                                    style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 6),
+
+                            // Department & Academic Batch
+                            Text(
+                              '${verif.department ?? "General Department"} • Batch: ${verif.academicYear ?? "Current"}',
+                              style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant),
+                            ),
+                            const SizedBox(height: 10),
+
+                            // OCR Diagnostic Pill
+                            Container(
+                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                              decoration: BoxDecoration(
+                                color: confPercent >= 80
+                                    ? Colors.green.withValues(alpha: 0.08)
+                                    : Colors.amber.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(
+                                  color: confPercent >= 80
+                                      ? Colors.green.withValues(alpha: 0.3)
+                                      : Colors.amber.withValues(alpha: 0.3),
+                                ),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    confPercent >= 80 ? LucideIcons.cpu : LucideIcons.alertTriangle,
+                                    size: 14,
+                                    color: confPercent >= 80 ? Colors.green : Colors.orange,
+                                  ),
+                                  const SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'OCR Confidence: $confPercent% • ${verif.ocrCollegeMatched ? "College Verified" : "Institution Ambiguous"}',
+                                      style: TextStyle(
+                                        fontSize: 11.5,
+                                        fontWeight: FontWeight.w600,
+                                        color: confPercent >= 80 ? Colors.green.shade800 : Colors.orange.shade800,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+
+                            // Action Buttons
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: OutlinedButton.icon(
+                                    icon: const Icon(LucideIcons.eye, size: 15),
+                                    label: const Text('Inspect OCR', style: TextStyle(fontSize: 12)),
+                                    onPressed: () => _showInspectionDialog(context, verif),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    foregroundColor: colorScheme.error,
+                                    side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
+                                  ),
+                                  onPressed: () => _showRejectVerificationDialog(context, verif),
+                                  child: const Text('Reject', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                ),
+                                const SizedBox(width: 8),
+                                FilledButton(
+                                  onPressed: () {
+                                    ref.read(adminControllerProvider.notifier).approveStudentVerification(verif.id);
+                                  },
+                                  child: const Text('Approve', style: TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
+
+  /// Side-by-side zoomable photo inspection dialog with OCR field breakdown
+  void _showInspectionDialog(BuildContext context, StudentVerificationModel verif) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        final theme = Theme.of(ctx);
+        final colorScheme = theme.colorScheme;
+
+        return Dialog(
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+          child: Container(
+            width: 650,
+            constraints: const BoxConstraints(maxHeight: 700),
+            padding: const EdgeInsets.all(20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Modal Header
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(verif.studentName, style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 15)),
-                    Text(verif.submittedAt, style: TextStyle(fontSize: 11.5, color: colorScheme.onSurfaceVariant)),
+                    Row(
+                      children: [
+                        Icon(LucideIcons.fileSearch, color: colorScheme.primary, size: 20),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Credential Inspection & OCR Audit',
+                          style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w800),
+                        ),
+                      ],
+                    ),
+                    IconButton(
+                      icon: const Icon(LucideIcons.x, size: 18),
+                      onPressed: () => Navigator.pop(ctx),
+                    ),
                   ],
                 ),
-                const SizedBox(height: 4),
-                Text('${verif.collegeName} • Roll: ${verif.rollNumber}',
-                    style: TextStyle(fontSize: 12.5, color: colorScheme.primary, fontWeight: FontWeight.w600)),
-                Text('${verif.branch} • ${verif.semester}',
-                    style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant)),
-                const SizedBox(height: 12),
-                Row(
-                  children: [
-                    Expanded(
-                      child: FilledButton.tonal(
-                        style: FilledButton.styleFrom(shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10))),
-                        onPressed: () {
-                          ref.read(adminControllerProvider.notifier).approveStudentVerification(verif.id);
-                        },
-                        child: const Text('Approve & Verify', style: TextStyle(fontWeight: FontWeight.w600, fontSize: 12.5)),
+                const SizedBox(height: 10),
+
+                // Content Area
+                Expanded(
+                  child: ListView(
+                    children: [
+                      // Zoomable Photo Viewer
+                      Container(
+                        height: 240,
+                        decoration: BoxDecoration(
+                          color: Colors.black,
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        clipBehavior: Clip.antiAlias,
+                        child: Stack(
+                          children: [
+                            InteractiveViewer(
+                              minScale: 0.8,
+                              maxScale: 4.0,
+                              child: Center(
+                                child: verif.idCardFrontUrl.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: verif.idCardFrontUrl,
+                                        fit: BoxFit.contain,
+                                        placeholder: (_, __) => const Center(child: CircularProgressIndicator()),
+                                        errorWidget: (_, __, ___) => const Center(
+                                          child: Icon(LucideIcons.imageOff, color: Colors.white54, size: 40),
+                                        ),
+                                      )
+                                    : const Icon(LucideIcons.imageOff, color: Colors.white54, size: 40),
+                              ),
+                            ),
+                            Positioned(
+                              top: 8,
+                              right: 8,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.7),
+                                  borderRadius: BorderRadius.circular(6),
+                                ),
+                                child: const Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(LucideIcons.zoomIn, size: 12, color: Colors.white),
+                                    SizedBox(width: 4),
+                                    Text('Pinch to Zoom', style: TextStyle(color: Colors.white, fontSize: 10)),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
+                      const SizedBox(height: 16),
+
+                      // Side-by-side OCR Verification Data
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerLow,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'OCR MULTIMODAL EXTRACTION AUDIT',
+                              style: TextStyle(fontSize: 10.5, fontWeight: FontWeight.w700, letterSpacing: 0.8),
+                            ),
+                            const SizedBox(height: 8),
+                            _buildOcrAuditRow('Student Name', verif.fullNameOnCard, verif.ocrNameMatched, colorScheme),
+                            const SizedBox(height: 6),
+                            _buildOcrAuditRow('Roll Number', verif.rollNumber, verif.rollNumber.isNotEmpty, colorScheme),
+                            const SizedBox(height: 6),
+                            _buildOcrAuditRow('College Match', verif.ocrExtractedCollege ?? verif.collegeId, verif.ocrCollegeMatched, colorScheme),
+                            const SizedBox(height: 6),
+                            _buildOcrAuditRow('Document Type', verif.documentType.label, true, colorScheme),
+                            const SizedBox(height: 6),
+                            _buildOcrAuditRow('Department', verif.department ?? 'Allied Branch', true, colorScheme),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+
+                      // DPDP Act 2023 Statutory Privacy Card
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: colorScheme.primaryContainer.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: colorScheme.primary.withValues(alpha: 0.2)),
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(LucideIcons.shieldCheck, size: 16, color: colorScheme.primary),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'DPDP Act 2023 Compliant: Sensitive PII (Home address & Blood Group) was discarded during OCR processing.',
+                                style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 14),
+
+                // Dialog Action Buttons
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    OutlinedButton(
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: colorScheme.error,
+                        side: BorderSide(color: colorScheme.error.withValues(alpha: 0.5)),
+                      ),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        _showRejectVerificationDialog(context, verif);
+                      },
+                      child: const Text('Reject Submission'),
+                    ),
+                    const SizedBox(width: 10),
+                    FilledButton(
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ref.read(adminControllerProvider.notifier).approveStudentVerification(verif.id);
+                      },
+                      child: const Text('Approve & Issue SheerID Badge'),
                     ),
                   ],
                 ),
               ],
             ),
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildOcrAuditRow(String label, String value, bool isMatched, ColorScheme colorScheme) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: 12, color: colorScheme.onSurfaceVariant)),
+        Row(
+          children: [
+            Text(value, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w700)),
+            const SizedBox(width: 4),
+            Icon(
+              isMatched ? LucideIcons.check : LucideIcons.alertCircle,
+              size: 13,
+              color: isMatched ? Colors.green : Colors.orange,
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  /// Rejection sheet with predefined reason codes per Dean's governance
+  void _showRejectVerificationDialog(BuildContext context, StudentVerificationModel verif) {
+    RejectionCode selectedCode = RejectionCode.blurryUnreadable;
+    final notesController = TextEditingController();
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setModalState) {
+            final theme = Theme.of(ctx);
+            final colorScheme = theme.colorScheme;
+
+            return Container(
+              padding: EdgeInsets.fromLTRB(
+                20,
+                20,
+                20,
+                MediaQuery.of(ctx).viewInsets.bottom + 20,
+              ),
+              decoration: BoxDecoration(
+                color: colorScheme.surface,
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Icon(LucideIcons.alertTriangle, color: colorScheme.error, size: 22),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Text(
+                          'Reject Student Verification',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: colorScheme.error,
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        icon: const Icon(LucideIcons.x, size: 18),
+                        onPressed: () => Navigator.pop(ctx),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    'Select a structured rejection code for "${verif.fullNameOnCard}" (${verif.rollNumber}):',
+                    style: TextStyle(fontSize: 12.5, color: colorScheme.onSurfaceVariant),
+                  ),
+                  const SizedBox(height: 12),
+
+                  // Predefined Rejection Codes
+                  ...RejectionCode.values.map((code) {
+                    final isSelected = selectedCode == code;
+                    return InkWell(
+                      onTap: () => setModalState(() => selectedCode = code),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 4),
+                        child: Row(
+                          children: [
+                            Radio<RejectionCode>(
+                              value: code,
+                              groupValue: selectedCode,
+                              onChanged: (val) {
+                                if (val != null) setModalState(() => selectedCode = val);
+                              },
+                            ),
+                            Expanded(
+                              child: Text(
+                                code.description,
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: isSelected ? FontWeight.w700 : FontWeight.normal,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+
+                  const SizedBox(height: 10),
+                  TextField(
+                    controller: notesController,
+                    maxLines: 2,
+                    decoration: InputDecoration(
+                      hintText: 'Additional faculty notes / reviewer instructions...',
+                      filled: true,
+                      fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+
+                  SizedBox(
+                    width: double.infinity,
+                    height: 48,
+                    child: FilledButton(
+                      style: FilledButton.styleFrom(backgroundColor: colorScheme.error),
+                      onPressed: () {
+                        Navigator.pop(ctx);
+                        ref.read(adminControllerProvider.notifier).rejectStudentVerification(
+                              verifId: verif.id,
+                              rejectionCode: selectedCode,
+                              rejectionReason: selectedCode.description,
+                              notes: notesController.text.trim(),
+                            );
+                      },
+                      child: const Text('Confirm Rejection', style: TextStyle(fontWeight: FontWeight.w700)),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

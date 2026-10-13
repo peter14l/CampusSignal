@@ -10,7 +10,9 @@ import '../../core/widgets/action_confirmation_modal.dart';
 import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
 import '../saved/saved_controller.dart';
+import '../../models/id_card_verification_model.dart';
 import 'profile_controller.dart';
+import 'student_verification_sheet.dart';
 import 'tag_selection_sheet.dart';
 
 class ProfileScreen extends ConsumerWidget {
@@ -184,29 +186,8 @@ class ProfileScreen extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
 
-                  // Verified SXUK Student Badge
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
-                    decoration: BoxDecoration(
-                      color: colorScheme.primary.withValues(alpha: 0.12),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(LucideIcons.badgeCheck, size: 14, color: colorScheme.primary),
-                        const SizedBox(width: 4),
-                        Text(
-                          'Verified SXUK Member',
-                          style: TextStyle(
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Dynamic Student ID Verification Badge
+                  _buildDynamicVerificationBadge(context, profile, colorScheme),
                   const SizedBox(height: 12),
 
                   // Department & Semester Pills
@@ -720,5 +701,136 @@ class ProfileScreen extends ConsumerWidget {
         child: Icon(LucideIcons.user, color: colorScheme.onPrimary, size: 44),
       ),
     );
+  }
+
+  Widget _buildDynamicVerificationBadge(
+    BuildContext context,
+    ProfileModel profile,
+    ColorScheme colorScheme,
+  ) {
+    if (profile.isFullyVerified) {
+      return InkWell(
+        onTap: () => StudentVerificationSheet.show(context),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.green.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.green.withValues(alpha: 0.35)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(LucideIcons.badgeCheck, size: 14, color: Colors.green),
+              const SizedBox(width: 5),
+              Text(
+                'Verified ${profile.collegeShortCode ?? "Campus"} Student',
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.green,
+                ),
+              ),
+              if (profile.daysUntilExpiration > 0) ...[
+                const SizedBox(width: 4),
+                Text(
+                  '• ${profile.daysUntilExpiration}d left',
+                  style: TextStyle(
+                    fontSize: 10.5,
+                    color: Colors.green.shade700,
+                  ),
+                ),
+              ],
+            ],
+          ),
+        ),
+      );
+    } else if (profile.isVerificationPending) {
+      return InkWell(
+        onTap: () => StudentVerificationSheet.show(context),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.amber.withValues(alpha: 0.15),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.amber.withValues(alpha: 0.4)),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.clock, size: 14, color: Colors.orange),
+              SizedBox(width: 5),
+              Text(
+                'ID Verification Pending Review',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.orange,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else if (profile.isVerificationExpired) {
+      return InkWell(
+        onTap: () => StudentVerificationSheet.show(context),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.red.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: Colors.red.withValues(alpha: 0.4)),
+          ),
+          child: const Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.alertCircle, size: 14, color: Colors.red),
+              SizedBox(width: 5),
+              Text(
+                'ID Expired • Tap to Re-verify',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.red,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    } else {
+      // Unverified CTA
+      return InkWell(
+        onTap: () => StudentVerificationSheet.show(context),
+        borderRadius: BorderRadius.circular(14),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          decoration: BoxDecoration(
+            color: colorScheme.primary.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: colorScheme.primary.withValues(alpha: 0.25)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(LucideIcons.shieldAlert, size: 14, color: colorScheme.primary),
+              const SizedBox(width: 5),
+              Text(
+                'Verify Student ID Card',
+                style: TextStyle(
+                  fontSize: 11.5,
+                  fontWeight: FontWeight.w700,
+                  color: colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
   }
 }
