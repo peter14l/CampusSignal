@@ -269,6 +269,7 @@ class AdminController extends Notifier<AdminState> {
     required RejectionCode rejectionCode,
     required String rejectionReason,
     String? reviewerNotes,
+    String? notes,
   }) async {
     state = state.copyWith(isProcessing: true, clearMessages: true);
     try {
@@ -280,7 +281,7 @@ class AdminController extends Notifier<AdminState> {
         reviewerId: reviewerId,
         rejectionCode: rejectionCode,
         rejectionReason: rejectionReason,
-        reviewerNotes: reviewerNotes,
+        reviewerNotes: reviewerNotes ?? notes,
       );
 
       final updated = state.pendingVerifications.where((v) => v.id != verifId).toList();

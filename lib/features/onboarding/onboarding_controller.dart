@@ -355,19 +355,11 @@ class OnboardingController extends Notifier<OnboardingState> {
     // Step 2: OCR Analysis
     state = state.copyWith(verificationChecklistStep: 2); // 2: Matching college & department
     final ocrService = ref.read(geminiOcrServiceProvider);
-    final ocrResult = bytes != null
-        ? await ocrService.extractIdCardDetailsFromImage(
-            imageBytes: bytes,
-            college: college,
-            studentName: state.fullName,
-          )
-        : ocrService.extractIdCardDetailsFromImage(
-            imageBytes: Uint8List(0),
-            college: college,
-            studentName: state.fullName,
-          );
-
-    final effectiveResult = await ocrResult;
+    final IdCardOcrResult effectiveResult = await ocrService.extractIdCardDetailsFromImage(
+      imageBytes: bytes ?? Uint8List(0),
+      college: college,
+      studentName: state.fullName,
+    );
 
     // Step 3: Anti-Identity Sharing Check (Partial Unique Index Check)
     state = state.copyWith(

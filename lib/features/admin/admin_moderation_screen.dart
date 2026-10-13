@@ -1165,7 +1165,7 @@ class _AdminModerationScreenState extends ConsumerState<AdminModerationScreen>
                               verifId: verif.id,
                               rejectionCode: selectedCode,
                               rejectionReason: selectedCode.description,
-                              notes: notesController.text.trim(),
+                              reviewerNotes: notesController.text.trim(),
                             );
                       },
                       child: const Text('Confirm Rejection', style: TextStyle(fontWeight: FontWeight.w700)),

@@ -11,6 +11,7 @@ import '../../core/widgets/interactive_spring.dart';
 import '../auth/auth_controller.dart';
 import '../saved/saved_controller.dart';
 import '../../models/id_card_verification_model.dart';
+import '../../models/profile_model.dart';
 import 'profile_controller.dart';
 import 'student_verification_sheet.dart';
 import 'tag_selection_sheet.dart';
