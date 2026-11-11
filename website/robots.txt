@@ -1,6 +1,6 @@
 # ==============================================================================
 # CampusSignal — Robots Exclusion Protocol Directives
-# Custom Domain: https://campussignal.sxuk.edu.in
+# Custom Domain: https://peter14l.github.io/CampusSignal
 # ==============================================================================
 
 User-agent: *
@@ -27,9 +27,9 @@ User-agent: Google-Extended
 Allow: /
 
 # Canonical Sitemap & LLM Knowledge Document
-Sitemap: https://campussignal.sxuk.edu.in/sitemap.xml
-Host: campussignal.sxuk.edu.in
+Sitemap: https://peter14l.github.io/CampusSignal/sitemap.xml
+Host: peter14l.github.io
 
 # LLM Context File
 # Reference: https://llmstxt.org/
-# https://campussignal.sxuk.edu.in/llms.txt
+# https://peter14l.github.io/CampusSignal/llms.txt

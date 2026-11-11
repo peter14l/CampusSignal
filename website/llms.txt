@@ -3,23 +3,23 @@
 
 CampusSignal is a mobile-first and web application engineered to consolidate fragmented campus communications—including hackathons, campus recruitment drives, academic conferences, cultural fests, workshops, and society circulars—into a low-latency, personalized broadcast feed.
 
-- **Production Custom Domain**: https://campussignal.sxuk.edu.in/
+- **Production Custom Domain**: https://peter14l.github.io/CampusSignal/
 - **Institution**: St. Xavier\'s University, Kolkata (SXUK), Action Area III, New Town, Kolkata 700160, WB, India
 - **Application Architecture**: Flutter 3 (Android/iOS) + Material 3 Expressive (M3E) + Supabase (Postgres & RLS) + Cloudflare R2 + Google Gemini 2.5 Multimodal Vision OCR.
 
 ## Primary Routes & Page Slugs
-- [Landing & Showcase](https://campussignal.sxuk.edu.in/): Production overview, live signal simulation, architecture, and feature demos.
-- [Download APK Hub](https://campussignal.sxuk.edu.in/download/): Split-ABI release downloads (ARM64-v8a, ARMeabi-v7a, x86_64, Universal) with SHA-256 checksums.
-- [Opportunity Feed Web App](https://campussignal.sxuk.edu.in/app/): Real-time personalized opportunity feed with department filtering, instant search, and event modals.
-- [Calendar & Deadlines](https://campussignal.sxuk.edu.in/app/calendar/): Academic calendar with conflict detector and `.ics` semester export.
-- [AI Flyer Studio](https://campussignal.sxuk.edu.in/app/studio/): Multimodal OCR engine parsing event posters into structured JSON.
-- [Broadcast Notifications](https://campussignal.sxuk.edu.in/app/notifications/): High-priority campus signals and urgent registration alarms.
-- [Saved Bookmarks](https://campussignal.sxuk.edu.in/app/saved/): Bookmarked opportunities and calendar sync items.
-- [Academic Profile](https://campussignal.sxuk.edu.in/app/profile/): SXUK department, degree programme, semester, and skill tags.
-- [Sign In Portal](https://campussignal.sxuk.edu.in/auth/): Google OAuth, SXUK Email OTP, and Instant Guest Demo Preview.
-- [Student Onboarding](https://campussignal.sxuk.edu.in/onboarding/): Two-step academic department and interest personalization wizard.
-- [Privacy Policy](https://campussignal.sxuk.edu.in/privacy/): DPDP Act 2023 compliance, student data sovereignty, and zero-ad telemetry policy.
-- [Terms of Service](https://campussignal.sxuk.edu.in/terms/): Community broadcast guidelines and fair use policies.
+- [Landing & Showcase](https://peter14l.github.io/CampusSignal/): Production overview, live signal simulation, architecture, and feature demos.
+- [Download APK Hub](https://peter14l.github.io/CampusSignal/download/): Split-ABI release downloads (ARM64-v8a, ARMeabi-v7a, x86_64, Universal) with SHA-256 checksums.
+- [Opportunity Feed Web App](https://peter14l.github.io/CampusSignal/app/): Real-time personalized opportunity feed with department filtering, instant search, and event modals.
+- [Calendar & Deadlines](https://peter14l.github.io/CampusSignal/app/calendar/): Academic calendar with conflict detector and `.ics` semester export.
+- [AI Flyer Studio](https://peter14l.github.io/CampusSignal/app/studio/): Multimodal OCR engine parsing event posters into structured JSON.
+- [Broadcast Notifications](https://peter14l.github.io/CampusSignal/app/notifications/): High-priority campus signals and urgent registration alarms.
+- [Saved Bookmarks](https://peter14l.github.io/CampusSignal/app/saved/): Bookmarked opportunities and calendar sync items.
+- [Academic Profile](https://peter14l.github.io/CampusSignal/app/profile/): SXUK department, degree programme, semester, and skill tags.
+- [Sign In Portal](https://peter14l.github.io/CampusSignal/auth/): Google OAuth, SXUK Email OTP, and Instant Guest Demo Preview.
+- [Student Onboarding](https://peter14l.github.io/CampusSignal/onboarding/): Two-step academic department and interest personalization wizard.
+- [Privacy Policy](https://peter14l.github.io/CampusSignal/privacy/): DPDP Act 2023 compliance, student data sovereignty, and zero-ad telemetry policy.
+- [Terms of Service](https://peter14l.github.io/CampusSignal/terms/): Community broadcast guidelines and fair use policies.
 
 ## Academic Scope
 CampusSignal natively maps all 28 degree programmes at St. Xavier\'s University, Kolkata across:
