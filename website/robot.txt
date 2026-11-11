@@ -1,23 +1,30 @@
 # ==============================================================================
-# CampusSignal — Robots Exclusion Protocol Directives
-# Custom Domain: https://peter14l.github.io/CampusSignal
+# CampusSignal — Robots Exclusion & Generative AI Protocol Directives
+# Base URL: https://peter14l.github.io/CampusSignal
 # ==============================================================================
 
 User-agent: *
 Allow: /
 Disallow: /updates/*.apk$
 
-# AI Agents & Search Crawlers
+# Search Engines & Standard Crawlers
 User-agent: Googlebot
 Allow: /
 
 User-agent: Bingbot
 Allow: /
 
+# Generative Search & AI Answer Engines (GEO / AEO)
 User-agent: GPTBot
 Allow: /
 
+User-agent: ChatGPT-User
+Allow: /
+
 User-agent: ClaudeBot
+Allow: /
+
+User-agent: Claude-Web
 Allow: /
 
 User-agent: PerplexityBot
@@ -26,10 +33,20 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-# Canonical Sitemap & LLM Knowledge Document
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: cohere-ai
+Allow: /
+
+User-agent: Meta-ExternalAgent
+Allow: /
+
+# Canonical XML Sitemap
 Sitemap: https://peter14l.github.io/CampusSignal/sitemap.xml
 Host: peter14l.github.io
 
-# LLM Context File
+# LLM Context Documents (GEO / LLMO Standard)
 # Reference: https://llmstxt.org/
-# https://peter14l.github.io/CampusSignal/llms.txt
+# Quick Overview: https://peter14l.github.io/CampusSignal/llms.txt
+# Deep Technical Context: https://peter14l.github.io/CampusSignal/llms-full.txt

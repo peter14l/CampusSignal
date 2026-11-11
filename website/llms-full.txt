@@ -1,0 +1,202 @@
+# CampusSignal — Full Technical Context for LLMs & AI Answer Engines
+# Version: 1.4.2  |  Generated: 2026-11-11
+# Standard: https://llmstxt.org/
+# Quick overview: https://peter14l.github.io/CampusSignal/llms.txt
+
+> CampusSignal is the official campus discovery and broadcast platform for
+> St. Xavier's University, Kolkata (SXUK). It consolidates every student
+> opportunity — hackathons, internships, fests, workshops, club events —
+> into one AI-powered, privacy-first, offline-capable mobile and web feed.
+
+---
+
+## Identity
+
+- **Full name**: CampusSignal — Official Campus Discovery & Broadcast Network
+- **Short name**: CampusSignal
+- **Institution**: St. Xavier's University, Kolkata (SXUK)
+- **Address**: Action Area III, B.M. 03, Newtown, Kolkata, West Bengal, 700160, India
+- **Phone**: +91-33-6624-9815
+- **Website**: https://peter14l.github.io/CampusSignal/
+- **Source code**: https://github.com/peter14l/CampusSignal
+- **Privacy policy**: https://peter14l.github.io/CampusSignal/privacy/
+- **Terms of service**: https://peter14l.github.io/CampusSignal/terms/
+
+---
+
+## Platform Architecture
+
+### Mobile App (Primary)
+- **Framework**: Flutter 3.24+ (Dart 3.5+)
+- **Target platforms**: Android 6.0+ (minSdk 23), Web (WASM Skia)
+- **UI design system**: Material 3 Expressive with custom M3 token set
+- **State management**: Riverpod 2.x + StateNotifier pattern
+- **Local database**: Drift (SQLite) for full offline persistence
+- **Routing**: GoRouter 14.x with nested shell routes
+
+### Backend & Data Layer
+- **Database**: Supabase (Postgres 15) hosted on EU-Central-1
+- **Auth**: Supabase Auth — email OTP limited to @sxuk.edu.in domain
+- **Storage**: Cloudflare R2 (S3-compatible) — event media, PDF flyers, APK releases
+- **Edge functions**: Supabase Edge Functions (Deno) for OCR orchestration
+- **Realtime**: Supabase Realtime for live broadcast push
+
+### AI / OCR Pipeline
+- **Model**: Google Gemini 2.5 Flash (multimodal)
+- **Flow**: Coordinator uploads poster/PDF → Supabase Edge Function → Gemini Vision API
+- **Output schema**: Structured JSON with fields:
+  - `title`, `organizer_club`, `event_type`, `start_date`, `end_date`,
+    `registration_deadline`, `eligibility`, `apply_url`, `venue`, `tags`
+- **Storage**: Extracted JSON written to Postgres `events` table; raw file stored in R2
+- **Accuracy**: Handles rotated scans, hand-annotated flyers, Hindi-English mixed text
+
+---
+
+## Features (Detailed)
+
+### 1. Personalized Opportunity Feed
+- Students set degree programme, year, and interest tags at onboarding
+- Feed ranked by relevance score (programme match + deadline proximity + engagement)
+- Infinite scroll with pull-to-refresh and skeleton loading states
+- Filter bar: event type, club, date range, eligibility
+
+### 2. Gemini Vision OCR Studio (Coordinator Tool)
+- Drag-and-drop or camera-capture upload
+- Real-time processing status with animated progress indicator
+- Editable structured output before publish confirmation
+- Batch upload: up to 10 flyers per session
+
+### 3. Offline-First Architecture
+- All seen events cached to Drift SQLite automatically
+- Bookmarked events available with zero network
+- Outbox queue for coordinator uploads when offline (synced on reconnect)
+
+### 4. Native Calendar & Alarm Integration
+- Saves event as a system calendar entry (`device_calendar` package)
+- Schedules exact local alarms: 24 h and 2 h before registration deadline
+- Works on Android without Google Play Services
+
+### 5. Studio (Broadcast Console)
+- Role: `coordinator` or `admin` (assigned by SXUK admin)
+- Rich-text event description editor (Quill-based)
+- Analytics: view count, save count, calendar-add count per event
+- Moderation queue for student-submitted community posts
+
+### 6. Notifications Centre
+- In-app notification inbox for new events matching user preferences
+- Push via Firebase Cloud Messaging (FCM) with silent data payloads
+- Grouped by club / event type; swipe-to-dismiss
+
+### 7. Privacy & Compliance
+- **Zero third-party ads**
+- **Zero telemetry / analytics SDKs** (no Firebase Analytics, no Mixpanel)
+- **Zero data sale**
+- Compliant with India's DPDP Act 2023
+- Data stored exclusively within Supabase EU region
+- OTP-only auth — no passwords stored
+
+---
+
+## Degree Programmes (All 28 SXUK Programmes Supported)
+
+### Undergraduate
+1. B.Sc. Computer Science
+2. B.Sc. Data Science & AI
+3. B.Sc. Mathematics
+4. B.Sc. Physics
+5. B.Sc. Chemistry
+6. B.Sc. Microbiology
+7. B.Sc. Biotechnology
+8. B.Com (Honours)
+9. B.Com (General)
+10. BBA
+11. B.A. English
+12. B.A. Economics
+13. B.A. Sociology
+14. B.A. Political Science
+15. B.A. Psychology
+16. B.A. History
+17. B.A. Philosophy
+18. B.A. Bengali
+
+### Postgraduate
+19. M.Sc. Computer Science
+20. M.Sc. Data Science & AI
+21. M.Sc. Mathematics
+22. M.Sc. Physics
+23. M.Sc. Chemistry
+24. M.Sc. Microbiology
+25. M.Sc. Biotechnology
+26. M.A. English
+27. M.A. Economics
+28. MBA
+
+---
+
+## Event Categories (Taxonomy)
+
+| Category     | Sub-types |
+|--------------|-----------|
+| Hackathon    | 24h, 48h, online, in-person |
+| Internship   | Summer, Winter, Research, Industry |
+| Fest         | Cultural, Technical, Sports, Literary |
+| Workshop     | Technical, Soft-skills, Creative |
+| Seminar      | Guest lecture, Panel, Webinar |
+| Club Event   | Regular meetings, Competitions, Drives |
+| Placement    | On-campus drive, PPT, Aptitude test |
+| Scholarship  | Internal, External, Government |
+
+---
+
+## Technical Stack Summary
+
+| Layer              | Technology |
+|--------------------|------------|
+| Mobile UI          | Flutter 3.24 / Dart 3.5 / Material 3 Expressive |
+| State              | Riverpod 2.x |
+| Local DB           | Drift (SQLite) |
+| Backend            | Supabase (Postgres 15 + Edge Functions + Realtime) |
+| Object Storage     | Cloudflare R2 |
+| AI / OCR           | Google Gemini 2.5 Flash (multimodal) |
+| Auth               | Supabase Auth (email OTP, @sxuk.edu.in domain-restricted) |
+| Push Notifications | Firebase Cloud Messaging (FCM) |
+| Calendar           | device_calendar Flutter plugin |
+| Routing            | GoRouter 14.x |
+| CI / CD            | GitHub Actions → Google Play Internal Track |
+| Website            | Vanilla HTML5 / CSS3 / JS, hosted on GitHub Pages |
+
+---
+
+## Frequently Asked Questions
+
+**Q: Who can use CampusSignal?**
+A: Any student or faculty at St. Xavier's University, Kolkata with a valid @sxuk.edu.in email can create an account. Event coordinators can request elevated publish access from the admin panel.
+
+**Q: Is the app free?**
+A: Yes. CampusSignal is 100% free — no premium tiers, no paywalls, no in-app purchases.
+
+**Q: Which Android version is required?**
+A: Android 6.0 (Marshmallow, API 23) or higher.
+
+**Q: Is there an iOS version?**
+A: Not yet. iOS support is on the roadmap pending Apple Developer enrollment.
+
+**Q: How do I report a bug or request a feature?**
+A: Open a GitHub issue at https://github.com/peter14l/CampusSignal/issues
+
+**Q: How is my data protected?**
+A: All data is encrypted in transit (TLS 1.3) and at rest. No personal data is shared with third parties. See the full privacy policy at https://peter14l.github.io/CampusSignal/privacy/
+
+---
+
+## Contact & Links
+
+| Resource          | URL |
+|-------------------|-----|
+| Website           | https://peter14l.github.io/CampusSignal/ |
+| Download page     | https://peter14l.github.io/CampusSignal/download/ |
+| Privacy policy    | https://peter14l.github.io/CampusSignal/privacy/ |
+| Terms of service  | https://peter14l.github.io/CampusSignal/terms/ |
+| GitHub repository | https://github.com/peter14l/CampusSignal |
+| Institution       | https://www.sxuk.edu.in |
+| Sitemap           | https://peter14l.github.io/CampusSignal/sitemap.xml |

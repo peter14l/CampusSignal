@@ -94,16 +94,58 @@
         "url": "https://peter14l.github.io/CampusSignal/",
         "downloadUrl": "https://peter14l.github.io/CampusSignal/download/",
         "softwareVersion": "1.4.2",
-        "aggregateRating": {
-          "@type": "AggregateRating",
-          "ratingValue": "4.9",
-          "ratingCount": "1240"
-        },
+        "featureList": ["Gemini 2.5 Vision OCR", "Offline SQLite persistence", "Native calendar sync", "Material 3 Expressive UI", "Zero-ad privacy-first"],
         "offers": {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "INR"
         }
+      },
+      {
+        "@type": "FAQPage",
+        "@id": "https://peter14l.github.io/CampusSignal/#faq",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Do I need an official SXUK email to use CampusSignal?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes. To maintain an authentic student community and prevent spam, account creation requires verifying your @sxuk.edu.in student email via a secure 6-digit one-time password (OTP)."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the Gemini 2.5 Vision OCR process flyers?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When an event coordinator uploads a poster photo or PDF, our Supabase Edge function sends the document through Gemini 2.5 Flash. It identifies critical details like event title, organizer club, dates, deadlines, eligibility criteria, and application links, outputting structured data into Postgres."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I use the app when I have no internet connection?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. CampusSignal uses Drift SQLite for complete local persistence. Your saved bookmarks, cached event feeds, and scheduled calendar alarms work smoothly even with zero network coverage."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does calendar sync and push notifications work?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "When you save an event, CampusSignal injects an entry into your device's native system calendar and registers exact local alarms for 24 hours and 2 hours prior to the registration deadline."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my personal student data tracked or sold?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Never. CampusSignal contains zero third-party ads, zero tracking SDKs, and zero telemetry analytics. We comply fully with India's Digital Personal Data Protection (DPDP) Act 2023."
+            }
+          }
+        ]
       }
     ]
   }
