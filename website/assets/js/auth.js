@@ -19,8 +19,6 @@ if (window.supabase) {
       storage: window.localStorage
     }
   });
-} else {
-  console.warn('Supabase SDK not yet loaded from CDN. Retrying on load...');
 }
 
 // Ensure getter
@@ -197,13 +195,13 @@ async function signInWithGoogle() {
   const currentOrigin = window.location.origin;
   const currentPath = window.location.pathname.replace(/\\/g, '/');
   
-  let targetPath = '/app/index.html';
+  let targetPath = '/app/';
   if (currentPath.includes('/CampusSignal/website/')) {
-    targetPath = '/CampusSignal/website/app/index.html';
+    targetPath = '/CampusSignal/website/app/';
   } else if (currentPath.includes('/CampusSignal/')) {
-    targetPath = '/CampusSignal/app/index.html';
+    targetPath = '/CampusSignal/app/';
   } else if (currentPath.includes('/website/')) {
-    targetPath = '/website/app/index.html';
+    targetPath = '/website/app/';
   }
 
   const redirectUrl = `${currentOrigin}${targetPath}`;
@@ -266,7 +264,7 @@ async function verifyOtpCode(email, token) {
  */
 function enterGuestMode() {
   localStorage.setItem(GUEST_STORAGE_KEY, JSON.stringify(DEMO_GUEST_USER));
-  window.location.href = '../app/index.html';
+  window.location.href = '../app/';
 }
 
 /**
@@ -279,11 +277,11 @@ async function signOutUser() {
     try {
       await sb.auth.signOut();
     } catch (e) {
-      console.warn('Sign out error:', e);
+      // Silently continue
     }
   }
   // Redirect to Auth or Root
-  window.location.href = '../auth/index.html';
+  window.location.href = '../auth/';
 }
 
 /**
@@ -298,8 +296,8 @@ async function requireAuth(options = { requireCompleteOnboarding: true }) {
     sessionStorage.setItem('cs_auth_redirect', window.location.href);
     // Find relative path to auth
     const authPath = currentPath.includes('/app/') || currentPath.includes('/onboarding/') 
-      ? '../auth/index.html' 
-      : './auth/index.html';
+      ? '../auth/' 
+      : './auth/';
     window.location.href = authPath;
     return null;
   }
@@ -315,7 +313,7 @@ async function requireAuth(options = { requireCompleteOnboarding: true }) {
     const isComplete = profile?.branch && (profile?.metadata?.onboarding_completed || profile?.year);
 
     if (!isComplete && !currentPath.includes('/onboarding/')) {
-      const onboardingPath = currentPath.includes('/app/') ? '../onboarding/index.html' : './onboarding/index.html';
+      const onboardingPath = currentPath.includes('/app/') ? '../onboarding/' : './onboarding/';
       window.location.href = onboardingPath;
       return null;
     }
@@ -338,11 +336,11 @@ async function handlePostLoginRedirect() {
   sessionStorage.removeItem('cs_auth_redirect');
 
   if (!isComplete) {
-    window.location.href = '../onboarding/index.html';
+    window.location.href = '../onboarding/';
   } else if (customRedirect && !customRedirect.includes('/auth/')) {
     window.location.href = customRedirect;
   } else {
-    window.location.href = '../app/index.html';
+    window.location.href = '../app/';
   }
 }
 

@@ -3,17 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Calendar & Deadlines — CampusSignal SXUK</title>
-  <meta name="description" content="Interactive calendar with deadline tracker, conflict detector, and system calendar synchronization.">
+  <title>Academic Calendar &amp; Deadlines — CampusSignal SXUK</title>
+  <meta name="description" content="Track SXUK academic deadlines, hackathon registrations, placement test dates, and export schedule to iCalendar (.ics).">
+  <meta name="keywords" content="CampusSignal Calendar, SXUK Deadlines, Exam Schedule, iCalendar Export, St. Xavier's University">
+  <link rel="canonical" href="https://campussignal.sxuk.edu.in/app/calendar/">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CampusSignal">
+  <meta property="og:url" content="https://campussignal.sxuk.edu.in/app/calendar/">
+  <meta property="og:title" content="Academic Calendar &amp; Deadlines — CampusSignal SXUK">
+  <meta property="og:description" content="Interactive calendar with deadline tracker, conflict detector, and system calendar synchronization.">
+  <meta property="og:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Academic Calendar &amp; Deadlines — CampusSignal SXUK">
+  <meta name="twitter:description" content="Track SXUK academic deadlines, hackathon registrations, and test dates.">
+  <meta name="twitter:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+
+  <!-- Favicon Suite -->
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+  <link rel="shortcut icon" href="../../favicon.ico">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/app.css">
 
-  <style>
+  <!-- Structured Data: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://campussignal.sxuk.edu.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Web App",
+        "item": "https://campussignal.sxuk.edu.in/app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Calendar & Deadlines",
+        "item": "https://campussignal.sxuk.edu.in/app/calendar/"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Scripts -->
+  <script defer src="../../assets/js/catalog.js"></script>
+  <script defer src="../../assets/js/auth.js"></script>
+  <script defer src="../../assets/js/app_nav.js"></script>
     .cal-wrapper {
       background: var(--bg-secondary);
       border: 1px solid var(--border-subtle);
@@ -86,14 +143,6 @@
     }
   </style>
 
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
-  <!-- Supabase JS Client v2 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <!-- App Scripts -->
-  <script src="../../assets/js/catalog.js"></script>
-  <script src="../../assets/js/auth.js"></script>
-  <script src="../../assets/js/app_nav.js"></script>
 </head>
 <body>
 
@@ -107,9 +156,19 @@
       
       <!-- Top Header -->
       <header class="app-header">
-        <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
-          Calendar & Deadline Tracker
-        </h1>
+        <div>
+          <!-- Breadcrumbs -->
+          <nav aria-label="Breadcrumb" class="breadcrumbs" style="margin-bottom: 6px;">
+            <ol>
+              <li><a href="../../">Home</a></li>
+              <li><a href="../">App</a></li>
+              <li><span aria-current="page">Calendar</span></li>
+            </ol>
+          </nav>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Calendar &amp; Deadline Tracker
+          </h1>
+        </div>
         <div class="header-actions">
           <button id="btn-export-all-ics" class="btn btn-sm btn-primary">
             <i data-lucide="download" style="width: 16px; height: 16px; margin-right: 6px;"></i>

@@ -3,52 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AI Flyer Studio — CampusSignal SXUK</title>
-  <meta name="description" content="Extract structured event data from campus flyers and posters with multimodal AI vision OCR.">
+  <title>AI Flyer Studio &amp; Vision OCR — CampusSignal SXUK</title>
+  <meta name="description" content="Extract structured event schedules, eligibility criteria, deadlines, and registration links from campus flyers using Google Gemini 2.5 Vision OCR.">
+  <meta name="keywords" content="CampusSignal Studio, Gemini Vision OCR, Poster Parser, Flyer Extraction, SXUK">
+  <link rel="canonical" href="https://campussignal.sxuk.edu.in/app/studio/">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CampusSignal">
+  <meta property="og:url" content="https://campussignal.sxuk.edu.in/app/studio/">
+  <meta property="og:title" content="AI Flyer Studio &amp; Vision OCR — CampusSignal SXUK">
+  <meta property="og:description" content="Extract structured event data from campus flyers and posters with multimodal AI vision OCR.">
+  <meta property="og:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="AI Flyer Studio — CampusSignal SXUK">
+  <meta name="twitter:description" content="Extract structured event details from poster images using multimodal AI.">
+  <meta name="twitter:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+
+  <!-- Favicon Suite -->
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+  <link rel="shortcut icon" href="../../favicon.ico">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/app.css">
 
-  <style>
-    .studio-dropzone {
-      border: 2px dashed var(--border-medium);
-      border-radius: var(--radius-xl);
-      padding: 40px 24px;
-      text-align: center;
-      background: var(--bg-secondary);
-      transition: all var(--transition-fast);
-      cursor: pointer;
-    }
-    .studio-dropzone:hover, .studio-dropzone.dragover {
-      border-color: var(--primary);
-      background: var(--bg-tertiary);
-    }
-    .ocr-json-box {
-      background: var(--bg-primary);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-md);
-      padding: 16px;
-      font-family: var(--font-mono);
-      font-size: 0.8125rem;
-      color: #38BDF8;
-      max-height: 280px;
-      overflow-y: auto;
-      white-space: pre-wrap;
-    }
-  </style>
+  <!-- Structured Data: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://campussignal.sxuk.edu.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Web App",
+        "item": "https://campussignal.sxuk.edu.in/app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "AI Flyer Studio",
+        "item": "https://campussignal.sxuk.edu.in/app/studio/"
+      }
+    ]
+  }
+  </script>
 
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
   <!-- Supabase JS Client v2 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- App Scripts -->
-  <script src="../../assets/js/catalog.js"></script>
-  <script src="../../assets/js/auth.js"></script>
-  <script src="../../assets/js/app_nav.js"></script>
+  <script defer src="../../assets/js/catalog.js"></script>
+  <script defer src="../../assets/js/auth.js"></script>
+  <script defer src="../../assets/js/app_nav.js"></script>
 </head>
 <body>
 
@@ -60,9 +82,22 @@
       
       <header class="app-header">
         <div>
-          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
-            AI Flyer & Poster Studio
+          <!-- Breadcrumbs -->
+          <nav aria-label="Breadcrumb" class="breadcrumbs" style="margin-bottom: 6px;">
+            <ol>
+              <li><a href="../../">Home</a></li>
+              <li><a href="../">App</a></li>
+              <li><span aria-current="page">Flyer Studio</span></li>
+            </ol>
+          </nav>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin: 0;">
+            AI Flyer &amp; Poster Studio
           </h1>
+          <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
+            Extract structured event schema from flyers with Gemini 2.5 Vision OCR.
+          </p>
+        </div>
+      </header>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
             Extract registration deadlines, venue, department eligibility, and prizes via Gemini Vision OCR.
           </p>

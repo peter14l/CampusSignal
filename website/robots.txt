@@ -1,0 +1,35 @@
+# ==============================================================================
+# CampusSignal — Robots Exclusion Protocol Directives
+# Custom Domain: https://campussignal.sxuk.edu.in
+# ==============================================================================
+
+User-agent: *
+Allow: /
+Disallow: /updates/*.apk$
+
+# AI Agents & Search Crawlers
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+# Canonical Sitemap & LLM Knowledge Document
+Sitemap: https://campussignal.sxuk.edu.in/sitemap.xml
+Host: campussignal.sxuk.edu.in
+
+# LLM Context File
+# Reference: https://llmstxt.org/
+# https://campussignal.sxuk.edu.in/llms.txt

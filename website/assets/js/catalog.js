@@ -315,7 +315,6 @@ const SXUK_CATALOG = {
         .order('starts_at', { ascending: true });
 
       if (error) {
-        console.warn('Supabase fetch events notice:', error.message);
         return [];
       }
 
@@ -345,7 +344,6 @@ const SXUK_CATALOG = {
 
       return [];
     } catch (e) {
-      console.error('Error fetching live events:', e);
       return [];
     }
   },

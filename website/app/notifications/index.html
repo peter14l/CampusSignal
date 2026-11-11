@@ -3,24 +3,74 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Broadcast Signals & Alarms — CampusSignal SXUK</title>
-  <meta name="description" content="Campus-wide broadcast signals, deadline reminders, and faculty announcements.">
+  <title>Broadcast Signals &amp; Department Alarms — CampusSignal SXUK</title>
+  <meta name="description" content="Campus-wide broadcast signals, departmental announcements, registration alerts, and Dean moderation updates for SXUK.">
+  <meta name="keywords" content="CampusSignal Notifications, SXUK Broadcasts, Department Alarms, St. Xavier's University">
+  <link rel="canonical" href="https://campussignal.sxuk.edu.in/app/notifications/">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../../assets/img/app_logo.png">
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CampusSignal">
+  <meta property="og:url" content="https://campussignal.sxuk.edu.in/app/notifications/">
+  <meta property="og:title" content="Broadcast Signals &amp; Alarms — CampusSignal SXUK">
+  <meta property="og:description" content="Campus-wide broadcast signals, deadline reminders, and faculty announcements.">
+  <meta property="og:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Broadcast Signals &amp; Alarms — CampusSignal SXUK">
+  <meta name="twitter:description" content="Campus-wide broadcast signals and faculty announcements.">
+  <meta name="twitter:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+
+  <!-- Favicon Suite -->
+  <link rel="icon" type="image/svg+xml" href="../../favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../../favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../../apple-touch-icon.png">
+  <link rel="shortcut icon" href="../../favicon.ico">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="../../assets/css/main.css">
   <link rel="stylesheet" href="../../assets/css/app.css">
 
+  <!-- Structured Data: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://campussignal.sxuk.edu.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Web App",
+        "item": "https://campussignal.sxuk.edu.in/app/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Broadcast Signals",
+        "item": "https://campussignal.sxuk.edu.in/app/notifications/"
+      }
+    ]
+  }
+  </script>
+
   <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
   <!-- Supabase JS Client v2 CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <!-- App Scripts -->
-  <script src="../../assets/js/catalog.js"></script>
-  <script src="../../assets/js/auth.js"></script>
-  <script src="../../assets/js/app_nav.js"></script>
+  <script defer src="../../assets/js/catalog.js"></script>
+  <script defer src="../../assets/js/auth.js"></script>
+  <script defer src="../../assets/js/app_nav.js"></script>
 </head>
 <body>
 
@@ -32,8 +82,16 @@
       
       <header class="app-header">
         <div>
-          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">
-            Broadcast Signals & Alarms
+          <!-- Breadcrumbs -->
+          <nav aria-label="Breadcrumb" class="breadcrumbs" style="margin-bottom: 6px;">
+            <ol>
+              <li><a href="../../">Home</a></li>
+              <li><a href="../">App</a></li>
+              <li><span aria-current="page">Notifications</span></li>
+            </ol>
+          </nav>
+          <h1 style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary); margin: 0;">
+            Broadcast Signals &amp; Alarms
           </h1>
           <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">
             Targeted notifications filtered by your SXUK department and course.

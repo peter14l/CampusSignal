@@ -227,7 +227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       
       showAlert('Profile configured successfully! Redirecting to App...', false);
       setTimeout(() => {
-        window.location.href = '../app/index.html';
+        window.location.href = '../app/';
       }, 700);
     } catch (err) {
       showAlert(err.message || 'Failed to save academic profile. Please try again.');

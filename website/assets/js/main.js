@@ -3,6 +3,12 @@
  * Modern Vanilla JS + GSAP Micro-Interactions + Dynamic APK Matrix
  */
 
+function safeCreateIcons() {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
+    window.lucide.createIcons();
+  }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initMobileNav();
@@ -49,7 +55,7 @@ function updateThemeIcons(theme) {
       btn.setAttribute('aria-label', 'Switch to Dark Mode');
     }
   });
-  if (window.lucide) {
+  if (window.lucide && typeof window.lucide.createIcons === 'function') {
     window.lucide.createIcons();
   }
 }
@@ -124,22 +130,23 @@ const DEFAULT_VERSION_DATA = {
 
 async function initVersionData() {
   let versionData = DEFAULT_VERSION_DATA;
-  const pathsToTry = [
-    './updates/version.json',
-    '../updates/version.json',
-    '/updates/version.json'
-  ];
+  const isNested = window.location.pathname.includes('/download') ||
+                   window.location.pathname.includes('/privacy') ||
+                   window.location.pathname.includes('/terms') ||
+                   window.location.pathname.includes('/auth') ||
+                   window.location.pathname.includes('/onboarding') ||
+                   window.location.pathname.includes('/app');
+  const path = (window.location.origin && !window.location.origin.startsWith('file:') && window.location.origin !== 'null')
+    ? `${window.location.origin}/updates/version.json`
+    : (isNested ? '../updates/version.json' : './updates/version.json');
 
-  for (const path of pathsToTry) {
-    try {
-      const res = await fetch(path);
-      if (res.ok) {
-        versionData = await res.json();
-        break;
-      }
-    } catch (e) {
-      // fallback smoothly
+  try {
+    const res = await fetch(path);
+    if (res.ok) {
+      versionData = await res.json();
     }
+  } catch (e) {
+    // Silently fallback to DEFAULT_VERSION_DATA
   }
 
   // Update dynamic elements
@@ -291,7 +298,7 @@ function initOpportunityFeed() {
           <p style="font-size: 0.875rem;">Try refining your search keyword or selecting a different category filter.</p>
         </div>
       `;
-      if (window.lucide) window.lucide.createIcons();
+      safeCreateIcons();
       return;
     }
 
@@ -334,7 +341,7 @@ function initOpportunityFeed() {
       </div>
     `).join('');
 
-    if (window.lucide) window.lucide.createIcons();
+    safeCreateIcons();
 
     // Attach bookmark handlers
     document.querySelectorAll('.save-btn').forEach(btn => {
@@ -346,7 +353,7 @@ function initOpportunityFeed() {
         btn.innerHTML = isSaved 
           ? '<i data-lucide="bookmark-check" style="width:14px;height:14px;"></i> Saved' 
           : '<i data-lucide="bookmark" style="width:14px;height:14px;"></i> Save';
-        if (window.lucide) window.lucide.createIcons();
+        safeCreateIcons();
       });
     });
   }
@@ -458,7 +465,7 @@ function initOcrSimulator() {
     if (flyerContainer) flyerContainer.classList.add('scanning');
     triggerBtn.disabled = true;
     triggerBtn.innerHTML = `<i data-lucide="loader-2" class="spin" style="width:16px;height:16px;"></i> Scanning Flyer with Gemini 2.5...`;
-    if (window.lucide) window.lucide.createIcons();
+    safeCreateIcons();
 
     parsedJsonOutput.innerHTML = `<span style="color:var(--accent-amber)">Processing multimodal vision tokens... Extracting structured SXUK schema...</span>`;
 
@@ -469,7 +476,7 @@ function initOcrSimulator() {
       
       const formattedJson = JSON.stringify(OCR_PRESETS[currentPreset].json, null, 2);
       parsedJsonOutput.innerHTML = `<pre style="color:var(--emerald); margin:0;">${syntaxHighlightJson(formattedJson)}</pre>`;
-      if (window.lucide) window.lucide.createIcons();
+      safeCreateIcons();
     }, 1200);
   });
 }
@@ -530,7 +537,7 @@ function initArchDetector() {
     recommendedCard.classList.add('recommended');
   }
 
-  if (window.lucide) window.lucide.createIcons();
+  safeCreateIcons();
 }
 
 /* ==========================================================================
@@ -547,10 +554,10 @@ function initCopyButtons() {
       navigator.clipboard.writeText(text).then(() => {
         const origHtml = btn.innerHTML;
         btn.innerHTML = `<i data-lucide="check" style="width:14px;height:14px;color:var(--emerald);"></i> Copied!`;
-        if (window.lucide) window.lucide.createIcons();
+        safeCreateIcons();
         setTimeout(() => {
           btn.innerHTML = origHtml;
-          if (window.lucide) window.lucide.createIcons();
+          safeCreateIcons();
         }, 2000);
       });
     });

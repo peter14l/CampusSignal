@@ -3,17 +3,113 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Setup Your Academic Profile — CampusSignal</title>
-  <meta name="description" content="Personalize your SXUK CampusSignal experience with academic department filtering and domain interests.">
+  <title>Student Onboarding — Setup Academic Profile | CampusSignal SXUK</title>
+  <meta name="description" content="Configure your St. Xavier's University degree department, academic year, semester, and domain skills for targeted campus opportunity broadcasts.">
+  <meta name="keywords" content="CampusSignal Onboarding, SXUK Degree Selection, Student Profile, St. Xavier's University Kolkata">
+  <link rel="canonical" href="https://campussignal.sxuk.edu.in/onboarding/">
 
-  <!-- Favicon -->
-  <link rel="icon" type="image/png" href="../assets/img/app_logo.png">
+  <!-- OpenGraph / Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="CampusSignal">
+  <meta property="og:url" content="https://campussignal.sxuk.edu.in/onboarding/">
+  <meta property="og:title" content="Student Onboarding — CampusSignal SXUK">
+  <meta property="og:description" content="Personalize your SXUK CampusSignal experience with academic department filtering and domain interests.">
+  <meta property="og:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <!-- Twitter Card -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Student Onboarding — CampusSignal SXUK">
+  <meta name="twitter:description" content="Personalize your SXUK CampusSignal experience with academic department filtering and domain interests.">
+  <meta name="twitter:image" content="https://campussignal.sxuk.edu.in/assets/img/og-preview.png">
+
+  <!-- Favicon Suite -->
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="../favicon-16x16.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+  <link rel="shortcut icon" href="../favicon.ico">
 
   <!-- Stylesheets -->
   <link rel="stylesheet" href="../assets/css/main.css">
   <link rel="stylesheet" href="../assets/css/app.css">
 
-  <style>
+  <!-- Structured Data: BreadcrumbList -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://campussignal.sxuk.edu.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Student Onboarding",
+        "item": "https://campussignal.sxuk.edu.in/onboarding/"
+      }
+    ]
+  }
+  </script>
+
+  <!-- Lucide Icons -->
+  <script defer src="https://cdn.jsdelivr.net/npm/lucide@0.441.0/dist/umd/lucide.min.js"></script>
+  <!-- Supabase JS Client v2 CDN -->
+  <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- App Auth & Catalog Scripts -->
+  <script defer src="../assets/js/catalog.js"></script>
+  <script defer src="../assets/js/auth.js"></script>
+  <script defer src="../assets/js/onboarding.js"></script>
+</head>
+<body style="min-height: 100vh; display: flex; align-items: center; justify-content: center; background: radial-gradient(circle at top left, rgba(79, 85, 222, 0.12), transparent 50%), var(--bg-primary); padding: 24px;">
+
+  <div style="width: 100%; max-width: 580px; background: var(--bg-secondary); border: 1px solid var(--border-medium); border-radius: var(--radius-xl); padding: 36px 32px; box-shadow: var(--shadow-lg);">
+    
+    <!-- Breadcrumbs -->
+    <nav aria-label="Breadcrumb" class="breadcrumbs" style="margin-bottom: 20px;">
+      <ol>
+        <li><a href="../">Home</a></li>
+        <li><span aria-current="page">Student Onboarding</span></li>
+      </ol>
+    </nav>
+
+    <!-- Clear Primary Page Heading (Single H1) -->
+    <div style="text-align: center; margin-bottom: 24px;">
+      <a href="../" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none; margin-bottom: 8px;" aria-label="CampusSignal Home">
+        <img src="../assets/img/app_logo_opt.png" alt="CampusSignal St. Xavier's University Platform Logo" width="36" height="36" style="border-radius: 8px;">
+        <span style="font-size: 1.15rem; font-weight: 800; color: var(--text-primary);">CampusSignal</span>
+      </a>
+      <h1 style="font-size: 1.45rem; font-weight: 800; color: var(--text-primary); margin: 4px 0 0 0;">
+        Setup Your Academic Profile
+      </h1>
+      <p style="font-size: 0.8125rem; color: var(--text-secondary); margin-top: 4px;">
+        St. Xavier's University, Kolkata — Personalized Opportunity Feeds
+      </p>
+    </div>
+
+    <!-- Top Progress Indicators -->
+    <div class="step-pill-indicator">
+      <div id="step-indicator-1" class="step-indicator-item active"></div>
+      <div id="step-indicator-2" class="step-indicator-item"></div>
+    </div>
+
+    <!-- Alert Box -->
+    <div id="onboarding-alert" style="display: none; padding: 12px 16px; border-radius: var(--radius-md); font-size: 0.8125rem; margin-bottom: 20px;"></div>
+
+    <!-- Step 1: Academic Department & Semester -->
+    <div id="step-1-container">
+      <div style="margin-bottom: 24px;">
+        <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;">Step 1 of 2</span>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Academic Programme &amp; Semester</h2>
+        <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
+          CampusSignal uses your official SXUK department to calculate match scores and filter eligibility.
+        </p>
+      </div>
     .step-pill-indicator {
       display: flex;
       align-items: center;
@@ -116,7 +212,7 @@
     <div id="step-1-container">
       <div style="margin-bottom: 24px;">
         <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;">Step 1 of 2</span>
-        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Academic Programme & Semester</h1>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Academic Programme &amp; Semester</h2>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
           CampusSignal uses your official SXUK department to calculate match scores and filter eligibility.
         </p>
@@ -164,7 +260,7 @@
     <div id="step-2-container" style="display: none;">
       <div style="margin-bottom: 24px;">
         <span style="font-size: 0.75rem; font-weight: 700; color: var(--primary); text-transform: uppercase; letter-spacing: 0.08em;">Step 2 of 2</span>
-        <h1 style="font-size: 1.4rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Interests & Tech Skills</h1>
+        <h2 style="font-size: 1.25rem; font-weight: 800; color: var(--text-primary); margin-top: 4px;">Interests &amp; Tech Skills</h2>
         <p style="font-size: 0.875rem; color: var(--text-secondary); margin-top: 4px;">
           Pick the event categories and technical skills that align with your career goals.
         </p>

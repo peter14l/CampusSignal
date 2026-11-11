@@ -19,7 +19,7 @@ function renderAppSidebar(activeTab = 'feed') {
 
   sidebar.innerHTML = `
     <div class="sidebar-header">
-      <img src="${siteRoot}assets/img/app_logo.png" alt="CampusSignal" class="sidebar-logo">
+      <img src="${siteRoot}assets/img/app_logo_opt.png" alt="CampusSignal SXUK Logo" class="sidebar-logo">
       <div>
         <div class="sidebar-brand-name">CampusSignal</div>
         <div style="font-size:0.6875rem; font-weight:700; color:var(--primary); letter-spacing:0.04em;">SXUK OFFICIAL</div>
@@ -27,35 +27,35 @@ function renderAppSidebar(activeTab = 'feed') {
     </div>
 
     <nav class="sidebar-nav">
-      <a href="${appRoot}index.html#feed" data-tab="feed" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
+      <a href="${appRoot}#feed" data-tab="feed" class="sidebar-link ${activeTab === 'feed' ? 'active' : ''}">
         <i data-lucide="compass" style="width:18px;height:18px;"></i>
         <span>Discover Feed</span>
       </a>
-      <a href="${appRoot}index.html#calendar" data-tab="calendar" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
+      <a href="${appRoot}#calendar" data-tab="calendar" class="sidebar-link ${activeTab === 'calendar' ? 'active' : ''}">
         <i data-lucide="calendar" style="width:18px;height:18px;"></i>
         <span>Calendar & Deadlines</span>
         <span class="sidebar-badge" id="nav-calendar-badge" style="display:none;"></span>
       </a>
-      <a href="${appRoot}index.html#saved" data-tab="saved" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
+      <a href="${appRoot}#saved" data-tab="saved" class="sidebar-link ${activeTab === 'saved' ? 'active' : ''}">
         <i data-lucide="bookmark" style="width:18px;height:18px;"></i>
         <span>Saved Opportunities</span>
       </a>
-      <a href="${appRoot}index.html#studio" data-tab="studio" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
+      <a href="${appRoot}#studio" data-tab="studio" class="sidebar-link ${activeTab === 'studio' ? 'active' : ''}">
         <i data-lucide="scan-line" style="width:18px;height:18px;"></i>
         <span>AI Flyer Studio</span>
       </a>
-      <a href="${appRoot}index.html#notifications" data-tab="notifications" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
+      <a href="${appRoot}#notifications" data-tab="notifications" class="sidebar-link ${activeTab === 'notifications' ? 'active' : ''}">
         <i data-lucide="bell" style="width:18px;height:18px;"></i>
         <span>Broadcast Signals</span>
         <span class="sidebar-badge" id="nav-notifications-badge" style="background:var(--accent-amber);color:#000;display:none;"></span>
       </a>
-      <a href="${appRoot}index.html#profile" data-tab="profile" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
+      <a href="${appRoot}#profile" data-tab="profile" class="sidebar-link ${activeTab === 'profile' ? 'active' : ''}">
         <i data-lucide="user" style="width:18px;height:18px;"></i>
         <span>Academic Profile</span>
       </a>
       
       <div style="margin-top:auto; padding-top:16px; border-top:1px solid var(--border-subtle);">
-        <a href="${siteRoot}index.html" class="sidebar-link">
+        <a href="${siteRoot}" class="sidebar-link">
           <i data-lucide="globe" style="width:18px;height:18px;"></i>
           <span>Showcase Portal</span>
         </a>
@@ -104,23 +104,23 @@ function renderMobileNav(activeTab = 'feed', appRoot = './') {
   if (!bottomNav) return;
 
   bottomNav.innerHTML = `
-    <a href="${appRoot}index.html#feed" data-tab="feed" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
+    <a href="${appRoot}#feed" data-tab="feed" class="mobile-nav-item ${activeTab === 'feed' ? 'active' : ''}">
       <i data-lucide="compass" style="width:20px;height:20px;"></i>
       <span>Feed</span>
     </a>
-    <a href="${appRoot}index.html#calendar" data-tab="calendar" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
+    <a href="${appRoot}#calendar" data-tab="calendar" class="mobile-nav-item ${activeTab === 'calendar' ? 'active' : ''}">
       <i data-lucide="calendar" style="width:20px;height:20px;"></i>
       <span>Calendar</span>
     </a>
-    <a href="${appRoot}index.html#saved" data-tab="saved" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
+    <a href="${appRoot}#saved" data-tab="saved" class="mobile-nav-item ${activeTab === 'saved' ? 'active' : ''}">
       <i data-lucide="bookmark" style="width:20px;height:20px;"></i>
       <span>Saved</span>
     </a>
-    <a href="${appRoot}index.html#studio" data-tab="studio" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
+    <a href="${appRoot}#studio" data-tab="studio" class="mobile-nav-item ${activeTab === 'studio' ? 'active' : ''}">
       <i data-lucide="scan-line" style="width:20px;height:20px;"></i>
       <span>Studio</span>
     </a>
-    <a href="${appRoot}index.html#profile" data-tab="profile" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
+    <a href="${appRoot}#profile" data-tab="profile" class="mobile-nav-item ${activeTab === 'profile' ? 'active' : ''}">
       <i data-lucide="user" style="width:20px;height:20px;"></i>
       <span>Profile</span>
     </a>
